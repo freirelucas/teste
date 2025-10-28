@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent-Based Models Research Hub</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agent-Based Models Research Hub</h1>
+            <p class="subtitle">Explore research from OpenAlex and Overton</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search for research (default: agent based models)"
+                    value="agent based models"
+                >
+                <button id="searchBtn" onclick="performSearch()">Search</button>
+            </div>
+
+            <div class="filters">
+                <label>
+                    <input type="checkbox" id="sourceOpenAlex" checked> OpenAlex
+                </label>
+                <label>
+                    <input type="checkbox" id="sourceOverton" checked> Overton
+                </label>
+                <label>
+                    Results per source:
+                    <select id="limitSelect">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <div id="stats" class="stats-section" style="display: none;">
+            <div class="stat-card">
+                <h3>OpenAlex Statistics</h3>
+                <div id="openalexStats">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <h3>Overton Statistics</h3>
+                <div id="overtonStats">Loading...</div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Searching...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="results" class="results-section">
+            <!-- OpenAlex Results -->
+            <div id="openalexResults" class="results-container" style="display: none;">
+                <h2>OpenAlex Results</h2>
+                <div class="results-count" id="openalexCount"></div>
+                <div id="openalexList" class="results-list"></div>
+            </div>
+
+            <!-- Overton Results -->
+            <div id="overtonResults" class="results-container" style="display: none;">
+                <h2>Overton Results</h2>
+                <div class="results-count" id="overtonCount"></div>
+                <div id="overtonList" class="results-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
