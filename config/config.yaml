@@ -1,0 +1,46 @@
+# Overton API Configuration
+overton:
+  base_url: "https://app.overton.io/documents.php"
+  api_key: null  # Set via environment variable OVERTON_API_KEY
+  rate_limit:
+    base_delay: 1.0
+    max_delay: 10.0
+    multiplier: 1.5
+  retry:
+    max_retries: 3
+    base_delay: 5
+
+# OpenAlex API Configuration
+openalex:
+  base_url: "https://api.openalex.org"
+  rate_limit:
+    requests_per_second: 10
+    base_delay: 0.1
+  retry:
+    max_retries: 3
+    base_delay: 2
+
+# Search Configuration
+search:
+  query: "agent based models"
+  max_documents: 50000  # Maximum documents to retrieve from Overton
+  per_page: 100  # Documents per page
+
+# Processing Configuration
+processing:
+  batch_size: 50  # For OpenAlex metadata retrieval
+  checkpoint_frequency: 10  # Save checkpoint every N batches
+
+# Analysis Configuration
+analysis:
+  top_n: 10  # Number of top items to show in analysis
+  min_co_citations: 2  # Minimum co-citations for network edges
+
+# Output Configuration
+output:
+  data_dir: "data"
+  results_dir: "results"
+  figures_dir: "results/figures"
+  reports_dir: "results/reports"
+  figure_format: "png"
+  figure_dpi: 300
