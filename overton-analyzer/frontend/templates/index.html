@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overton Policy Citation Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🔬 Overton Policy Citation Analyzer</h1>
+            <p class="subtitle">Comprehensive bibliometric analysis of research impact on policy documents</p>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="card">
+                <h2>Search Configuration</h2>
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label for="apiKey">Overton API Key *</label>
+                        <input type="password" id="apiKey" placeholder="Enter your Overton API key" required>
+                        <small>Get your API key from <a href="https://overton.io/" target="_blank">overton.io</a></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="query">Search Query *</label>
+                        <input type="text" id="query" value="agent based models" placeholder="e.g., climate change, machine learning" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxResults">Maximum Results</label>
+                        <input type="number" id="maxResults" value="200" min="10" max="500">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="searchBtn">
+                        <span id="searchBtnText">🔍 Start Analysis</span>
+                        <span id="searchBtnLoader" class="loader" style="display:none;"></span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section class="progress-section" id="progressSection" style="display:none;">
+            <div class="card">
+                <h3>Analysis Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p id="progressText">Initializing...</p>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display:none;">
+
+            <!-- Overview -->
+            <div class="card">
+                <h2>📊 Overview</h2>
+                <div class="stats-grid" id="overviewStats"></div>
+            </div>
+
+            <!-- Tabs for different analyses -->
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="showTab('bibliometric')">📚 Bibliometric</button>
+                    <button class="tab-btn" onclick="showTab('network')">🔗 Network</button>
+                    <button class="tab-btn" onclick="showTab('temporal')">📈 Temporal</button>
+                    <button class="tab-btn" onclick="showTab('thematic')">🎯 Thematic</button>
+                    <button class="tab-btn" onclick="showTab('geographic')">🌍 Geographic</button>
+                    <button class="tab-btn" onclick="showTab('sectors')">🏛️ Sectors</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div id="bibliometric" class="tab-content active">
+                    <h3>Bibliometric Analysis</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-item">
+                            <h4>Basic Statistics</h4>
+                            <div id="basicStats"></div>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Top Cited Works</h4>
+                            <div id="topCited"></div>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Top Authors</h4>
+                            <div id="topAuthors"></div>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Top Institutions</h4>
+                            <canvas id="institutionsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="network" class="tab-content">
+                    <h3>Co-Citation Network Analysis</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-item full-width">
+                            <h4>Network Visualization</h4>
+                            <div id="networkViz"></div>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Network Statistics</h4>
+                            <div id="networkStats"></div>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Top Central Nodes (PageRank)</h4>
+                            <div id="centralNodes"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="temporal" class="tab-content">
+                    <h3>Temporal Analysis</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-item full-width">
+                            <h4>Publications Over Time</h4>
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                        <div class="analysis-item full-width">
+                            <h4>Emerging Topics</h4>
+                            <div id="emergingTopics"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="thematic" class="tab-content">
+                    <h3>Thematic Analysis</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-item">
+                            <h4>Top Topics</h4>
+                            <canvas id="topicsChart"></canvas>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>SDG Coverage</h4>
+                            <canvas id="sdgChart"></canvas>
+                        </div>
+                        <div class="analysis-item full-width">
+                            <h4>Topic Co-occurrence</h4>
+                            <div id="topicCooccurrence"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="geographic" class="tab-content">
+                    <h3>Geographic Analysis</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-item">
+                            <h4>Top Countries</h4>
+                            <canvas id="countriesChart"></canvas>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Regional Distribution</h4>
+                            <canvas id="regionsChart"></canvas>
+                        </div>
+                        <div class="analysis-item full-width">
+                            <h4>International Collaborations</h4>
+                            <div id="collaborations"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sectors" class="tab-content">
+                    <h3>Sector Comparison</h3>
+                    <div class="analysis-grid">
+                        <div class="analysis-item">
+                            <h4>Policy Distribution by Sector</h4>
+                            <canvas id="sectorDistChart"></canvas>
+                        </div>
+                        <div class="analysis-item">
+                            <h4>Citation Patterns</h4>
+                            <div id="sectorCitations"></div>
+                        </div>
+                        <div class="analysis-item full-width">
+                            <h4>Sector-Specific Topics</h4>
+                            <div id="sectorTopics"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="card">
+                <h3>📤 Export Results</h3>
+                <div class="export-buttons">
+                    <button class="btn btn-secondary" onclick="exportReport('json')">📋 Export JSON</button>
+                    <button class="btn btn-secondary" onclick="exportReport('excel')">📊 Export Excel</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
