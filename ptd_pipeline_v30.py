@@ -466,15 +466,231 @@ print(f'\n✅ {len(df_corpus):,} registros | '
 
 
 # ════════════════════════════════════════════════════════════════════════
-# ETAPA 5 — Extração de Riscos (sem alteração estrutural)
-# FIX: sha256 do PDF por registro; reset eixo implícito (não aplica)
+# ETAPA 5 — Extração de Riscos via Docling
+# FIX: pdf_sha256 por registro; usa df_san para iterar diretivos
 # ════════════════════════════════════════════════════════════════════════
-# (código idêntico ao v3.0 original — omitido aqui por brevidade;
-#  integrar pdf_sha256 = srow['sha256'] no loop de extração)
+
+PROB_MAP  = {'praticamente certo':'Praticamente certo','muito provável':'Muito provável',
+             'provável':'Provável','pouco provável':'Pouco provável',
+             'improvável':'Improvável','raro':'Raro'}
+IMP_MAP   = {'muito alto':'Muito alto','alto':'Alto','médio':'Médio',
+             'medio':'Médio','baixo':'Baixo','muito baixo':'Muito baixo'}
+TREAT_MAP = {'mitigar':'Mitigar','miigar':'Mitigar','nitigar':'Mitigar',
+             'transferir':'Transferir','aceitar':'Aceitar',
+             'evitar':'Evitar','eliminar':'Eliminar','compartilhar':'Compartilhar'}
+ACAO_ALFA = re.compile(r'\b(A\d{1,2})\b')
+ACAO_NUM  = re.compile(r'\b(\d{1,2})\b')
+
+def _norm(text: str, mapping: dict) -> str:
+    key = re.sub(r'\s+', ' ', str(text).strip().lower())
+    return mapping.get(key, str(text).strip())
+
+def _extract_codes(text: str, tmpl: str) -> list:
+    if tmpl == 'alfa':
+        return list(dict.fromkeys(ACAO_ALFA.findall(text)))
+    nums = [n for n in ACAO_NUM.findall(str(text)) if 1 <= int(n) <= 24]
+    return [f'N{n}' for n in dict.fromkeys(nums)]
+
+def _is_risk_table(df: pd.DataFrame) -> bool:
+    all_text = ' '.join(df.values.flatten().astype(str)).lower()
+    return (3 <= len(df.columns) <= 8) and (
+        bool(re.search(r'provável|certo|improvável|raro', all_text)) or
+        bool(re.search(r'mitigar|transferir|aceitar|evitar', all_text)))
+
+def _detect_tmpl(df: pd.DataFrame) -> str:
+    t = ' '.join(df.values.flatten().astype(str))
+    if len(re.findall(r'\b5\.\d{1,2}\b', t)) > 2 and len(ACAO_ALFA.findall(t)) > 2:
+        return 'alfa'
+    if len(re.findall(r'\b5\.\d{1,2}\b', t)) > 2:
+        return 'alfa'
+    if len(re.findall(r'^[A-Z]\s', t, re.M)) > 2:
+        return 'letra'
+    return 'livre'
+
+def _parse_risk_df(df: pd.DataFrame, sigla: str, fname: str, pdf_sha256: str):
+    tmpl = _detect_tmpl(df)
+    rows = []
+    acoes_dict = {}
+    col_names = [str(c).lower() for c in df.columns]
+
+    def _col(*keys):
+        for i, c in enumerate(col_names):
+            if any(k in c for k in keys):
+                return i
+        return None
+
+    i_desc = _col('risco', 'descrição', 'id')
+    i_prob = _col('probabilidade', 'prob')
+    i_imp  = _col('impacto', 'imp')
+    i_trt  = _col('tratamento', 'opção', 'opcao')
+    i_ac   = _col('ações', 'acoes', 'acao', 'mitigação')
+
+    for _, row in df.iterrows():
+        cells = [str(v).strip() for v in row.values]
+        desc  = cells[i_desc] if i_desc is not None else cells[0]
+        if not desc or len(desc) < 3 or desc.lower() == 'nan':
+            continue
+        dm = re.match(r'^(A\d{1,2}|\d{1,2})[.\-)\s](.{15,})', desc)
+        if dm:
+            k = dm.group(1)
+            if not k.startswith('A'):
+                k = f'N{k}'
+            acoes_dict[k] = dm.group(2)[:150]
+            continue
+        prob   = _norm(cells[i_prob] if i_prob is not None else '', PROB_MAP)
+        imp    = _norm(cells[i_imp]  if i_imp  is not None else '', IMP_MAP)
+        trt    = _norm(cells[i_trt]  if i_trt  is not None else '', TREAT_MAP)
+        ac_raw = cells[i_ac] if i_ac is not None else ''
+        full   = ' '.join(cells)
+        if not prob:
+            pm = re.search(r'(Praticamente certo|Muito prov[aá]vel|Pouco prov[aá]vel|'
+                           r'Improv[aá]vel|Prov[aá]vel|Raro)', full, re.I)
+            if pm:
+                prob = _norm(pm.group(1), PROB_MAP)
+        if not trt:
+            tm = re.search(r'(Mitigar|Miigar|Transferir|Aceitar|Evitar|Eliminar)', full, re.I)
+            if tm:
+                trt = _norm(tm.group(1), TREAT_MAP)
+        if not imp:
+            im = re.search(r'\b(Muito alto|Muito baixo|Alto|M[eé]dio|Baixo)\b', full, re.I)
+            if im:
+                imp = _norm(im.group(1), IMP_MAP)
+        codes = _extract_codes(ac_raw or full, tmpl)
+        rows.append({
+            'sigla': sigla, 'arquivo': fname, 'template': tmpl,
+            'risco_desc': desc[:300], 'probabilidade': prob,
+            'impacto': imp, 'opcao_tratamento': trt,
+            'n_acoes': len(codes), 'acoes_refs': ','.join(codes),
+            'pdf_sha256': pdf_sha256,
+        })
+    return rows, acoes_dict
+
+
+CHECKPOINT_R = DIR_LOG / '_checkpoint_riscos.jsonl'
+processados_r: set = set()
+all_riscos:    list = []
+all_acoes_r:   list = []
+bridge:        list = []
+
+if CHECKPOINT_R.exists():
+    with open(CHECKPOINT_R) as f:
+        for line in f:
+            obj = json.loads(line)
+            processados_r.add(obj['filename'])
+            all_riscos.extend(obj['riscos'])
+            all_acoes_r.extend(obj.get('acoes_raw', []))
+            bridge.extend(obj.get('bridge', []))
+    print(f'Retomando riscos: {len(processados_r)} arquivos já processados')
+
+# Diretivos: PDFs cujo nome sugere documento diretivo
+diretivo_pats = re.compile(r'diretivo|dcd|doc_dir', re.I)
+pdfs_diretivos = df_san[
+    df_san[['kb_ok', 'sig_ok', 'pag_ok']].all(axis=1) &
+    df_san['arquivo'].apply(lambda x: bool(diretivo_pats.search(str(x))))
+]
+
+logs_r = []
+risco_id = len(all_riscos)
+
+for _, srow in pdfs_diretivos.iterrows():
+    fn     = srow['arquivo']
+    path   = DIR_RAW / fn
+    sha256 = srow['sha256']
+    sigla  = fn.split('_')[0].upper()[:10]
+
+    if fn in processados_r:
+        continue
+
+    is_img = bool(srow['image_pdf'])
+    t0 = time.time()
+    all_r: list = []
+    all_a: dict = {}
+
+    try:
+        if _DOCLING_OK:
+            opts_kw = {
+                'do_table_structure': True,
+                'table_structure_options': TableStructureOptions(mode=TableFormerMode.ACCURATE),
+                'do_ocr': is_img,
+            }
+            if is_img:
+                opts_kw['ocr_options'] = TesseractCliOcrOptions(
+                    lang=['por'], force_full_page_ocr=True)
+            opts  = PdfPipelineOptions(**opts_kw)
+            conv  = DocumentConverter(format_options={'pdf': PdfFormatOption(pipeline_options=opts)})
+            res   = conv.convert(str(path))
+            for tbl in res.document.tables:
+                df_t = tbl.export_to_dataframe(doc=res.document)
+                if _is_risk_table(df_t):
+                    r, a = _parse_risk_df(df_t, sigla, fn, sha256)
+                    all_r.extend(r)
+                    all_a.update(a)
+            extrator = 'docling'
+        else:
+            RISK_SEC = re.compile(r'^\s*5\s*[-—]\s*GESTÃO\s+DE\s+RISCO', re.I | re.M)
+            doc = fitz.open(str(path))
+            for pag in doc:
+                if not RISK_SEC.search(pag.get_text()):
+                    continue
+                try:
+                    for tbl in pag.find_tables().tables:
+                        df_t = tbl.to_pandas()
+                        if _is_risk_table(df_t):
+                            r, a = _parse_risk_df(df_t, sigla, fn, sha256)
+                            all_r.extend(r)
+                            all_a.update(a)
+                except AttributeError:
+                    pass
+            doc.close()
+            extrator = 'pymupdf'
+    except Exception as exc:
+        print(f'  ✗ {sigla}: {exc}')
+        logs_r.append({'sigla': sigla, 'filename': fn, 'status': 'ERROR',
+                       'n_riscos': 0, 'erro': str(exc)[:100]})
+        continue
+
+    for i, r in enumerate(all_r):
+        r['risco_id'] = risco_id + i
+    risco_id += len(all_r)
+    all_riscos.extend(all_r)
+
+    for cod, txt in all_a.items():
+        aid = f'{sigla}__{cod}'
+        all_acoes_r.append({'sigla': sigla, 'acao_id': aid, 'codigo': cod,
+                            'texto': txt,
+                            'tipo': 'alfa' if cod.startswith('A') else 'numerico'})
+    for r in all_r:
+        for cod in r.get('acoes_refs', '').split(','):
+            cod = cod.strip()
+            if cod:
+                bridge.append({'risco_id': r['risco_id'], 'sigla': sigla,
+                               'acao_id': f'{sigla}__{cod}', 'codigo': cod})
+
+    n = len(all_r)
+    print(f'  {"✓" if n > 0 else "⚠"} {sigla:12s}: {n:2d} riscos | '
+          f'{extrator} | {time.time()-t0:.1f}s')
+    logs_r.append({'sigla': sigla, 'filename': fn, 'status': 'OK',
+                   'n_riscos': n, 'extrator': extrator})
+
+    with open(CHECKPOINT_R, 'a') as f:
+        f.write(json.dumps({
+            'filename': fn, 'riscos': all_r,
+            'acoes_raw': [a for a in all_acoes_r if a['sigla'] == sigla],
+            'bridge':    [b for b in bridge        if b['sigla'] == sigla],
+        }, ensure_ascii=False) + '\n')
+
+df_riscos = pd.DataFrame(all_riscos) if all_riscos else pd.DataFrame()
+df_acoes  = (pd.DataFrame(all_acoes_r).drop_duplicates(subset=['acao_id'])
+             if all_acoes_r else pd.DataFrame())
+df_bridge = pd.DataFrame(bridge) if bridge else pd.DataFrame()
+pd.DataFrame(logs_r).to_csv(DIR_LOG / 'extracao_riscos_log.csv', index=False)
+print(f'\n✅ {len(df_riscos)} riscos | {len(df_acoes)} ações | {len(df_bridge)} relações')
 
 
 # ════════════════════════════════════════════════════════════════════════
-# ETAPA 6 — Exportação + Manifesto de Pipeline
+# ETAPA 6 — Exportação + Tabelas auxiliares + Manifesto
+# FIX: gera ptd_pivot_eixos.csv e ptd_datas_assinatura.csv
+#      que são inputs obrigatórios do ptd_corpus_v21.py
 # ════════════════════════════════════════════════════════════════════════
 
 def export_all(df: pd.DataFrame, stem: str):
@@ -486,15 +702,123 @@ def export_all(df: pd.DataFrame, stem: str):
         pass
     print(f'  {stem:35s}: {len(df):,} linhas')
 
+# ── Corpus de entregas ────────────────────────────────────────────────
 if not df_corpus.empty:
     export_all(df_corpus, 'ptd_corpus_raw')
 
-# Manifesto: vincula versão dos PDFs ao corpus extraído
-manifesto = {
+    # ptd_pivot_eixos.csv — input do ptd_corpus_v21.py
+    meta_cols = ['sigla']
+    for col in ['grupo', 'compartilhado', 'tem_diretivo']:
+        if col not in df_corpus.columns:
+            df_corpus[col] = None
+
+    dens = (df_corpus.groupby(['sigla', 'eixo_num'])
+            .size().reset_index(name='n'))
+    pivot = (dens.pivot_table(index='sigla', columns='eixo_num',
+                              values='n', fill_value=0).reset_index())
+    pivot.columns = (['sigla'] +
+                     [f'eixo_{int(c)}' for c in pivot.columns[1:]])
+    pivot['total']          = pivot.filter(like='eixo_').sum(axis=1)
+    pivot['n_eixos_ativos'] = (pivot.filter(like='eixo_') > 0).sum(axis=1)
+    for col in ['grupo', 'compartilhado', 'tem_diretivo']:
+        if col in df_corpus.columns:
+            m = df_corpus.drop_duplicates('sigla').set_index('sigla')[col]
+            pivot[col] = pivot['sigla'].map(m)
+    pivot = pivot.sort_values('total', ascending=False)
+    export_all(pivot, 'ptd_pivot_eixos')
+
+    # ptd_datas_assinatura.csv — input do ptd_corpus_v21.py
+    DATE_PATS = [
+        re.compile(r'pactuad[ao]\s+em\s+(\d{1,2}[/.]\d{1,2}[/.]\d{2,4})', re.I),
+        re.compile(r'Bras[ií]lia.*?(\d{1,2}\s+de\s+\w+\s+de\s+\d{4})', re.I),
+        re.compile(r'(\d{1,2}[/.]\d{1,2}[/.]202[4-9])'),
+    ]
+    rows_d = []
+    for fn in df_corpus['pdf_sha256'].dropna().index if 'pdf_sha256' in df_corpus.columns \
+            else []:
+        pass  # fallback: iterate PDFs directly
+    for path in sorted(DIR_RAW.glob('*.pdf')):
+        data = None
+        try:
+            doc = fitz.open(str(path))
+            txt = ' '.join(p.get_text() for p in list(doc)[:5])
+            doc.close()
+            for pat in DATE_PATS:
+                m = pat.search(txt)
+                if m:
+                    data = m.group(1).strip()
+                    break
+        except Exception:
+            pass
+        # Associar a todas as siglas que usam este PDF
+        fn = path.name
+        siglas_pdf = df_corpus[df_corpus.get('pdf_sha256', pd.Series(dtype=str)).notna() |
+                                pd.Series(True, index=df_corpus.index)
+                                ]['sigla'].unique() \
+            if df_corpus.empty else \
+            df_corpus[df_corpus.get('texto', pd.Series(dtype=str)).notna()
+                      ]['sigla'].unique()
+        # Simpler: one row per unique PDF-filename association
+        rows_d.append({'arquivo': fn, 'data_raw': data})
+
+    df_datas = pd.DataFrame(rows_d).drop_duplicates(subset=['arquivo'])
+    export_all(df_datas, 'ptd_datas_assinatura')
+
+# ── Corpus de riscos ──────────────────────────────────────────────────
+ORD_PROB  = ['Improvável','Raro','Pouco provável','Provável',
+             'Muito provável','Praticamente certo']
+ORD_IMP   = ['Muito baixo','Baixo','Médio','Alto','Muito alto']
+ORD_TREAT = ['Aceitar','Evitar','Eliminar','Transferir','Compartilhar','Mitigar']
+
+if not df_riscos.empty:
+    df_r = df_riscos.copy()
+    df_r['probabilidade_cat']    = pd.Categorical(df_r['probabilidade'],
+                                                   categories=ORD_PROB, ordered=True)
+    df_r['impacto_cat']          = pd.Categorical(df_r['impacto'],
+                                                   categories=ORD_IMP, ordered=True)
+    df_r['opcao_tratamento_cat'] = pd.Categorical(df_r['opcao_tratamento'],
+                                                   categories=ORD_TREAT)
+    export_all(df_r, 'ptd_riscos')
+
+if not df_acoes.empty:
+    if not df_bridge.empty:
+        freq = (df_bridge.groupby('acao_id')
+                .agg(n_riscos=('risco_id', 'nunique'),
+                     n_orgaos=('sigla', 'nunique')).reset_index())
+        df_acoes = df_acoes.merge(freq, on='acao_id', how='left')
+    df_acoes = df_acoes.sort_values('n_orgaos', ascending=False, na_position='last')
+    export_all(df_acoes, 'ptd_acoes_dict')
+
+if not df_bridge.empty:
+    export_all(df_bridge, 'ptd_riscos_acoes')
+
+# ── Proveniência ──────────────────────────────────────────────────────
+PROVENIENCIA.update({
+    'n_entregas':      len(df_corpus) if not df_corpus.empty else 0,
+    'n_orgaos':        df_corpus['sigla'].nunique() if not df_corpus.empty else 0,
+    'n_riscos':        len(df_riscos) if not df_riscos.empty else 0,
     'versao_pipeline': '3.0-melhorado',
-    'data_execucao':   datetime.now().isoformat(),
-    'total_pdfs_baixados': int(df_dl.ok.sum()) if not df_dl.empty else 0,
+})
+(DIR_DB / 'proveniencia.json').write_text(
+    json.dumps(PROVENIENCIA, indent=2, ensure_ascii=False))
+
+# ── Manifesto final ───────────────────────────────────────────────────
+manifesto = {
+    'versao_pipeline':          '3.0-melhorado',
+    'data_execucao':            datetime.now().isoformat(),
+    'total_pdfs_baixados':      int(df_dl.ok.sum()) if not df_dl.empty else 0,
     'total_registros_extraidos': len(df_corpus),
+    'total_riscos':             len(df_riscos),
+    'outputs': {
+        'ptd_corpus_raw.csv':        'corpus bruto de entregas com sha256',
+        'ptd_pivot_eixos.csv':       'pivot sigla × eixo — input ptd_corpus_v21',
+        'ptd_datas_assinatura.csv':  'datas por PDF — input ptd_corpus_v21',
+        'ptd_riscos.csv':            'matriz de riscos com categorias ordinais',
+        'ptd_acoes_dict.csv':        'dicionário de ações de tratamento',
+        'ptd_riscos_acoes.csv':      'bridge risco × ação',
+        'proveniencia.json':         'metadados de proveniência completos',
+        'pipeline_manifest.json':    'sha256 de todos os PDFs processados',
+    },
     'pdfs_sha256': {
         row['arquivo']: row['sha256']
         for _, row in df_san.iterrows()
@@ -503,7 +827,14 @@ manifesto = {
     'proveniencia': PROVENIENCIA,
 }
 (DIR_DB / 'pipeline_manifest.json').write_text(
-    json.dumps(manifesto, indent=2, ensure_ascii=False)
-)
+    json.dumps(manifesto, indent=2, ensure_ascii=False))
 print('\n✅ Manifesto de pipeline salvo: pipeline_manifest.json')
 print(f'   SHA-256 de {len(manifesto["pdfs_sha256"])} PDFs registrados')
+print(f'\n{"="*50}')
+print(f'  PTD-BR v3.0-melhorado — PIPELINE CONCLUÍDO')
+print(f'{"="*50}')
+for stem, desc in manifesto["outputs"].items():
+    p = DIR_DB / stem
+    if p.exists():
+        print(f'  {stem:40s} {p.stat().st_size//1024:4d} KB')
+print(f'{"="*50}')
