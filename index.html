@@ -149,6 +149,22 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .kzone{cursor:pointer;transition:opacity .18s}
 .kzone:hover{opacity:.9!important}
 .kzone-label{pointer-events:none;font-size:7px;dominant-baseline:middle;text-anchor:middle}
+/* BELT BAR */
+#belt-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  z-index:8;display:flex;gap:5px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:20px;padding:4px 8px}
+.bb-btn{background:none;border:none;cursor:pointer;font-size:9px;
+  padding:3px 8px;border-radius:12px;color:var(--text2);transition:all .18s;letter-spacing:.04em}
+.bb-btn.on{background:var(--bg3);font-weight:700}
+/* MODE BAR */
+#mode-bar{position:absolute;top:12px;right:12px;z-index:8;display:flex;gap:4px}
+.mode-btn{background:var(--bg2);border:1px solid var(--border);cursor:pointer;
+  font-size:10px;padding:4px 10px;border-radius:12px;color:var(--text2);transition:all .18s}
+.mode-btn.on{color:var(--gold);border-color:var(--gold)}
+/* PLATONIC LEGEND */
+#platonic-legend{padding-bottom:8px}
+.pcell{padding:4px;border-radius:6px;transition:background .18s}
+.pcell:hover{opacity:1!important}
 </style></head><body>
 <div id="app">
 <div id="sidebar">
@@ -175,6 +191,11 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 <div id="main">
   <div class="panel active" id="p-constelacao">
     <div id="cv-wrap">
+      <div id="belt-bar"></div>
+      <div id="mode-bar">
+        <button class="mode-btn on" id="mode-mandala" onclick="setMode('mandala')">◉ Mandala</button>
+        <button class="mode-btn" id="mode-chord" onclick="setMode('chord')">◎ Corda</button>
+      </div>
       <svg id="cv"></svg>
       <div id="tip"></div>
       <div id="detail">
@@ -232,6 +253,8 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 const NT={acao:'#e8a030',buki_mao:'#e06060',buki_pe:'#4488dd',direcao:'#8866ee',alvo:'#44aa66',dachi:'#cc8833',ido:'#33aaaa'};
 const BS={branca:'#8899bb',laranja:'#cc7722',azul:'#4488ee',amarela:'#ddaa22',verde:'#33aa66',marrom:'#aa6633',kata:'#8844dd',shodan:'#e8d5a3'};
 const BELT_ORDER=['branca','laranja','azul','amarela','verde','marrom','shodan'];
+let activeBelt='all';
+let cvMode='mandala';
 
 const NODES=[
 {id:'tsuki',label:'Tsuki',pt:'soco linear',type:'acao'},
@@ -670,6 +693,23 @@ note:'Sequência de entrada: bloqueio → penetra → chicote → soco. Cada gol
 {id:'r12',name:'Tobigeri (Mae Tobi Geri)',belt:'marrom',
 steps:['Mae Tobi Geri — Hajime!','  ▶ Passo de impulso','  ▶ Joelho de impulso sobe, perna de ataque dispara chusoku no ar','  ▶ Pousar em Zenkutsu Dachi','  ▶ Gyaku Tsuki imediato ao pousar','  ▶ Yame! Mawatte!'],
 note:'Primeiro tobi no currículo. O impulso vem da perna oposta. O Gyaku Tsuki ao pousar é obrigatório no exame.'},
+// Verde — footwork de kumite
+{id:'r13',name:'Okuri-ashi + Oi Tsuki',belt:'verde',cat:'ido',
+steps:['Okuri-ashi Oi Tsuki — Hajime!','  ▶ Kamae: posição de kumite','  ▶ Okuri-ashi: pé da frente avança, pé de trás acompanha deslizando (sem cruzar)','  ▶ Oi Tsuki chudan ao chegar — quadril projeta junto ao deslize','  ▶ Mawatte! Okuri-ashi reverso. Yame!'],
+note:'O deslize mantém o centro baixo e estável. Erro comum: pé de trás bate no de frente antes do soco.'},
+{id:'r14',name:'Kosa-ashi + Mawashi Geri + Gyaku Tsuki',belt:'verde',cat:'ido',
+steps:['Kosa-ashi + Mawashi Geri — Hajime!','  ▶ Kosa-ashi: pé de trás cruza à frente do outro (passo cruzado diagonal)','  ▶ A rotação do kosa pré-carrega o quadril para o circular','  ▶ Mawashi Geri chudan ou jodan','  ▶ Gyaku Tsuki ao pousar','  ▶ Yame! Mawatte!'],
+note:'O kosa-ashi carrega o quadril para o Mawashi. Diferente do okuri: há cruzamento real dos pés.'},
+{id:'r15',name:'Fumi-dashi + Yoko Geri + Uraken',belt:'verde',cat:'ido',
+steps:['Fumi-dashi + Yoko Geri — Hajime!','  ▶ Fumi-dashi: passo largo diagonal 45° para fora da linha de ataque (tai sabaki)','  ▶ Yoko Geri: sokuto lateral ao chudan do oponente','  ▶ Uraken Shomen Uchi ao pousar','  ▶ Yame! Mawatte!'],
+note:'Fumi-dashi é tai sabaki básico — sair da linha de ataque ao contra-atacar. Base do kumite defensivo.'},
+// Marrom — movimentação avançada
+{id:'r16',name:'Oi-ashi + Mae Geri + Mawashi Geri Jodan',belt:'marrom',cat:'ido',
+steps:['Oi-ashi + Nidan Geri — Hajime!','  ▶ Oi-ashi: passo de perseguição (pé de trás empurra pé da frente explosivamente)','  ▶ Mae Geri chudan: câmara, chute, retorna — sem pousar','  ▶ Mawashi Geri jodan com a mesma perna (nidan geri)','  ▶ Gyaku Tsuki ao pousar','  ▶ Yame! Mawatte!'],
+note:'Oi-ashi reduz a distância explosivamente. O nidan (dois chutes da mesma perna) aparece no Saifa kata.'},
+{id:'r17',name:'Tenshin + Gyaku Tsuki + Ura Mawashi',belt:'marrom',cat:'ido',
+steps:['Tenshin + Contra-ataque — Hajime!','  ▶ Tenshin (転身): passo de recuo em ângulo 45° atrás e para o lado, saindo da linha','  ▶ Imediatamente: Gyaku Tsuki ao centro aberto do oponente','  ▶ Ura Mawashi Geri jodan: chute gancho de calcanhar','  ▶ Yame! Mawatte!'],
+note:'Tenshin = transformar o corpo. Não é recuo — é posicionamento estratégico. Presente no Yantsu kata.'},
 ];
 
 const BELT_REQ={
@@ -677,8 +717,8 @@ branca:{exam:'Técnica única em Zenkutsu. Gedan Barai + Oi Tsuki. Kata: Taikyok
 laranja:{exam:'Taikyoku I-III, Sokugi I-III. Renraku básico (2 técnicas). Kihon geiko em Zenkutsu.',ido:'8–10 golpes, renraku simples',min:0},
 azul:{exam:'Pinan I, II, III. Sanchin no Kata. Ido-Geiko com Kiba Dachi e Kokutsu.',ido:'10–15 golpes, 3 renraku distintos',min:0},
 amarela:{exam:'Pinan I-IV. Tsuki no Kata. Kaiten Ido (360°). Renraku de 3 técnicas.',ido:'15–20 golpes, alternância mão/pé',min:0},
-verde:{exam:'Pinan I-V. Gekisai Dai. Footwork de kumite: okuri, fumi, kosa, oi-ashi.',ido:'20–25 golpes, variação de altura',min:0},
-marrom:{exam:'Yantsu, Tensho, Gekisai Sho, Saifa. Yakusoku Kumite. Tameshiwari 1-2 tábuas.',ido:'25–30 golpes, renraku de 4 técnicas',min:0},
+verde:{exam:'Pinan I-V. Gekisai Dai. Footwork de kumite: okuri-ashi, fumi-dashi, kosa-ashi. Renraku de 3–4 técnicas com deslocamento.',ido:'20–25 golpes · footwork: okuri, fumi, kosa · variação de altura e distância',min:0},
+marrom:{exam:'Yantsu, Tensho, Gekisai Sho, Saifa. Yakusoku Kumite. Tenshin, oi-ashi, nidan geri. Tameshiwari 1-2 tábuas.',ido:'25–30 golpes · tai sabaki · renraku de 4+ técnicas com movimentação',min:0},
 shodan:{exam:'Kanku, Seienchin, Garyu, Seipai. 10 lutas de 3min. Tameshiwari 3 tábuas. Teoria: nota mínima 7. Ido-Geiko: mínimo 30 golpes.',ido:'Mínimo 30 golpes (requisito CBKKO/IKO1)',min:30},
 };
 
@@ -827,7 +867,7 @@ svg.setAttribute('viewBox','0 0 '+W+' '+H);
 
 const nodes=NODES.map(n=>Object.assign({},n));
 const edges=buildEdges();
-fixedLayout(nodes,W,H);
+cvMode==='chord'?chordLayout(nodes,W,H):fixedLayout(nodes,W,H);
 SIM_NODES=nodes;SIM_EDGES=edges;SIM_W=W;SIM_H=H;
 
 renderSVG(svg,nodes,edges,W,H);
@@ -1034,14 +1074,32 @@ edges.forEach((e,i)=>{
   const sw=e.tech.kataOnly?'1':isBukiAcao?'2.2':isAlvo?'1.1':'1.4';
   const op='.05';
   const dash=e.tech.kataOnly?'5,4':isDirecao&&!e.tech.kataOnly?'4,3':'none';
+  const ti=TECHS.indexOf(e.tech);
+  const col=BS[e.tech.belt]||'#444';
+  if(cvMode==='chord'){
+    const cpx=((s.x+t.x)/2*.25+W/2*.75).toFixed(1);
+    const cpy=((s.y+t.y)/2*.25+H/2*.75).toFixed(1);
+    const dStr=`M${s.x.toFixed(1)},${s.y.toFixed(1)} Q${cpx},${cpy} ${t.x.toFixed(1)},${t.y.toFixed(1)}`;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.setAttribute('d',dStr);line.setAttribute('fill','none');
+    line.setAttribute('stroke',col);line.setAttribute('stroke-width',sw);
+    line.setAttribute('stroke-dasharray',dash);line.setAttribute('opacity',op);
+    line.setAttribute('data-ti',ti);line.style.cursor='pointer';
+    eg.appendChild(line);
+    const hit=document.createElementNS('http://www.w3.org/2000/svg','path');
+    hit.setAttribute('d',dStr);hit.setAttribute('fill','none');
+    hit.setAttribute('stroke','transparent');hit.setAttribute('stroke-width','10');
+    hit.setAttribute('data-ti',ti);hit.style.cursor='pointer';
+    eg.appendChild(hit);
+  }else{
   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
   line.setAttribute('x1',s.x);line.setAttribute('y1',s.y);
   line.setAttribute('x2',t.x);line.setAttribute('y2',t.y);
-  line.setAttribute('stroke',BS[e.tech.belt]||'#444');
+  line.setAttribute('stroke',col);
   line.setAttribute('stroke-width',sw);
   line.setAttribute('stroke-dasharray',dash);
   line.setAttribute('opacity',op);
-  line.setAttribute('data-ti',TECHS.indexOf(e.tech));
+  line.setAttribute('data-ti',ti);
   line.style.cursor='pointer';
   eg.appendChild(line);
 
@@ -1051,9 +1109,10 @@ edges.forEach((e,i)=>{
   hit.setAttribute('x2',t.x);hit.setAttribute('y2',t.y);
   hit.setAttribute('stroke','transparent');
   hit.setAttribute('stroke-width','10');
-  hit.setAttribute('data-ti',TECHS.indexOf(e.tech));
+  hit.setAttribute('data-ti',ti);
   hit.style.cursor='pointer';
   eg.appendChild(hit);
+  }
 });
 
 // Nodes — 3D wireframe projections of Platonic solids per semantic/grammatical type
@@ -1201,11 +1260,26 @@ det.classList.add('open');
 
 function highlightNode(nid){
 const svg=document.getElementById('cv');
+// Reset prior pulse
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  el.style.strokeDasharray='';el.style.strokeDashoffset='';el.style.transition='';
+});
 svg.querySelectorAll('[data-ti]').forEach(el=>{
   const ti=el.dataset.ti;if(ti===undefined)return;
   const tech=TECHS[+ti];
   const connected=tech&&tech.nodes.includes(nid);
   el.setAttribute('opacity',connected?'.85':'.12');
+  // Pulse animation on connected visible line edges
+  if(connected&&el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'){
+    const dx=parseFloat(el.getAttribute('x2'))-parseFloat(el.getAttribute('x1'));
+    const dy=parseFloat(el.getAttribute('y2'))-parseFloat(el.getAttribute('y1'));
+    const len=Math.hypot(dx,dy);
+    el.style.strokeDasharray=`${len} ${len}`;
+    el.style.strokeDashoffset=`${len}`;
+    el.style.transition=`stroke-dashoffset ${(0.4+Math.random()*.3).toFixed(2)}s ease-out`;
+    requestAnimationFrame(()=>{el.style.strokeDashoffset='0';});
+    setTimeout(()=>{el.style.strokeDasharray='';el.style.strokeDashoffset='';el.style.transition='';},900);
+  }
 });
 svg.querySelectorAll('[data-nid]').forEach(el=>{
   el.setAttribute('opacity',el.dataset.nid===nid?'1':'.22');
@@ -1356,6 +1430,7 @@ hint.style.cssText='font-size:10px;color:var(--text2);text-align:center;margin-t
 hint.textContent='Toque uma zona para filtrar a constelação';
 wrap.appendChild(hint);
 document.getElementById('det-techs').parentNode.insertBefore(wrap,document.getElementById('det-techs'));
+renderPlatonicLegend();
 }
 
 document.getElementById('det-close').onclick=()=>{
@@ -1363,8 +1438,11 @@ const det=document.getElementById('detail');
 det.classList.remove('open','bodymap');
 const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
 const svg=document.getElementById('cv');
-svg.querySelectorAll('[data-ti]').forEach(el=>el.setAttribute('opacity',
-  el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'?'.05':'1'));
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  el.style.strokeDasharray='';el.style.strokeDashoffset='';el.style.transition='';
+  el.setAttribute('opacity',
+    (el.tagName==='line'||el.tagName==='path')&&el.getAttribute('stroke')!=='transparent'?'.05':'1');
+});
 svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','1'));
 svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
 };
@@ -1699,6 +1777,111 @@ fontes.forEach(f=>{
 });
 }
 
+// ===== BELT FILTER =====
+function filterBelt(belt){
+const svg=document.getElementById('cv');
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  const ti=el.dataset.ti;if(ti===undefined)return;
+  const tech=TECHS[+ti];if(!tech)return;
+  if(belt==='all'){el.setAttribute('opacity',
+    (el.tagName==='line'||el.tagName==='path')&&el.getAttribute('stroke')!=='transparent'?'.05':'1');return;}
+  const bi=BELT_ORDER.indexOf(tech.belt);
+  const sel=BELT_ORDER.indexOf(belt);
+  const op=bi===sel?'.85':bi<sel?'.18':'.02';
+  el.setAttribute('opacity',op);
+});
+svg.querySelectorAll('[data-nid]').forEach(el=>{
+  if(belt==='all'){el.setAttribute('opacity','1');return;}
+  const nid=el.dataset.nid;
+  const sel=BELT_ORDER.indexOf(belt);
+  const hasAny=TECHS.some(t=>t.nodes.includes(nid)&&BELT_ORDER.indexOf(t.belt)<=sel);
+  el.setAttribute('opacity',hasAny?'1':'.15');
+});
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
+}
+
+function initBeltBar(){
+const bar=document.getElementById('belt-bar');
+if(!bar)return;
+bar.innerHTML='';
+['all',...BELT_ORDER].forEach(b=>{
+  const btn=document.createElement('button');
+  btn.className='bb-btn'+(b===activeBelt?' on':'');
+  btn.textContent=b==='all'?'OSU':b;
+  if(b!=='all')btn.style.color=BS[b];
+  if(b===activeBelt&&b!=='all')btn.style.background=BS[b]+'33';
+  btn.onclick=()=>{activeBelt=b;initBeltBar();filterBelt(b);};
+  bar.appendChild(btn);
+});
+}
+
+// ===== CHORD DIAGRAM =====
+function chordLayout(nodes,W,H){
+const cx=W/2,cy=H/2,R=Math.min(W,H)*0.40;
+const ORDER=['alvo','acao','direcao','ido','buki_mao','buki_pe','dachi'];
+const GAP=0.12;
+const byType={};nodes.forEach(n=>{if(!byType[n.type])byType[n.type]=[];byType[n.type].push(n);});
+const totalArc=Math.PI*2-ORDER.length*GAP;
+let a=-Math.PI/2;
+ORDER.forEach(type=>{
+  const g=byType[type]||[];
+  if(!g.length)return;
+  const arc=(g.length/nodes.length)*totalArc;
+  const step=arc/g.length;
+  g.forEach((n,i)=>{const ang=a+step*(i+.5);n.x=cx+R*Math.cos(ang);n.y=cy+R*Math.sin(ang);n.vx=0;n.vy=0;});
+  a+=arc+GAP;
+});
+}
+
+function setMode(mode){
+cvMode=mode;
+document.getElementById('mode-mandala').classList.toggle('on',mode==='mandala');
+document.getElementById('mode-chord').classList.toggle('on',mode==='chord');
+initConstellation();
+initBeltBar();
+renderKaratekaPanel();
+}
+
+// ===== PLATONIC LEGEND =====
+function renderPlatonicLegend(){
+const old=document.getElementById('platonic-legend');if(old)old.remove();
+const leg=document.createElement('div');
+leg.id='platonic-legend';
+leg.style.cssText='margin-top:14px;padding-top:12px;border-top:1px solid var(--border)';
+const h=document.createElement('h4');
+h.style.cssText='font-size:10px;letter-spacing:.08em;color:var(--text2);text-transform:uppercase;margin-bottom:10px;text-align:center';
+h.textContent='Sólidos Platônicos';
+leg.appendChild(h);
+const NS='http://www.w3.org/2000/svg';
+const grid=document.createElement('div');
+grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 4px';
+Object.entries(SHAPE_CFG).forEach(([type,cfg])=>{
+  const col=NT[type];
+  const cell=document.createElement('div');
+  cell.style.cssText='display:flex;flex-direction:column;align-items:center;cursor:pointer;opacity:.85;transition:opacity .18s';
+  cell.className='pcell';
+  cell.onclick=()=>{
+    highlightType(type);
+    document.querySelectorAll('#platonic-legend .pcell').forEach(c=>c.style.background='none');
+    cell.style.background=col+'22';
+  };
+  const svgEl=document.createElementNS(NS,'svg');
+  svgEl.setAttribute('viewBox','0 0 44 44');svgEl.setAttribute('width','40');svgEl.setAttribute('height','40');
+  const grp=document.createElementNS(NS,'g');
+  grp.style.cssText=`animation:breathe ${type==='acao'?2.6:type==='dachi'?6:4}s ease-in-out infinite;transform-box:fill-box;transform-origin:center`;
+  renderNodeWireframe(grp,22,22,13,type,col);
+  svgEl.appendChild(grp);
+  const lbl=document.createElement('div');
+  const NAMES={acao:'Fogo',buki_mao:'Fogo·Terra',buki_pe:'Terra',direcao:'Ar',alvo:'Éter',dachi:'Terra',ido:'Água'};
+  lbl.style.cssText=`font-size:7.5px;color:${col};text-align:center;margin-top:1px;letter-spacing:.03em;opacity:.8`;
+  lbl.textContent=NAMES[type]||type;
+  cell.appendChild(svgEl);cell.appendChild(lbl);
+  grid.appendChild(cell);
+});
+leg.appendChild(grid);
+document.getElementById('det-techs').parentNode.appendChild(leg);
+}
+
 // ===== NAVIGATION =====
 function switchTab(tab){
 document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1715,6 +1898,7 @@ btn.onclick=()=>switchTab(btn.dataset.tab);
 function init(){
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
   initConstellation();
+  initBeltBar();
   renderKaratekaPanel();
 }));
 initDict();
