@@ -126,6 +126,45 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .fonte h4{font-size:13px;font-weight:600;margin-bottom:3px}
 .fonte .url{font-size:11px;color:var(--text2);margin-bottom:7px}
 .fonte p{font-size:12px;color:var(--text2);line-height:1.6}
+[data-nid]{transition:opacity .15s;transform-box:fill-box;transform-origin:center}
+@keyframes breathe{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.04)}
+}
+[data-nid][data-type="acao"]   {animation:breathe 2.6s ease-in-out infinite}
+[data-nid][data-type="dachi"]  {animation:breathe 6s   ease-in-out infinite}
+[data-nid][data-type="ido"]    {animation:breathe 3s   ease-in-out infinite}
+[data-nid][data-type="buki_mao"]{animation:breathe 4s  ease-in-out infinite}
+[data-nid][data-type="buki_pe"]{animation:breathe 4s   ease-in-out infinite}
+[data-nid][data-type="direcao"]{animation:breathe 4.5s ease-in-out infinite}
+[data-nid][data-type="alvo"]   {animation:breathe 4s   ease-in-out infinite}
+#detail.bodymap #det-name,
+#detail.bodymap #det-type,
+#detail.bodymap #det-tags,
+#detail.bodymap #det-desc,
+#detail.bodymap #det-techs{display:none}
+#karateka-wrap{padding:4px 0 8px}
+#karateka-wrap h4{font-size:10px;letter-spacing:.08em;color:var(--text2);
+  text-transform:uppercase;margin-bottom:8px;text-align:center}
+.kzone{cursor:pointer;transition:opacity .18s}
+.kzone:hover{opacity:.9!important}
+.kzone-label{pointer-events:none;font-size:7px;dominant-baseline:middle;text-anchor:middle}
+/* BELT BAR */
+#belt-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  z-index:8;display:flex;gap:5px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:20px;padding:4px 8px}
+.bb-btn{background:none;border:none;cursor:pointer;font-size:9px;
+  padding:3px 8px;border-radius:12px;color:var(--text2);transition:all .18s;letter-spacing:.04em}
+.bb-btn.on{background:var(--bg3);font-weight:700}
+/* MODE BAR */
+#mode-bar{position:absolute;top:12px;right:12px;z-index:8;display:flex;gap:4px}
+.mode-btn{background:var(--bg2);border:1px solid var(--border);cursor:pointer;
+  font-size:10px;padding:4px 10px;border-radius:12px;color:var(--text2);transition:all .18s}
+.mode-btn.on{color:var(--gold);border-color:var(--gold)}
+/* PLATONIC LEGEND */
+#platonic-legend{padding-bottom:8px}
+.pcell{padding:4px;border-radius:6px;transition:background .18s}
+.pcell:hover{opacity:1!important}
 </style></head><body>
 <div id="app">
 <div id="sidebar">
@@ -152,6 +191,11 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 <div id="main">
   <div class="panel active" id="p-constelacao">
     <div id="cv-wrap">
+      <div id="belt-bar"></div>
+      <div id="mode-bar">
+        <button class="mode-btn on" id="mode-mandala" onclick="setMode('mandala')">◉ Mandala</button>
+        <button class="mode-btn" id="mode-chord" onclick="setMode('chord')">◎ Corda</button>
+      </div>
       <svg id="cv"></svg>
       <div id="tip"></div>
       <div id="detail">
@@ -209,6 +253,8 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 const NT={acao:'#e8a030',buki_mao:'#e06060',buki_pe:'#4488dd',direcao:'#8866ee',alvo:'#44aa66',dachi:'#cc8833',ido:'#33aaaa'};
 const BS={branca:'#8899bb',laranja:'#cc7722',azul:'#4488ee',amarela:'#ddaa22',verde:'#33aa66',marrom:'#aa6633',kata:'#8844dd',shodan:'#e8d5a3'};
 const BELT_ORDER=['branca','laranja','azul','amarela','verde','marrom','shodan'];
+let activeBelt='all';
+let cvMode='mandala';
 
 const NODES=[
 {id:'tsuki',label:'Tsuki',pt:'soco linear',type:'acao'},
@@ -647,6 +693,23 @@ note:'Sequência de entrada: bloqueio → penetra → chicote → soco. Cada gol
 {id:'r12',name:'Tobigeri (Mae Tobi Geri)',belt:'marrom',
 steps:['Mae Tobi Geri — Hajime!','  ▶ Passo de impulso','  ▶ Joelho de impulso sobe, perna de ataque dispara chusoku no ar','  ▶ Pousar em Zenkutsu Dachi','  ▶ Gyaku Tsuki imediato ao pousar','  ▶ Yame! Mawatte!'],
 note:'Primeiro tobi no currículo. O impulso vem da perna oposta. O Gyaku Tsuki ao pousar é obrigatório no exame.'},
+// Verde — footwork de kumite
+{id:'r13',name:'Okuri-ashi + Oi Tsuki',belt:'verde',cat:'ido',
+steps:['Okuri-ashi Oi Tsuki — Hajime!','  ▶ Kamae: posição de kumite','  ▶ Okuri-ashi: pé da frente avança, pé de trás acompanha deslizando (sem cruzar)','  ▶ Oi Tsuki chudan ao chegar — quadril projeta junto ao deslize','  ▶ Mawatte! Okuri-ashi reverso. Yame!'],
+note:'O deslize mantém o centro baixo e estável. Erro comum: pé de trás bate no de frente antes do soco.'},
+{id:'r14',name:'Kosa-ashi + Mawashi Geri + Gyaku Tsuki',belt:'verde',cat:'ido',
+steps:['Kosa-ashi + Mawashi Geri — Hajime!','  ▶ Kosa-ashi: pé de trás cruza à frente do outro (passo cruzado diagonal)','  ▶ A rotação do kosa pré-carrega o quadril para o circular','  ▶ Mawashi Geri chudan ou jodan','  ▶ Gyaku Tsuki ao pousar','  ▶ Yame! Mawatte!'],
+note:'O kosa-ashi carrega o quadril para o Mawashi. Diferente do okuri: há cruzamento real dos pés.'},
+{id:'r15',name:'Fumi-dashi + Yoko Geri + Uraken',belt:'verde',cat:'ido',
+steps:['Fumi-dashi + Yoko Geri — Hajime!','  ▶ Fumi-dashi: passo largo diagonal 45° para fora da linha de ataque (tai sabaki)','  ▶ Yoko Geri: sokuto lateral ao chudan do oponente','  ▶ Uraken Shomen Uchi ao pousar','  ▶ Yame! Mawatte!'],
+note:'Fumi-dashi é tai sabaki básico — sair da linha de ataque ao contra-atacar. Base do kumite defensivo.'},
+// Marrom — movimentação avançada
+{id:'r16',name:'Oi-ashi + Mae Geri + Mawashi Geri Jodan',belt:'marrom',cat:'ido',
+steps:['Oi-ashi + Nidan Geri — Hajime!','  ▶ Oi-ashi: passo de perseguição (pé de trás empurra pé da frente explosivamente)','  ▶ Mae Geri chudan: câmara, chute, retorna — sem pousar','  ▶ Mawashi Geri jodan com a mesma perna (nidan geri)','  ▶ Gyaku Tsuki ao pousar','  ▶ Yame! Mawatte!'],
+note:'Oi-ashi reduz a distância explosivamente. O nidan (dois chutes da mesma perna) aparece no Saifa kata.'},
+{id:'r17',name:'Tenshin + Gyaku Tsuki + Ura Mawashi',belt:'marrom',cat:'ido',
+steps:['Tenshin + Contra-ataque — Hajime!','  ▶ Tenshin (転身): passo de recuo em ângulo 45° atrás e para o lado, saindo da linha','  ▶ Imediatamente: Gyaku Tsuki ao centro aberto do oponente','  ▶ Ura Mawashi Geri jodan: chute gancho de calcanhar','  ▶ Yame! Mawatte!'],
+note:'Tenshin = transformar o corpo. Não é recuo — é posicionamento estratégico. Presente no Yantsu kata.'},
 ];
 
 const BELT_REQ={
@@ -654,14 +717,27 @@ branca:{exam:'Técnica única em Zenkutsu. Gedan Barai + Oi Tsuki. Kata: Taikyok
 laranja:{exam:'Taikyoku I-III, Sokugi I-III. Renraku básico (2 técnicas). Kihon geiko em Zenkutsu.',ido:'8–10 golpes, renraku simples',min:0},
 azul:{exam:'Pinan I, II, III. Sanchin no Kata. Ido-Geiko com Kiba Dachi e Kokutsu.',ido:'10–15 golpes, 3 renraku distintos',min:0},
 amarela:{exam:'Pinan I-IV. Tsuki no Kata. Kaiten Ido (360°). Renraku de 3 técnicas.',ido:'15–20 golpes, alternância mão/pé',min:0},
-verde:{exam:'Pinan I-V. Gekisai Dai. Footwork de kumite: okuri, fumi, kosa, oi-ashi.',ido:'20–25 golpes, variação de altura',min:0},
-marrom:{exam:'Yantsu, Tensho, Gekisai Sho, Saifa. Yakusoku Kumite. Tameshiwari 1-2 tábuas.',ido:'25–30 golpes, renraku de 4 técnicas',min:0},
+verde:{exam:'Pinan I-V. Gekisai Dai. Footwork de kumite: okuri-ashi, fumi-dashi, kosa-ashi. Renraku de 3–4 técnicas com deslocamento.',ido:'20–25 golpes · footwork: okuri, fumi, kosa · variação de altura e distância',min:0},
+marrom:{exam:'Yantsu, Tensho, Gekisai Sho, Saifa. Yakusoku Kumite. Tenshin, oi-ashi, nidan geri. Tameshiwari 1-2 tábuas.',ido:'25–30 golpes · tai sabaki · renraku de 4+ técnicas com movimentação',min:0},
 shodan:{exam:'Kanku, Seienchin, Garyu, Seipai. 10 lutas de 3min. Tameshiwari 3 tábuas. Teoria: nota mínima 7. Ido-Geiko: mínimo 30 golpes.',ido:'Mínimo 30 golpes (requisito CBKKO/IKO1)',min:30},
 };
 
 // Node lookup
 const NMAP=Object.fromEntries(NODES.map(n=>[n.id,n]));
 const TMAP=Object.fromEntries(TECHS.map(t=>[t.id,t]));
+
+// Platonic solid shape config per node type
+// Grammar → Geometry: acao=Fire/Tetrahedron, dachi=Earth/Cube, direcao=Air/Octahedron,
+// ido=Water/Icosahedron, alvo=Aether/Dodecahedron, buki_mao=Hexagon(Fire+Earth), buki_pe=Diamond
+const SHAPE_CFG={
+  acao:    {sides:3,rot:-30, star:false,outerR:1.55},
+  dachi:   {sides:4,rot:45,  star:false,outerR:1.45},
+  direcao: {sides:8,rot:22.5,star:false,outerR:1.35},
+  ido:     {sides:5,rot:0,   star:true, outerR:1.5},
+  alvo:    {sides:5,rot:-18, star:false,outerR:1.45},
+  buki_mao:{sides:6,rot:0,   star:false,outerR:1.4},
+  buki_pe: {sides:4,rot:0,   star:false,outerR:1.5},
+};
 
 // Build edges for constellation: each tech → star from nodes[0] to others
 function buildEdges(){
@@ -689,6 +765,43 @@ const m={
   ido:{x:W*.82,y:H*.78},
 };
 return m[type]||{x:W*.5,y:H*.5};
+}
+
+function fixedLayout(nodes,W,H){
+const cx=W/2,cy=H/2,half=Math.min(W,H)/2;
+const r0=half*.22,r1=half*.47,r2=half*.78;
+const RING0=['alvo'];
+const RING1=['acao','direcao','ido'];
+const RING2=['buki_mao','buki_pe','dachi'];
+const GAP=0.14;
+function placeRing(ring,r,startA){
+  const byType={};
+  ring.forEach(n=>{if(!byType[n.type])byType[n.type]=[];byType[n.type].push(n);});
+  const typeOrder=[...new Set(ring.map(n=>n.type))];
+  const totalArc=Math.PI*2-typeOrder.length*GAP;
+  const total=ring.length;
+  let a=startA;
+  typeOrder.forEach(type=>{
+    const g=byType[type]||[];
+    const arc=(g.length/total)*totalArc;
+    const step=arc/g.length;
+    g.forEach((n,i)=>{
+      const ang=a+step*(i+.5);
+      n.x=cx+r*Math.cos(ang);
+      n.y=cy+r*Math.sin(ang);
+      n.vx=0;n.vy=0;
+    });
+    a+=arc+GAP;
+  });
+}
+const ring0=nodes.filter(n=>RING0.includes(n.type));
+const ring1=nodes.filter(n=>RING1.includes(n.type));
+const ring2=nodes.filter(n=>RING2.includes(n.type));
+ring1.sort((a,b)=>RING1.indexOf(a.type)-RING1.indexOf(b.type));
+ring2.sort((a,b)=>RING2.indexOf(a.type)-RING2.indexOf(b.type));
+placeRing(ring0,r0,-Math.PI/2);
+placeRing(ring1,r1,-Math.PI/2);
+placeRing(ring2,r2,-Math.PI/2);
 }
 
 function runForce(nodes,edges,W,H){
@@ -754,19 +867,196 @@ svg.setAttribute('viewBox','0 0 '+W+' '+H);
 
 const nodes=NODES.map(n=>Object.assign({},n));
 const edges=buildEdges();
-runForce(nodes,edges,W,H);
+cvMode==='chord'?chordLayout(nodes,W,H):fixedLayout(nodes,W,H);
 SIM_NODES=nodes;SIM_EDGES=edges;SIM_W=W;SIM_H=H;
 
 renderSVG(svg,nodes,edges,W,H);
 setupCvEvents(svg,W,H);
 }
 
+// ===== GEOMETRY HELPERS =====
+function polyPoints(cx,cy,r,sides,rot){
+rot=rot||0;let pts='';
+for(let i=0;i<sides;i++){
+  const a=(i/sides)*Math.PI*2-Math.PI/2+rot*Math.PI/180;
+  pts+=(cx+r*Math.cos(a)).toFixed(2)+','+(cy+r*Math.sin(a)).toFixed(2)+' ';
+}
+return pts.trim();
+}
+function starPoints(cx,cy,r,rot){
+rot=rot||0;const ri=r*.42;let pts='';
+for(let i=0;i<10;i++){
+  const a=(i/10)*Math.PI*2-Math.PI/2+rot*Math.PI/180;
+  const rc=i%2===0?r:ri;
+  pts+=(cx+rc*Math.cos(a)).toFixed(2)+','+(cy+rc*Math.sin(a)).toFixed(2)+' ';
+}
+return pts.trim();
+}
+function shapePts(cx,cy,r,cfg){
+return cfg.star?starPoints(cx,cy,r,cfg.rot):polyPoints(cx,cy,r,cfg.sides,cfg.rot);
+}
+function renderClusterHalos(g,W,H){
+const hg=document.createElementNS('http://www.w3.org/2000/svg','g');
+hg.setAttribute('pointer-events','none');
+const NS='http://www.w3.org/2000/svg';
+const cx=W/2,cy=H/2,half=Math.min(W,H)/2;
+const RING_R={alvo:half*.22,acao:half*.47,direcao:half*.47,ido:half*.47,
+  buki_mao:half*.78,buki_pe:half*.78,dachi:half*.78};
+Object.entries(NT).forEach(([type,col])=>{
+  const ns=SIM_NODES.filter(n=>n.type===type);
+  if(!ns.length)return;
+  const r=RING_R[type];if(!r)return;
+  const angles=ns.map(n=>Math.atan2(n.y-cy,n.x-cx)).sort((a,b)=>a-b);
+  const pad=0.18;
+  const a1=angles[0]-pad,a2=angles[angles.length-1]+pad;
+  const x1=(cx+r*Math.cos(a1)).toFixed(1),y1=(cy+r*Math.sin(a1)).toFixed(1);
+  const x2=(cx+r*Math.cos(a2)).toFixed(1),y2=(cy+r*Math.sin(a2)).toFixed(1);
+  const large=a2-a1>Math.PI?1:0;
+  const path=document.createElementNS(NS,'path');
+  path.setAttribute('d',`M${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2}`);
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke',col);
+  path.setAttribute('stroke-width','28');
+  path.setAttribute('stroke-opacity','.07');
+  path.setAttribute('stroke-linecap','round');
+  hg.appendChild(path);
+  // Type label at arc midpoint
+  const amid=(a1+a2)/2;
+  const lr=r+(type==='alvo'?-28:28);
+  const txt=document.createElementNS(NS,'text');
+  txt.setAttribute('x',(cx+lr*Math.cos(amid)).toFixed(1));
+  txt.setAttribute('y',(cy+lr*Math.sin(amid)).toFixed(1));
+  txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','middle');
+  txt.setAttribute('font-size','8.5');txt.setAttribute('fill',col);txt.setAttribute('opacity','.4');
+  txt.setAttribute('pointer-events','none');txt.setAttribute('letter-spacing','.06em');
+  txt.textContent=type.replace('_','-').toUpperCase();
+  hg.appendChild(txt);
+});
+g.insertBefore(hg,g.firstChild);
+}
+
+// Draw 3D wireframe projection of Platonic solid for a node
+function renderNodeWireframe(grp,cx,cy,r,type,col){
+const NS='http://www.w3.org/2000/svg';
+function mk(tag,attrs){
+  const e=document.createElementNS(NS,tag);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));
+  return e;
+}
+function wline(x1,y1,x2,y2){
+  return mk('line',{x1:x1.toFixed(1),y1:y1.toFixed(1),x2:x2.toFixed(1),y2:y2.toFixed(1),
+    stroke:'#0b0b10','stroke-width':'1',opacity:'.55','pointer-events':'none'});
+}
+function filled(pts,op){
+  return mk('polygon',{points:pts,fill:col,opacity:op||'.82',stroke:'#0b0b10','stroke-width':'1.2'});
+}
+function ring(pts){
+  return mk('polygon',{points:pts,fill:'none',stroke:col,'stroke-width':'1.5',opacity:'.45','pointer-events':'none'});
+}
+function verts(sides,rotDeg,rad){
+  const arr=[];
+  for(let i=0;i<sides;i++){
+    const a=(i/sides)*Math.PI*2-Math.PI/2+(rotDeg||0)*Math.PI/180;
+    arr.push({x:cx+(rad||r)*Math.cos(a),y:cy+(rad||r)*Math.sin(a)});
+  }
+  return arr;
+}
+if(type==='acao'){
+  // Tetraedro/Fogo: triângulo + 3 medianas ao centróide
+  const v=verts(3,-90);
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.6,3,-90)));
+  grp.appendChild(filled(polyPoints(cx,cy,r,3,-90)));
+  v.forEach(p=>grp.appendChild(wline(cx,cy,p.x,p.y)));
+  grp.appendChild(mk('circle',{cx:cx.toFixed(1),cy:cy.toFixed(1),r:2.2,fill:'#0b0b10',opacity:'.6','pointer-events':'none'}));
+}else if(type==='dachi'){
+  // Cubo/Terra: hexágono + 3 linhas isométricas ao centro
+  const v=verts(6,0);
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.5,6,0)));
+  grp.appendChild(filled(polyPoints(cx,cy,r,6,0)));
+  [0,2,4].forEach(i=>grp.appendChild(wline(cx,cy,v[i].x,v[i].y)));
+}else if(type==='direcao'){
+  // Octaedro/Ar: losango + 2 diagonais (4 triângulos)
+  const v=verts(4,0);
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.5,4,0)));
+  grp.appendChild(filled(polyPoints(cx,cy,r,4,0)));
+  grp.appendChild(wline(v[0].x,v[0].y,v[2].x,v[2].y));
+  grp.appendChild(wline(v[1].x,v[1].y,v[3].x,v[3].y));
+}else if(type==='ido'){
+  // Icosaedro/Água: pentagrama + pentágono interno
+  grp.appendChild(ring(starPoints(cx,cy,r*1.55,-90)));
+  grp.appendChild(filled(starPoints(cx,cy,r,-90)));
+  grp.appendChild(mk('polygon',{points:polyPoints(cx,cy,r*.42,5,-90),fill:'none',
+    stroke:'#0b0b10','stroke-width':'0.8',opacity:'.5','pointer-events':'none'}));
+}else if(type==='alvo'){
+  // Dodecaedro/Éter: pentágono + pentágono interno + 5 radiais
+  const vo=verts(5,-90);const vi=verts(5,-90,r*.52);
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.5,5,-90)));
+  grp.appendChild(filled(polyPoints(cx,cy,r,5,-90)));
+  grp.appendChild(mk('polygon',{points:polyPoints(cx,cy,r*.52,5,-90),fill:'none',
+    stroke:'#0b0b10','stroke-width':'0.8',opacity:'.5','pointer-events':'none'}));
+  vo.forEach((p,i)=>grp.appendChild(wline(p.x,p.y,vi[i].x,vi[i].y)));
+}else if(type==='buki_mao'){
+  // Hexagrama (Fogo+Terra): dois triângulos sobrepostos
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.5,6,0)));
+  grp.appendChild(mk('polygon',{points:polyPoints(cx,cy,r,3,-90),fill:col,opacity:'.72',stroke:'#0b0b10','stroke-width':'1'}));
+  grp.appendChild(mk('polygon',{points:polyPoints(cx,cy,r,3,90),fill:col,opacity:'.72',stroke:'#0b0b10','stroke-width':'1'}));
+}else if(type==='buki_pe'){
+  // Losango+Cruz: losango + cruz central
+  const v=verts(4,0);
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.5,4,0)));
+  grp.appendChild(filled(polyPoints(cx,cy,r,4,0)));
+  grp.appendChild(wline(v[0].x,v[0].y,v[2].x,v[2].y));
+  grp.appendChild(wline(v[1].x,v[1].y,v[3].x,v[3].y));
+}else{
+  grp.appendChild(ring(polyPoints(cx,cy,r*1.4,6,0)));
+  grp.appendChild(filled(polyPoints(cx,cy,r,6,0)));
+}
+}
+
 function renderSVG(svg,nodes,edges,W,H){
 svg.innerHTML='';
+// Background: concentric ring guides aligned with data rings (alvo / verb / instrument)
+const bg=document.createElementNS('http://www.w3.org/2000/svg','g');
+bg.setAttribute('pointer-events','none');
+const _half=Math.min(W,H)/2;
+[{r:_half*.22,sw:'0.6',op:'.10'},{r:_half*.47,sw:'1',op:'.14'},{r:_half*.78,sw:'1',op:'.10'},
+ {r:_half*1.05,sw:'0.5',op:'.04'},{r:_half*1.28,sw:'0.4',op:'.03'}].forEach(({r,sw,op})=>{
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx',W/2);c.setAttribute('cy',H/2);c.setAttribute('r',r.toFixed(1));
+  c.setAttribute('fill','none');c.setAttribute('stroke','#c9a84c');
+  c.setAttribute('stroke-width',sw);c.setAttribute('opacity',op);
+  bg.appendChild(c);
+});
+svg.appendChild(bg);
+// Kan-ku (看空) — diamond + inner circle at canvas center, Kyokushin symbol
+const kk=document.createElementNS('http://www.w3.org/2000/svg','g');
+kk.setAttribute('pointer-events','none');
+const kkR=Math.min(W,H)*.46,kkCx=W/2,kkCy=H/2;
+const kkD=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+kkD.setAttribute('points',`${kkCx},${(kkCy-kkR).toFixed(1)} ${(kkCx+kkR).toFixed(1)},${kkCy} ${kkCx},${(kkCy+kkR).toFixed(1)} ${(kkCx-kkR).toFixed(1)},${kkCy}`);
+kkD.setAttribute('fill','none');kkD.setAttribute('stroke','#c9a84c');
+kkD.setAttribute('stroke-width','1.5');kkD.setAttribute('opacity','.11');
+kk.appendChild(kkD);
+const kkC=document.createElementNS('http://www.w3.org/2000/svg','circle');
+kkC.setAttribute('cx',kkCx);kkC.setAttribute('cy',kkCy);
+kkC.setAttribute('r',(Math.min(W,H)*.14).toFixed(1));
+kkC.setAttribute('fill','none');kkC.setAttribute('stroke','#c9a84c');
+kkC.setAttribute('stroke-width','1');kkC.setAttribute('opacity','.11');
+kk.appendChild(kkC);
+[[kkCx,kkCy-kkR,kkCx,kkCy+kkR],[kkCx-kkR,kkCy,kkCx+kkR,kkCy]].forEach(([x1,y1,x2,y2])=>{
+  const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+  [['x1',x1],['y1',y1],['x2',x2],['y2',y2]].forEach(([k,v])=>l.setAttribute(k,v));
+  l.setAttribute('stroke','#c9a84c');l.setAttribute('stroke-width','.6');l.setAttribute('opacity','.04');
+  kk.appendChild(l);
+});
+svg.appendChild(kk);
 const ni={};nodes.forEach(n=>ni[n.id]=n);
 const g=document.createElementNS('http://www.w3.org/2000/svg','g');
 g.setAttribute('id','cv-g');
 svg.appendChild(g);
+
+// Cluster halos (background geometric shapes per semantic group)
+renderClusterHalos(g,W,H);
 
 // Edges
 const eg=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -775,14 +1065,41 @@ g.appendChild(eg);
 edges.forEach((e,i)=>{
   const s=ni[e.source],t=ni[e.target];
   if(!s||!t)return;
+  const sType=NMAP[e.source]&&NMAP[e.source].type;
+  const tType=NMAP[e.target]&&NMAP[e.target].type;
+  const isBukiAcao=((sType==='buki_mao'||sType==='buki_pe')&&tType==='acao')||
+    (sType==='acao'&&(tType==='buki_mao'||tType==='buki_pe'));
+  const isDirecao=sType==='direcao'||tType==='direcao';
+  const isAlvo=sType==='alvo'||tType==='alvo';
+  const sw=e.tech.kataOnly?'1':isBukiAcao?'2.2':isAlvo?'1.1':'1.4';
+  const op='.05';
+  const dash=e.tech.kataOnly?'5,4':isDirecao&&!e.tech.kataOnly?'4,3':'none';
+  const ti=TECHS.indexOf(e.tech);
+  const col=BS[e.tech.belt]||'#444';
+  if(cvMode==='chord'){
+    const cpx=((s.x+t.x)/2*.25+W/2*.75).toFixed(1);
+    const cpy=((s.y+t.y)/2*.25+H/2*.75).toFixed(1);
+    const dStr=`M${s.x.toFixed(1)},${s.y.toFixed(1)} Q${cpx},${cpy} ${t.x.toFixed(1)},${t.y.toFixed(1)}`;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','path');
+    line.setAttribute('d',dStr);line.setAttribute('fill','none');
+    line.setAttribute('stroke',col);line.setAttribute('stroke-width',sw);
+    line.setAttribute('stroke-dasharray',dash);line.setAttribute('opacity',op);
+    line.setAttribute('data-ti',ti);line.style.cursor='pointer';
+    eg.appendChild(line);
+    const hit=document.createElementNS('http://www.w3.org/2000/svg','path');
+    hit.setAttribute('d',dStr);hit.setAttribute('fill','none');
+    hit.setAttribute('stroke','transparent');hit.setAttribute('stroke-width','10');
+    hit.setAttribute('data-ti',ti);hit.style.cursor='pointer';
+    eg.appendChild(hit);
+  }else{
   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
   line.setAttribute('x1',s.x);line.setAttribute('y1',s.y);
   line.setAttribute('x2',t.x);line.setAttribute('y2',t.y);
-  line.setAttribute('stroke',BS[e.tech.belt]||'#444');
-  line.setAttribute('stroke-width',e.tech.kataOnly?'1':'1.4');
-  line.setAttribute('stroke-dasharray',e.tech.kataOnly?'5,4':'none');
-  line.setAttribute('opacity','.35');
-  line.setAttribute('data-ti',TECHS.indexOf(e.tech));
+  line.setAttribute('stroke',col);
+  line.setAttribute('stroke-width',sw);
+  line.setAttribute('stroke-dasharray',dash);
+  line.setAttribute('opacity',op);
+  line.setAttribute('data-ti',ti);
   line.style.cursor='pointer';
   eg.appendChild(line);
 
@@ -792,26 +1109,27 @@ edges.forEach((e,i)=>{
   hit.setAttribute('x2',t.x);hit.setAttribute('y2',t.y);
   hit.setAttribute('stroke','transparent');
   hit.setAttribute('stroke-width','10');
-  hit.setAttribute('data-ti',TECHS.indexOf(e.tech));
+  hit.setAttribute('data-ti',ti);
   hit.style.cursor='pointer';
   eg.appendChild(hit);
+  }
 });
 
-// Nodes
+// Nodes — 3D wireframe projections of Platonic solids per semantic/grammatical type
 const ng=document.createElementNS('http://www.w3.org/2000/svg','g');
 ng.setAttribute('id','cv-nodes');
 g.appendChild(ng);
 nodes.forEach(n=>{
-  const r=n.type==='acao'?10:8;
-  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',r);
-  c.setAttribute('fill',NT[n.type]);c.setAttribute('opacity','.9');
-  c.setAttribute('stroke','#0b0b10');c.setAttribute('stroke-width','1.5');
-  c.setAttribute('data-nid',n.id);c.style.cursor='pointer';
-  ng.appendChild(c);
-
+  const r=n.type==='acao'?20:17;
+  const col=NT[n.type];
+  const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+  grp.setAttribute('data-nid',n.id);
+  grp.setAttribute('data-type',n.type);
+  grp.style.cursor='pointer';
+  renderNodeWireframe(grp,n.x,n.y,r,n.type,col);
+  ng.appendChild(grp);
   const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+11);
+  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+13);
   txt.setAttribute('text-anchor','middle');txt.setAttribute('font-size','9.5');
   txt.setAttribute('fill','#99aacc');txt.setAttribute('pointer-events','none');
   txt.textContent=n.label;
@@ -833,9 +1151,11 @@ svg.addEventListener('mousemove',ev=>{
       tip.style.opacity='1';
       tip.style.left=(ev.pageX+14)+'px';
       tip.style.top=(ev.pageY-10)+'px';
-      tip.innerHTML='<b>'+tech.name+'</b>'+tech.pt+
-        '<br><span class="belt-pill" style="background:'+BS[tech.belt]+'20;color:'+BS[tech.belt]+'">'+tech.belt+'</span>'+
-        (tech.kataOnly?'<br><span style="font-size:10px;color:var(--text2)">kata only</span>':'');
+      tip.innerHTML='<b>'+tech.name+'</b>'
+        +'<div style="font-size:11px;color:var(--text2);margin:2px 0">'+tech.pt+'</div>'
+        +(tech.desc?'<div style="font-size:11px;line-height:1.4;margin-top:4px;color:var(--text)">'+tech.desc.slice(0,115)+(tech.desc.length>115?'…':'')+'</div>':'')
+        +'<br><span class="belt-pill" style="background:'+BS[tech.belt]+'20;color:'+BS[tech.belt]+'">'+tech.belt+'</span>'
+        +(tech.kataOnly?'<span style="font-size:10px;color:var(--text2);margin-left:6px">kata only</span>':'');
     }
   } else {
     tip.style.opacity='0';
@@ -847,11 +1167,16 @@ svg.addEventListener('mouseleave',()=>tip.style.opacity='0');
 svg.addEventListener('click',ev=>{
   const el=ev.target;
   const ti=el.dataset&&el.dataset.ti;
-  const nid=el.dataset&&el.dataset.nid;
+  // Walk up DOM to find data-nid (now on <g> wrapper around polygons)
+  let nidEl=el;
+  while(nidEl&&nidEl!==svg&&!(nidEl.dataset&&nidEl.dataset.nid))nidEl=nidEl.parentElement;
+  const nid=nidEl&&nidEl.dataset&&nidEl.dataset.nid;
   if(nid){
     showNodeDetail(nid);
   } else if(ti!==undefined&&ti!==''){
     showTechDetail(TECHS[+ti]);
+  } else {
+    renderKaratekaPanel();
   }
 });
 
@@ -877,16 +1202,29 @@ svg.addEventListener('wheel',ev=>{
 function showNodeDetail(nid){
 const node=NMAP[nid];if(!node)return;
 const det=document.getElementById('detail');
+det.classList.remove('bodymap');
+const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
 document.getElementById('det-name').textContent=node.label;
 document.getElementById('det-type').textContent=node.pt+' · '+node.type.replace('_',' ');
 document.getElementById('det-tags').innerHTML='<span class="tag" style="color:'+NT[node.type]+';border-color:'+NT[node.type]+'">'+node.type+'</span>';
-document.getElementById('det-desc').textContent='';
+const roleDesc={
+  acao:'Verbo — ação que inicia a técnica · Tetraedro / Fogo',
+  buki_mao:'Instrumento de mão — a arma utilizada · Hexagrama / Fogo+Terra',
+  buki_pe:'Instrumento de pé — a arma utilizada · Losango / Terra',
+  direcao:'Advérbio — modifica trajetória e direção · Octaedro / Ar',
+  alvo:'Objeto — alvo anatômico da técnica · Dodecaedro / Éter',
+  dachi:'Fundação — postura e base · Cubo / Terra',
+  ido:'Movimento — deslocamento e footwork · Icosaedro / Água',
+};
+document.getElementById('det-desc').textContent=roleDesc[node.type]||'';
 const ul=document.getElementById('det-techs');
-ul.innerHTML='<div style="font-size:10px;color:var(--text2);margin-bottom:6px">TÉCNICAS</div>';
+ul.innerHTML='<div style="font-size:10px;color:var(--text2);margin-bottom:6px">TÉCNICAS ('+TECHS.filter(t=>t.nodes.includes(nid)).length+')</div>';
 TECHS.filter(t=>t.nodes.includes(nid)).forEach(t=>{
   const li=document.createElement('li');
   li.style.borderLeftColor=BS[t.belt];
-  li.textContent=t.name+' — '+t.pt;
+  li.innerHTML='<span style="font-weight:600;font-size:12px">'+t.name+'</span>'
+    +'<span style="font-size:10px;color:var(--text2);display:block">'+t.pt+'</span>'
+    +(t.desc?'<span style="font-size:10px;color:var(--text2);line-height:1.4;display:block;margin-top:2px">'+t.desc.slice(0,80)+'…</span>':'');
   li.onclick=()=>showTechDetail(t);
   ul.appendChild(li);
 });
@@ -897,13 +1235,17 @@ highlightNode(nid);
 
 function showTechDetail(tech){
 const det=document.getElementById('detail');
+det.classList.remove('bodymap');
+const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
 document.getElementById('det-name').textContent=tech.name;
 document.getElementById('det-type').textContent=tech.pt;
 document.getElementById('det-tags').innerHTML=
   '<span class="tag" style="color:'+BS[tech.belt]+';border-color:'+BS[tech.belt]+'">'+tech.belt+'</span>'+
   '<span class="tag" style="color:var(--text2);border-color:var(--border)">'+tech.action+'</span>'+
   (tech.kataOnly?'<span class="tag" style="color:var(--kata);border-color:var(--kata)">kata only</span>':'');
-document.getElementById('det-desc').textContent=tech.desc||'';
+document.getElementById('det-desc').innerHTML=
+  (tech.desc?'<p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px">'+tech.desc+'</p>':'')
+  +(tech.exec?'<div class="dc-exec" style="font-size:12px;padding:8px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid var(--gold);line-height:1.5">'+tech.exec+'</div>':'');
 const ul=document.getElementById('det-techs');
 ul.innerHTML='<div style="font-size:10px;color:var(--text2);margin-bottom:6px">COMPONENTES</div>';
 tech.nodes.forEach(nid=>{
@@ -918,24 +1260,191 @@ det.classList.add('open');
 
 function highlightNode(nid){
 const svg=document.getElementById('cv');
+// Reset prior pulse
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  el.style.strokeDasharray='';el.style.strokeDashoffset='';el.style.transition='';
+});
 svg.querySelectorAll('[data-ti]').forEach(el=>{
   const ti=el.dataset.ti;if(ti===undefined)return;
   const tech=TECHS[+ti];
   const connected=tech&&tech.nodes.includes(nid);
   el.setAttribute('opacity',connected?'.85':'.12');
+  // Pulse animation on connected visible line edges
+  if(connected&&el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'){
+    const dx=parseFloat(el.getAttribute('x2'))-parseFloat(el.getAttribute('x1'));
+    const dy=parseFloat(el.getAttribute('y2'))-parseFloat(el.getAttribute('y1'));
+    const len=Math.hypot(dx,dy);
+    el.style.strokeDasharray=`${len} ${len}`;
+    el.style.strokeDashoffset=`${len}`;
+    el.style.transition=`stroke-dashoffset ${(0.4+Math.random()*.3).toFixed(2)}s ease-out`;
+    requestAnimationFrame(()=>{el.style.strokeDashoffset='0';});
+    setTimeout(()=>{el.style.strokeDasharray='';el.style.strokeDashoffset='';el.style.transition='';},900);
+  }
 });
 svg.querySelectorAll('[data-nid]').forEach(el=>{
-  el.setAttribute('opacity',el.dataset.nid===nid?'1':'.35');
+  el.setAttribute('opacity',el.dataset.nid===nid?'1':'.22');
+});
+// Draw technique polygons: each connected technique forms a closed polygon
+// across its component nodes — a gramática linguística gera geometria
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
+const cvg=document.getElementById('cv-g');
+const eg=document.getElementById('cv-edges');
+const ni={};SIM_NODES.forEach(n=>ni[n.id]=n);
+TECHS.filter(t=>t.nodes.includes(nid)).forEach(t=>{
+  const pts=t.nodes.filter(id=>ni[id]).map(id=>ni[id].x.toFixed(1)+','+ni[id].y.toFixed(1)).join(' ');
+  if(!pts||t.nodes.filter(id=>ni[id]).length<3)return;
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',pts);
+  poly.setAttribute('fill',BS[t.belt]||'#888');
+  poly.setAttribute('fill-opacity','.09');
+  poly.setAttribute('stroke',BS[t.belt]||'#888');
+  poly.setAttribute('stroke-width','1');
+  poly.setAttribute('stroke-opacity','.4');
+  poly.setAttribute('class','tech-poly');
+  poly.setAttribute('pointer-events','none');
+  cvg.insertBefore(poly,eg);
 });
 }
 
-document.getElementById('det-close').onclick=()=>{
-document.getElementById('detail').classList.remove('open');
-// reset opacity
+function highlightType(type){
 const svg=document.getElementById('cv');
-svg.querySelectorAll('[data-ti]').forEach(el=>el.setAttribute('opacity',
-  el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'?'.35':'1'));
-svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','.9'));
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  const ti=el.dataset.ti;if(ti===undefined)return;
+  const tech=TECHS[+ti];if(!tech)return;
+  const connected=tech.nodes.some(nid=>{const node=NMAP[nid];return node&&node.type===type;});
+  el.setAttribute('opacity',connected?'.72':'.04');
+});
+svg.querySelectorAll('[data-nid]').forEach(el=>{
+  const node=NMAP[el.dataset.nid];
+  el.setAttribute('opacity',(node&&node.type===type)?'1':'.18');
+});
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
+}
+
+function renderKaratekaPanel(){
+const det=document.getElementById('detail');
+det.classList.add('open','bodymap');
+const old=document.getElementById('karateka-wrap');if(old)old.remove();
+const wrap=document.createElement('div');
+wrap.id='karateka-wrap';
+const title=document.createElement('h4');
+title.textContent='Mapa Corporal · Toque uma zona';
+wrap.appendChild(title);
+const NS='http://www.w3.org/2000/svg';
+const ZONES=[
+  {id:'jodan',   nid:'jodan',        color:NT.alvo,    label:'JODAN',
+   polys:['96,18 124,18 128,30 122,42 98,42 92,30'],   lx:110,ly:32},
+  {id:'gammen',  nid:'gammen',       color:NT.alvo,    label:'GAMMEN',
+   polys:['100,42 120,42 122,54 118,62 102,62 98,54'],  lx:110,ly:53},
+  {id:'chudan',  nid:'chudan',       color:NT.alvo,    label:'CHUDAN',
+   polys:['90,70 130,70 134,110 128,120 92,120 86,110'],lx:110,ly:95},
+  {id:'hizo',    nid:'hizo',         color:NT.alvo,    label:'HIZO',
+   polys:['86,110 134,110 138,138 130,148 90,148 82,138'],lx:110,ly:130},
+  {id:'gedan',   nid:'gedan',        color:NT.alvo,    label:'GEDAN',
+   polys:['90,148 130,148 128,172 120,180 100,180 92,172'],lx:110,ly:164},
+  {id:'kansetsu',nid:'kansetsu',     color:NT.alvo,    label:'KANSETSU',
+   polys:['138,118 152,112 156,128 142,134','122,218 136,212 140,226 126,232'],lx:148,ly:122},
+  {id:'buki_mao',typeFilt:'buki_mao',color:NT.buki_mao,label:'BUKI·MAO',
+   polys:['58,100 72,94 78,108 64,114','142,144 156,138 160,152 146,158'],lx:68,ly:104},
+  {id:'buki_pe', typeFilt:'buki_pe', color:NT.buki_pe, label:'BUKI·PE',
+   polys:['118,308 140,304 144,320 122,322','80,310 102,306 104,320 82,322'],lx:112,ly:314},
+  {id:'dachi',   typeFilt:'dachi',   color:NT.dachi,   label:'DACHI',
+   polys:['72,280 148,280 152,296 68,296'],lx:110,ly:289},
+  {id:'direcao', typeFilt:'direcao', color:NT.direcao, label:'DIRECAO',
+   polys:['164,90 176,84 186,96 176,108 164,102 168,96'],lx:175,ly:97},
+  {id:'ido',     typeFilt:'ido',     color:NT.ido,     label:'IDO',
+   polys:['60,260 76,254 80,268 64,274'],lx:70,ly:264},
+  {id:'acao',    typeFilt:'acao',    color:NT.acao,    label:'ACAO',
+   polys:['84,64 98,58 104,72 102,80 88,78 82,70'],lx:93,ly:71},
+];
+const svg=document.createElementNS(NS,'svg');
+svg.setAttribute('viewBox','0 0 220 340');
+svg.setAttribute('width','220');
+svg.setAttribute('height','340');
+svg.style.cssText='display:block;margin:0 auto';
+// Body silhouette parts — angular/geometric, non-interactive
+[
+  ['92,18 128,18 132,44 118,64 102,64 88,44'],       // head
+  ['104,64 116,64 118,72 102,72'],                    // neck
+  ['82,72 138,72 142,180 78,180'],                    // torso
+  ['82,78 94,78 88,118 76,118'],                      // left upper arm
+  ['76,118 88,118 74,148 62,148'],                    // left forearm
+  ['138,78 150,78 156,116 144,116'],                  // right upper arm
+  ['144,116 156,116 160,154 148,154'],                // right forearm
+  ['78,178 142,178 148,200 72,200'],                  // hips
+  ['110,200 140,200 136,242 106,242'],                // right thigh
+  ['106,242 136,242 140,286 110,286'],                // right shin
+  ['110,286 142,286 148,306 114,308'],                // right foot
+  ['80,200 110,200 106,242 76,242'],                  // left thigh
+  ['76,242 106,242 100,286 70,286'],                  // left shin
+  ['70,286 100,286 102,306 68,308'],                  // left foot
+].forEach(([pts])=>{
+  const p=document.createElementNS(NS,'polygon');
+  p.setAttribute('points',pts);
+  p.setAttribute('fill','#1a1a2e');
+  p.setAttribute('stroke','#3a4466');
+  p.setAttribute('stroke-width','1.2');
+  p.setAttribute('pointer-events','none');
+  svg.appendChild(p);
+});
+// Ground line
+const gnd=document.createElementNS(NS,'line');
+['x1','40','y1','322','x2','180','y2','322'].reduce((e,[k,v])=>{e.setAttribute(k,v);return e;},gnd);
+gnd.setAttribute('stroke','#3a4466');gnd.setAttribute('stroke-width','1');
+gnd.setAttribute('opacity','.5');gnd.setAttribute('pointer-events','none');
+svg.appendChild(gnd);
+// Interactive zones
+ZONES.forEach(z=>{
+  const zg=document.createElementNS(NS,'g');
+  zg.setAttribute('class','kzone');
+  zg.setAttribute('data-zone',z.id);
+  zg.style.opacity='1';
+  z.polys.forEach(pts=>{
+    const poly=document.createElementNS(NS,'polygon');
+    poly.setAttribute('points',pts);
+    poly.setAttribute('fill',z.color);
+    poly.setAttribute('fill-opacity','.22');
+    poly.setAttribute('stroke',z.color);
+    poly.setAttribute('stroke-width','1');
+    poly.setAttribute('stroke-opacity','.6');
+    zg.appendChild(poly);
+  });
+  const txt=document.createElementNS(NS,'text');
+  txt.setAttribute('x',z.lx);txt.setAttribute('y',z.ly);
+  txt.setAttribute('class','kzone-label');
+  txt.setAttribute('fill',z.color);
+  txt.setAttribute('font-size','7');
+  txt.textContent=z.label;
+  zg.appendChild(txt);
+  zg.addEventListener('click',ev=>{
+    ev.stopPropagation();
+    if(z.nid) highlightNode(z.nid);
+    else if(z.typeFilt) highlightType(z.typeFilt);
+    svg.querySelectorAll('.kzone').forEach(el=>el.style.opacity=el===zg?'1':'.3');
+  });
+  svg.appendChild(zg);
+});
+wrap.appendChild(svg);
+const hint=document.createElement('div');
+hint.style.cssText='font-size:10px;color:var(--text2);text-align:center;margin-top:6px;line-height:1.5';
+hint.textContent='Toque uma zona para filtrar a constelação';
+wrap.appendChild(hint);
+document.getElementById('det-techs').parentNode.insertBefore(wrap,document.getElementById('det-techs'));
+renderPlatonicLegend();
+}
+
+document.getElementById('det-close').onclick=()=>{
+const det=document.getElementById('detail');
+det.classList.remove('open','bodymap');
+const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
+const svg=document.getElementById('cv');
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  el.style.strokeDasharray='';el.style.strokeDashoffset='';el.style.transition='';
+  el.setAttribute('opacity',
+    (el.tagName==='line'||el.tagName==='path')&&el.getAttribute('stroke')!=='transparent'?'.05':'1');
+});
+svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','1'));
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
 };
 
 // ===== DICTIONARY =====
@@ -1067,95 +1576,179 @@ out.appendChild(totDiv);
 // ===== MATH / ENTROPY =====
 function renderMath(){
 const div=document.getElementById('math-content');
+// Helper: SVG donut segment (cx,cy,r,startAngle,endAngle,color)
+function donutArc(cx,cy,r,a1,a2,col,sw){
+  const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+  const x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+  const large=a2-a1>Math.PI?1:0;
+  return `<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${large},1 ${x2.toFixed(1)},${y2.toFixed(1)}"
+    fill="none" stroke="${col}" stroke-width="${sw||14}" stroke-linecap="butt"/>`;
+}
+// Helper: polyline for charts
+function sparkline(pts,col,fill){
+  const p=pts.map(([x,y])=>x.toFixed(1)+','+y.toFixed(1)).join(' ');
+  return (fill?`<polygon points="${p} ${pts[pts.length-1][0].toFixed(1)},${pts[0][1].toFixed(1)} ${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}" fill="${col}" fill-opacity=".12" stroke="none"/>`:'')
+    +`<polyline points="${p}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>`;
+}
+
 div.innerHTML=`
 <div class="math-s">
 <h3>1. Funil de Complexidade</h3>
-<p>O kihon Kyokushin seleciona 54 técnicas de um espaço teórico de ~1.440 combinações possíveis em 5 eixos semânticos (Ação × Buki mão × Buki pé × Trajetória × Alvo). Os 96% restantes são silêncios canônicos — escolhas deliberadas de Mas Oyama.</p>
-${[
-['Espaço teórico (5 eixos)',1440,'#444'],
-['Corpus canônico IKO',54,'#c9a84c'],
-['Kihon branca→amarela',42,'#8899bb'],
-['Kihon branca',31,'#33aa66'],
-].map(([l,v,c])=>`<div class="bar-row">
-<div class="br-l">${l}</div>
-<div class="br-b"><div class="br-f" style="width:${Math.round(Math.log10(v)/Math.log10(1440)*100)}%;background:${c}"></div></div>
-<div class="br-v">${v.toLocaleString()}</div>
-</div>`).join('')}
-<div class="insight"><strong>Insight:</strong> A escala é logarítmica — a diferença entre 54 e 1.440 é uma ordem de magnitude. Mostrar em escala linear tornaria as barras de kihon invisíveis.</div>
+<p>O kihon seleciona 54 técnicas de um espaço teórico de ~1.440 combinações (5 eixos semânticos). 96% são silêncios canônicos — escolhas deliberadas de Mas Oyama.</p>
+<svg viewBox="0 0 420 130" style="width:100%;max-width:420px;display:block;margin:12px 0">
+${(()=>{
+  const rows=[['Espaço teórico (5 eixos)',1440,'#334'],[' Corpus canônico IKO',54,'#c9a84c'],['  Kihon branca→amarela',42,'#8899bb'],['   Kihon faixa branca',31,'#33aa66']];
+  const maxW=340;const H=24;const gap=6;
+  return rows.map(([l,v,col],i)=>{
+    const w=Math.round(Math.sqrt(v/1440)*maxW);
+    const y=i*(H+gap);const x=(maxW-w)/2+40;
+    const pct=i===0?'100%':(v/1440*100).toFixed(1)+'%';
+    return `<rect x="${x}" y="${y}" width="${w}" height="${H}" fill="${col}" rx="3"/>
+<text x="38" y="${y+16}" text-anchor="end" font-size="10" fill="#7788aa">${v.toLocaleString('pt-BR')}</text>
+<text x="${x+w+6}" y="${y+16}" font-size="10" fill="${col}">${pct}</text>`;
+  }).join('');
+})()}
+<text x="210" y="126" text-anchor="middle" font-size="9" fill="#556677">escala √ — proporcional à "área" de possibilidades</text>
+</svg>
+<div class="insight"><strong>3,75% canonizado.</strong> Cada técnica do kihon representa ~27 possibilidades não canonizadas. O silêncio é tão informativo quanto a escolha.</div>
 </div>
 
 <div class="math-s">
 <h3>2. Exclusões Mútuas</h3>
-<p>Nem toda combinação de técnicas é válida num ido-geiko. 18% dos pares teóricos são excluídos por razões anatômicas, posturais, espaciais ou pedagógicas.</p>
+<p>18% dos pares teóricos são excluídos. Fórmula: Pares válidos(N) = N×(N−1)×0,82</p>
+<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:12px 0">
+<svg viewBox="0 0 120 120" style="width:120px;flex-shrink:0">
+${(()=>{
+  const cx=60,cy=60,r=44,sw=18;
+  const segs=[['Válidos (82%)',0.82,'#33aa66'],['Anatômico',0.045,'#e06060'],['Postural',0.068,'#cc7722'],['Espacial',0.022,'#4488dd'],['Pedagógico',0.045,'#8844dd']];
+  let a=-Math.PI/2;let out='';
+  segs.forEach(([l,f,col])=>{
+    const a2=a+f*Math.PI*2;
+    out+=donutArc(cx,cy,r,a,a2,col,sw);
+    a=a2;
+  });
+  return out+'<text x="60" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#e8e8ee">82%</text><text x="60" y="70" text-anchor="middle" font-size="9" fill="#7788aa">válidos</text>';
+})()}
+</svg>
+<div style="font-size:11px;color:var(--text2);line-height:1.8">
+<span style="color:#33aa66">■</span> Válidos: 82% dos pares<br>
+<span style="color:#e06060">■</span> Anatômico: câmara incompatível<br>
+<span style="color:#cc7722">■</span> Postural: dachi incompatível<br>
+<span style="color:#4488dd">■</span> Espacial: desequilíbrio de eixo<br>
+<span style="color:#8844dd">■</span> Pedagógico: sem contexto de renraku
+</div></div>
 <table>
-<tr><th>Par</th><th>Tipo</th><th>Razão</th></tr>
-<tr><td>Mae Keage → Mae Geri (mesma perna)</td><td>Anatômico</td><td>Perna não recolheu para nova câmara</td></tr>
-<tr><td>Kansetsu Geri → qualquer frontal</td><td>Espacial</td><td>Kansetsu é gedan lateral — desequilibra para lado</td></tr>
-<tr><td>Ushiro Geri → Ushiro Geri</td><td>Postural</td><td>Rotação dupla de 180° sem pausa = perda de eixo</td></tr>
-<tr><td>Juji Uke isolado</td><td>Pedagógico</td><td>Juji Uke requer contexto de renraku, não técnica solo</td></tr>
-<tr><td>Uke → Uke (sem Kaeshi)</td><td>Pedagógico</td><td>IKO: bloquear→bloquear sem contra-ataque não é renraku válido</td></tr>
-<tr><td>Seiken Tsuki → Seiken Tsuki (mesmo lado)</td><td>Postural</td><td>Zenkutsu não permite dois socos consecutivos no mesmo braço sem reposicionar</td></tr>
-<tr><td>Mawashi Geri (jodan) → Yoko Geri (mesma perna)</td><td>Anatômico</td><td>Câmara do Mawashi não transiciona para câmara lateral sem apoio</td></tr>
-<tr><td>Tettsui → Tsuki linear (Zenkutsu)</td><td>Postural</td><td>Kiba Dachi do Tettsui é excludente com Zenkutsu do Oi Tsuki sem mudança de dachi</td></tr>
+<tr><th>Par excluído</th><th>Razão</th></tr>
+<tr><td>Mae Keage → Mae Geri (mesma perna)</td><td>Perna não recolheu para câmara</td></tr>
+<tr><td>Ushiro Geri → Ushiro Geri</td><td>Dupla rotação 180° = perda de eixo</td></tr>
+<tr><td>Tettsui → Oi Tsuki (sem mudar dachi)</td><td>Kiba Dachi ≠ Zenkutsu Dachi</td></tr>
+<tr><td>Uke → Uke (sem kaeshi)</td><td>IKO: bloquear→bloquear não é renraku</td></tr>
 </table>
-<div class="insight"><strong>Fórmula:</strong> Pares válidos(N) = N × (N−1) × 0,82 — 18% de exclusão empírica documentada no corpus IKO.</div>
 </div>
 
 <div class="math-s">
-<h3>3. Entropia de Shannon por Faixa</h3>
-<p>H = log₂(pool) mede a informação por técnica sorteada. Cresce lentamente porque o vocabulário cresce lentamente — mas as combinações crescem exponencialmente.</p>
-${[
-['Branca',31],['Laranja',37],['Azul',42],['Amarela',47],['Verde',47],['Marrom',52],['Shodan',54]
-].map(([b,n])=>{
-  const H=(Math.log2(n)).toFixed(2);
-  const pct=Math.round(+H/6*100);
-  return `<div class="bar-row">
-<div class="br-l">${b} (${n} téc.)</div>
-<div class="br-b"><div class="br-f" style="width:${pct}%;background:${BS[b.toLowerCase()]||'#888'}"></div></div>
-<div class="br-v">H=${H} bits</div>
-</div>`;
-}).join('')}
-<div class="insight"><strong>Paradoxo da canonização:</strong> Reduzir de ~10,5 bits/técnica teórico para ~5,7 bits/técnica canônico parece perda. Mas é o mecanismo que torna o sistema ensinável — a estrutura gramatical elimina ~47% da entropia, tornando o vocabulário previsível e transmissível em linhagem.</div>
+<h3>3. O Paradoxo da Canonização</h3>
+<p>O vocabulário cresce devagar (31→54). As combinações explodem exponencialmente (480→1.370.880). O mesmo sistema gera ambas as curvas.</p>
+<svg viewBox="0 0 420 140" style="width:100%;max-width:420px;display:block;margin:12px 0">
+${(()=>{
+  const belts=['B','L','Az','Am','V','M','S'];
+  const pool=[31,37,42,47,47,52,54];
+  const sess=[480,3200,15000,38000,38000,92000,1370880];
+  const W=380,H=100,ox=20,oy=10;
+  const n=belts.length;
+  // Vocab line (left axis, linear)
+  const maxP=54;
+  const vpts=pool.map((v,i)=>[ox+i*(W/(n-1)),oy+H-(v/maxP)*H]);
+  // Sessions line (right axis, log)
+  const maxLog=Math.log10(1370880);const minLog=Math.log10(480);
+  const spts=sess.map((v,i)=>[ox+i*(W/(n-1)),oy+H-((Math.log10(v)-minLog)/(maxLog-minLog))*H]);
+  // Belt labels
+  const labs=belts.map((b,i)=>`<text x="${(ox+i*(W/(n-1))).toFixed(0)}" y="${oy+H+14}" text-anchor="middle" font-size="9" fill="#556677">${b}</text>`).join('');
+  // Axis labels
+  const axL=`<text x="2" y="${oy+H/2}" text-anchor="middle" font-size="9" fill="#8899bb" transform="rotate(-90,8,${oy+H/2})">vocab</text>`;
+  const axR=`<text x="415" y="${oy+H/2}" text-anchor="middle" font-size="9" fill="#c9a84c" transform="rotate(90,415,${oy+H/2})">sessões</text>`;
+  return sparkline(vpts,'#8899bb',true)+sparkline(spts,'#c9a84c',true)+labs+axL+axR
+    +`<text x="${ox}" y="${oy-2}" font-size="8" fill="#8899bb">31 téc.</text>`
+    +`<text x="${ox+W}" y="${oy-2}" text-anchor="end" font-size="8" fill="#8899bb">54 téc.</text>`
+    +`<text x="${ox}" y="${oy+H+28}" font-size="8" fill="#c9a84c">480 sessões</text>`
+    +`<text x="${ox+W}" y="${oy+H+28}" text-anchor="end" font-size="8" fill="#c9a84c">1,37M sessões</text>`;
+})()}
+</svg>
+<div class="insight"><strong>Paradoxo:</strong> Verde = Amarela em pool técnico (47 cada). Mas as sessões são idênticas (38.000). O exame de verde não adiciona vocabulário — adiciona profundidade: footwork, kumite, kata longos. H(vocab) cresce 16%; H(sessões) cresce 3.450×.</div>
 </div>
 
 <div class="math-s">
-<h3>4. Árvore Combinatória de 5 Blocos</h3>
-<p>Um ido-geiko de 5 blocos escolhe renraku sem repetição de família no mesmo treino. O número de sessões distintas possíveis para o Shodan:</p>
-<div style="display:flex;gap:10px;align-items:center;font-size:18px;font-weight:700;color:var(--gold);flex-wrap:wrap;margin:14px 0">
-<span style="color:#e8e8ee">24</span><span style="color:var(--text2)">×</span>
-<span style="color:#e8e8ee">20</span><span style="color:var(--text2)">×</span>
-<span style="color:#e8e8ee">17</span><span style="color:var(--text2)">×</span>
-<span style="color:#e8e8ee">14</span><span style="color:var(--text2)">×</span>
-<span style="color:#e8e8ee">12</span><span style="color:var(--text2)">=</span>
-<span>1.370.880</span>
-</div>
-<div class="insight">Das 1,37 milhões de sessões distintas, ~10% (≈137.000) são "boas sessões" com distribuição equilibrada de altura (jodan/chudan/gedan) e alternância mão/pé. O professor experiente navega para esse 10% — comprimindo ~21 bits de entropia em ~17 bits de sinal pedagógico.</div>
-</div>
-
-<div class="math-s">
-<h3>5. Complexidade por Exame</h3>
-<table>
-<tr><th>Faixa</th><th>Pool</th><th>Pares válidos</th><th>Sessões (5 blocos)</th><th>O examinador avalia</th></tr>
-<tr><td>Branca</td><td>31</td><td>787</td><td>~480</td><td>Execução técnica básica</td></tr>
-<tr><td>Azul</td><td>42</td><td>1.443</td><td>~15.000</td><td>Postura + transições</td></tr>
-<tr><td>Amarela</td><td>47</td><td>1.818</td><td>~38.000</td><td>Velocidade e kime</td></tr>
-<tr><td>Verde</td><td>47</td><td>1.818</td><td>~38.000</td><td>Footwork + kata</td></tr>
-<tr><td>Marrom</td><td>52</td><td>2.222</td><td>~92.000</td><td>Renraku complexo + kumite</td></tr>
-<tr><td>Shodan</td><td>54</td><td>2.394</td><td>~1.370.880</td><td>Navegação do sistema</td></tr>
-</table>
-<div class="insight"><strong>Verde = Amarela em pool técnico.</strong> O exame de verde não adiciona novas técnicas — adiciona contexto de aplicação (footwork, kumite, kata mais longos). O sistema cresce em profundidade, não em vocabulário.</div>
+<h3>4. Funil Combinatório — 5 Blocos do Shodan</h3>
+<p>Ido-geiko de 5 blocos: renraku sem repetição de família. A cada bloco o universo diminui.</p>
+<svg viewBox="0 0 420 110" style="width:100%;max-width:420px;display:block;margin:12px 0">
+${(()=>{
+  const blocks=[[1,24,'Bloco 1'],[2,20,'Bloco 2'],[3,17,'Bloco 3'],[4,14,'Bloco 4'],[5,12,'Bloco 5']];
+  const maxN=24;const barH=14;const gap=4;const maxW=260;const ox=80;
+  return blocks.map(([i,n,l],idx)=>{
+    const w=Math.round((n/maxN)*maxW);
+    const y=idx*(barH+gap);
+    return `<text x="${ox-4}" y="${y+11}" text-anchor="end" font-size="10" fill="#7788aa">${l}</text>`
+      +`<rect x="${ox}" y="${y}" width="${w}" height="${barH}" fill="#c9a84c" opacity="${0.4+idx*0.1}" rx="2"/>`
+      +`<text x="${ox+w+5}" y="${y+11}" font-size="10" fill="#c9a84c">${n} opções</text>`;
+  }).join('')
+  +`<text x="${ox}" y="98" font-size="10" fill="#e8d5a3" font-weight="600">24×20×17×14×12 = 1.370.880 sessões distintas</text>`
+  +`<text x="${ox}" y="110" font-size="9" fill="#7788aa">≈ 137.000 são "boas sessões" (10% com equilíbrio jodan/chudan/gedan + mão/pé)</text>`;
+})()}
+</svg>
 </div>
 
 <div class="math-s">
-<h3>6. Silêncios Canônicos — O que Oyama Não Canonizou</h3>
-<p>96,4% do espaço teórico não foi canonizado. Os silêncios carregam quase tanta informação quanto as escolhas.</p>
+<h3>5. Crescimento Exponencial por Exame</h3>
+<p>O número de sessões de treino possíveis cresce em ordens de magnitude a cada faixa. A escala é logarítmica — cada degrau = ×10.</p>
+<svg viewBox="0 0 420 130" style="width:100%;max-width:420px;display:block;margin:12px 0">
+${(()=>{
+  const data=[['Branca',480,'#8899bb'],['Azul',15000,'#4488ee'],['Amarela',38000,'#ddaa22'],['Verde',38000,'#33aa66'],['Marrom',92000,'#aa6633'],['Shodan',1370880,'#e8d5a3']];
+  const W=360,H=90,ox=40,oy=10;const n=data.length;
+  const minL=2,maxL=7;// log10 range 100 to 10M
+  function ly(v){return oy+H-((Math.log10(v)-minL)/(maxL-minL))*H;}
+  const pts=data.map(([l,v],i)=>[ox+i*(W/(n-1)),ly(v)]);
+  // Grid lines at 10^2 to 10^6
+  const grid=[2,3,4,5,6,7].map(e=>{
+    const y=ly(Math.pow(10,e));
+    const label=e<7?'10'+String.fromCharCode(0x2070+e):'10⁷';
+    return `<line x1="${ox}" y1="${y.toFixed(0)}" x2="${ox+W}" y2="${y.toFixed(0)}" stroke="#1e1e30" stroke-width="1"/>`
+      +`<text x="${ox-4}" y="${(y+4).toFixed(0)}" text-anchor="end" font-size="8" fill="#445566">${label}</text>`;
+  }).join('');
+  const labels=data.map(([l,v,col],i)=>{
+    const x=ox+i*(W/(n-1));const y=ly(v);
+    return `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="4" fill="${col}"/>`
+      +`<text x="${x.toFixed(0)}" y="${oy+H+14}" text-anchor="middle" font-size="9" fill="${col}">${l.slice(0,2)}</text>`;
+  }).join('');
+  return grid+sparkline(pts,'#c9a84c',true)+labels
+    +`<text x="${ox+W}" y="${ly(1370880)-8}" text-anchor="end" font-size="9" fill="#e8d5a3">Shodan: ×31× Amarela</text>`;
+})()}
+</svg>
+<div class="insight"><strong>Verde = Amarela:</strong> mesmo pool (47), mesmas sessões (38.000). O salto para Shodan (1,37M) é qualitativo — o sistema passa de vocabulário a navegação.</div>
+</div>
+
+<div class="math-s">
+<h3>6. Silêncios Canônicos</h3>
+<p>96,4% do espaço teórico não foi canonizado. Os silêncios revelam a gramática tanto quanto as escolhas.</p>
+<svg viewBox="0 0 420 38" style="width:100%;max-width:420px;display:block;margin:8px 0">
+${(()=>{
+  const cats=[['Válidas, não canonizadas',3,'#c9a84c'],['Válida parcial (só kata)',1,'#8844dd'],['Inválida (biomecânica)',1,'#cc4444']];
+  let x=0;const total=5;const W=380;const H=18;
+  return cats.map(([l,n,col])=>{
+    const w=Math.round((n/total)*W);
+    const out=`<rect x="${x}" y="0" width="${w}" height="${H}" fill="${col}" opacity=".7" rx="2"/>`
+      +`<text x="${x+w/2}" y="13" text-anchor="middle" font-size="9" fill="#0b0b10" font-weight="600">${n}</text>`
+      +`<text x="${x+w/2}" y="32" text-anchor="middle" font-size="9" fill="${col}">${l}</text>`;
+    x+=w+2;return out;
+  }).join('');
+})()}
+</svg>
 <table>
 <tr><th>Combinação</th><th>Status</th><th>Por que vazio</th></tr>
-<tr><td>Seiken Ushiro Tsuki</td><td>Válida, não canonizada</td><td>Existe em Pinan Sono San como Ushiro Tsuki — válido na gramática, fora do kihon geiko</td></tr>
-<tr><td>Shuto Mae Tsuki</td><td>Inválida</td><td>Shuto é buki de percussão lateral/diagonal, não linear. Trajetória incompatível com tsuki.</td></tr>
-<tr><td>Empi Jodan</td><td>Válida, parcial</td><td>Age Empi existe só em kata. O kihon não inclui por exigir distância de clinch.</td></tr>
-<tr><td>Haisoku Ushiro Geri</td><td>Válida, não canonizada</td><td>Kakato é a arma canônica para ushiro. Haisoku ushiro seria raro e biomecânicamente forçado.</td></tr>
-<tr><td>Tettsui Jodan</td><td>Válida, não canonizada</td><td>Tettsui jodan aparece em Pinan Sono Ni. Fora do kihon por requerer postura específica (Kiba Dachi).</td></tr>
+<tr><td>Seiken Ushiro Tsuki</td><td style="color:#c9a84c">Válida, não canon.</td><td>Em Pinan San como Ushiro Tsuki — fora do kihon geiko</td></tr>
+<tr><td>Shuto Mae Tsuki</td><td style="color:#cc4444">Inválida</td><td>Shuto é percussão lateral; trajetória tsuki incompatível</td></tr>
+<tr><td>Empi Jodan</td><td style="color:#8844dd">Parcial (kata)</td><td>Age Empi só em kata — requer distância de clinch</td></tr>
+<tr><td>Haisoku Ushiro Geri</td><td style="color:#c9a84c">Válida, não canon.</td><td>Kakato é a arma canônica para ushiro</td></tr>
+<tr><td>Tettsui Jodan</td><td style="color:#c9a84c">Válida, não canon.</td><td>Em Pinan Ni; fora do kihon por requerer Kiba Dachi</td></tr>
 </table>
 </div>`;
 }
@@ -1184,6 +1777,111 @@ fontes.forEach(f=>{
 });
 }
 
+// ===== BELT FILTER =====
+function filterBelt(belt){
+const svg=document.getElementById('cv');
+svg.querySelectorAll('[data-ti]').forEach(el=>{
+  const ti=el.dataset.ti;if(ti===undefined)return;
+  const tech=TECHS[+ti];if(!tech)return;
+  if(belt==='all'){el.setAttribute('opacity',
+    (el.tagName==='line'||el.tagName==='path')&&el.getAttribute('stroke')!=='transparent'?'.05':'1');return;}
+  const bi=BELT_ORDER.indexOf(tech.belt);
+  const sel=BELT_ORDER.indexOf(belt);
+  const op=bi===sel?'.85':bi<sel?'.18':'.02';
+  el.setAttribute('opacity',op);
+});
+svg.querySelectorAll('[data-nid]').forEach(el=>{
+  if(belt==='all'){el.setAttribute('opacity','1');return;}
+  const nid=el.dataset.nid;
+  const sel=BELT_ORDER.indexOf(belt);
+  const hasAny=TECHS.some(t=>t.nodes.includes(nid)&&BELT_ORDER.indexOf(t.belt)<=sel);
+  el.setAttribute('opacity',hasAny?'1':'.15');
+});
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
+}
+
+function initBeltBar(){
+const bar=document.getElementById('belt-bar');
+if(!bar)return;
+bar.innerHTML='';
+['all',...BELT_ORDER].forEach(b=>{
+  const btn=document.createElement('button');
+  btn.className='bb-btn'+(b===activeBelt?' on':'');
+  btn.textContent=b==='all'?'OSU':b;
+  if(b!=='all')btn.style.color=BS[b];
+  if(b===activeBelt&&b!=='all')btn.style.background=BS[b]+'33';
+  btn.onclick=()=>{activeBelt=b;initBeltBar();filterBelt(b);};
+  bar.appendChild(btn);
+});
+}
+
+// ===== CHORD DIAGRAM =====
+function chordLayout(nodes,W,H){
+const cx=W/2,cy=H/2,R=Math.min(W,H)*0.40;
+const ORDER=['alvo','acao','direcao','ido','buki_mao','buki_pe','dachi'];
+const GAP=0.12;
+const byType={};nodes.forEach(n=>{if(!byType[n.type])byType[n.type]=[];byType[n.type].push(n);});
+const totalArc=Math.PI*2-ORDER.length*GAP;
+let a=-Math.PI/2;
+ORDER.forEach(type=>{
+  const g=byType[type]||[];
+  if(!g.length)return;
+  const arc=(g.length/nodes.length)*totalArc;
+  const step=arc/g.length;
+  g.forEach((n,i)=>{const ang=a+step*(i+.5);n.x=cx+R*Math.cos(ang);n.y=cy+R*Math.sin(ang);n.vx=0;n.vy=0;});
+  a+=arc+GAP;
+});
+}
+
+function setMode(mode){
+cvMode=mode;
+document.getElementById('mode-mandala').classList.toggle('on',mode==='mandala');
+document.getElementById('mode-chord').classList.toggle('on',mode==='chord');
+initConstellation();
+initBeltBar();
+renderKaratekaPanel();
+}
+
+// ===== PLATONIC LEGEND =====
+function renderPlatonicLegend(){
+const old=document.getElementById('platonic-legend');if(old)old.remove();
+const leg=document.createElement('div');
+leg.id='platonic-legend';
+leg.style.cssText='margin-top:14px;padding-top:12px;border-top:1px solid var(--border)';
+const h=document.createElement('h4');
+h.style.cssText='font-size:10px;letter-spacing:.08em;color:var(--text2);text-transform:uppercase;margin-bottom:10px;text-align:center';
+h.textContent='Sólidos Platônicos';
+leg.appendChild(h);
+const NS='http://www.w3.org/2000/svg';
+const grid=document.createElement('div');
+grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 4px';
+Object.entries(SHAPE_CFG).forEach(([type,cfg])=>{
+  const col=NT[type];
+  const cell=document.createElement('div');
+  cell.style.cssText='display:flex;flex-direction:column;align-items:center;cursor:pointer;opacity:.85;transition:opacity .18s';
+  cell.className='pcell';
+  cell.onclick=()=>{
+    highlightType(type);
+    document.querySelectorAll('#platonic-legend .pcell').forEach(c=>c.style.background='none');
+    cell.style.background=col+'22';
+  };
+  const svgEl=document.createElementNS(NS,'svg');
+  svgEl.setAttribute('viewBox','0 0 44 44');svgEl.setAttribute('width','40');svgEl.setAttribute('height','40');
+  const grp=document.createElementNS(NS,'g');
+  grp.style.cssText=`animation:breathe ${type==='acao'?2.6:type==='dachi'?6:4}s ease-in-out infinite;transform-box:fill-box;transform-origin:center`;
+  renderNodeWireframe(grp,22,22,13,type,col);
+  svgEl.appendChild(grp);
+  const lbl=document.createElement('div');
+  const NAMES={acao:'Fogo',buki_mao:'Fogo·Terra',buki_pe:'Terra',direcao:'Ar',alvo:'Éter',dachi:'Terra',ido:'Água'};
+  lbl.style.cssText=`font-size:7.5px;color:${col};text-align:center;margin-top:1px;letter-spacing:.03em;opacity:.8`;
+  lbl.textContent=NAMES[type]||type;
+  cell.appendChild(svgEl);cell.appendChild(lbl);
+  grid.appendChild(cell);
+});
+leg.appendChild(grid);
+document.getElementById('det-techs').parentNode.appendChild(leg);
+}
+
 // ===== NAVIGATION =====
 function switchTab(tab){
 document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1200,6 +1898,8 @@ btn.onclick=()=>switchTab(btn.dataset.tab);
 function init(){
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
   initConstellation();
+  initBeltBar();
+  renderKaratekaPanel();
 }));
 initDict();
 renderKata();
