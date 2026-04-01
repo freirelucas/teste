@@ -232,6 +232,34 @@ corpus['data_ptd']   = [
 ]
 corpus['parse_flag'] = [r[5] for r in parsed]
 
+# revisao_status: 'auto' se parse OK, 'pendente' para fila de revisão humana
+corpus['revisao_status'] = corpus['parse_flag'].apply(
+    lambda f: 'auto' if f == 'ok' else 'pendente'
+)
+
+# ── Human in the Loop: aplicar overrides manuais se existirem ────────────────
+_REV_PATH = DIR_CFG / 'revisoes_manuais.csv'
+if _REV_PATH.exists():
+    rev = pd.read_csv(_REV_PATH)
+    _key_cols = ['pdf_sha256', 'tabela_idx', 'linha_tabela']
+    # só fazer merge se as colunas de chave existirem em ambos os dataframes
+    _key_present = all(c in corpus.columns for c in _key_cols) and \
+                   all(c in rev.columns for c in _key_cols)
+    if _key_present and len(rev):
+        _override_cols = [c for c in ['servico', 'produto', 'eixo_num', 'area']
+                          if c in rev.columns]
+        rev_sel = rev[_key_cols + _override_cols +
+                      [c for c in ['notas', 'revisado_por'] if c in rev.columns]]
+        corpus = corpus.merge(rev_sel, on=_key_cols, how='left', suffixes=('', '_rev'))
+        for col in _override_cols:
+            mask = corpus[f'{col}_rev'].notna()
+            corpus.loc[mask, col] = corpus.loc[mask, f'{col}_rev']
+            corpus.loc[mask, 'revisao_status'] = 'manual'
+        corpus.drop(columns=[c for c in corpus.columns if c.endswith('_rev')],
+                    inplace=True)
+        n_manual = int((corpus['revisao_status'] == 'manual').sum())
+        print(f'   Overrides manuais aplicados: {n_manual} registros')
+
 print('\n✅ Etapa 2 — parser aplicado')
 for flag, n in corpus['parse_flag'].value_counts().items():
     print(f'   {flag:<15}: {n:>5} ({n/len(corpus)*100:.1f}%)')
@@ -404,4 +432,19 @@ with open(json_path, 'w', encoding='utf-8') as f:
 
 print(f'\n✅ Etapa 7 — exportação concluída')
 print(f'   {csv_path.name}  : {csv_path.stat().st_size//1024} KB')
+
+# ── Fila de revisão humana ────────────────────────────────────────────────────
+_trace_cols = [c for c in ['pdf_sha256', 'tabela_idx', 'linha_tabela', 'nome_pdf',
+                            'url_fonte'] if c in corpus.columns]
+_rev_cols = _trace_cols + [c for c in ['sigla', 'pagina', 'texto', 'parse_flag',
+                                        'servico', 'produto', 'eixo_num', 'area']
+                            if c in corpus.columns]
+pendente = corpus[corpus['revisao_status'] == 'pendente'][_rev_cols].copy()
+pendente_path = DIR / 'ptd_revisao_pendente.csv'
+pendente.to_csv(pendente_path, index=False)
+n_auto    = int((corpus['revisao_status'] == 'auto').sum())
+n_manual  = int((corpus['revisao_status'] == 'manual').sum())
+n_pend    = len(pendente)
+print(f'   revisao_status — auto: {n_auto} | manual: {n_manual} | pendente: {n_pend}')
+print(f'   {pendente_path.name}: {n_pend} linhas aguardando revisão')
 print(f'   {json_path.name}: {json_path.stat().st_size//1024} KB')

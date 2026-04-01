@@ -94,6 +94,13 @@ e3_raw  = corpus['eixo_num'].value_counts().get(3, 0) if 'eixo_num' in corpus.co
 e3_corr = eixo_dist.get(3, 0)
 if e3_raw - e3_corr > 10:
     alertas.append(('INFO', f'E3 corrigido: {e3_raw}→{e3_corr} ({e3_raw-e3_corr} registros reclassificados)'))
+n_pendente = int((corpus['revisao_status'] == 'pendente').sum()) \
+    if 'revisao_status' in corpus.columns else None
+n_manual   = int((corpus['revisao_status'] == 'manual').sum()) \
+    if 'revisao_status' in corpus.columns else 0
+if n_pendente is not None and n_pendente > 0:
+    alertas.append(('WARN', f'{n_pendente} registros na fila de revisão humana '
+                             f'(ptd_revisao_pendente.csv) | {n_manual} já revisados manualmente'))
 if not alertas:
     alertas.append(('OK', 'Nenhum alerta crítico — corpus dentro dos parâmetros esperados'))
 
