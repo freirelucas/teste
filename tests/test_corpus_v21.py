@@ -20,10 +20,15 @@ MAND_PROD_MOCK = {'Plano de Segurança da Informação (PPSI)'}
 SUBEIXOS_MOCK  = ['Serviços Digitais', 'Governança de Dados', 'Segurança da Informação']
 
 PAT_DATA = re.compile(
-    r'(\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}/\d{4}'
-    r'|[a-z]{3}[/-]\d{2,4}|[a-z]{2,4}/\d{2}'
+    r'(\d{1,2}/\d{1,2}/\d{2,4}'
+    r'|\d{1,2}/\d{4}'
+    r'|\d[TtQq][/.\-]?\d{2,4}'
+    r'|\d{1,2}[ºo°]?\s*[Tt]rim(?:estre)?[/.\-]?\d{2,4}'
     r'|\d{1,2}[Tt]RIM\d{2}'
-    r'|(?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[/-]?(?:\d{2,4}))',
+    r'|(?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[./\-]?\d{2,4}'
+    r'|(?:janeiro|fevereiro|mar[çc]o|abril|maio|junho|julho|agosto'
+    r'|setembro|outubro|novembro|dezembro)\s*(?:de\s*)?\d{2,4}'
+    r'|\b(202[0-9])\b)',
     re.I
 )
 PAT_RUIDO    = re.compile(r'^(Servi[çc]o|Produto|Eixo|[AÁ]rea\s|Entregas|DtPact|DtEntrega)', re.I)
@@ -134,6 +139,28 @@ class TestParseLinha:
             txt = f'Emitir certidão Disponibilização em Acesso Digital Serviços Digitais {fmt}'
             _, _, _, _, data, flag = _parse_linha(txt)
             assert data is not None, f'data não detectada para formato: {fmt}'
+
+    def test_data_trimestre_barra(self):
+        # FIX: formato "2T/2025" antes não era capturado
+        formatos = ['2T/2025', '3T/25', '1T2026', '4Q/2025']
+        for fmt in formatos:
+            txt = f'Emitir certidão Disponibilização em Acesso Digital Serviços Digitais {fmt}'
+            _, _, _, _, data, flag = _parse_linha(txt)
+            assert data is not None, f'data não detectada para trimestre: {fmt}'
+
+    def test_data_mes_extenso(self):
+        # FIX: nomes completos de mês antes não eram capturados
+        formatos = ['março de 2025', 'janeiro/2026', 'outubro 2025']
+        for fmt in formatos:
+            txt = f'Emitir certidão Disponibilização em Acesso Digital Serviços Digitais {fmt}'
+            _, _, _, _, data, flag = _parse_linha(txt)
+            assert data is not None, f'data não detectada para mês extenso: {fmt}'
+
+    def test_data_ano_isolado(self):
+        # Ano isolado deve ser capturado como último recurso
+        txt = 'Emitir certidão Disponibilização em Acesso Digital Serviços Digitais 2025'
+        _, _, _, _, data, _ = _parse_linha(txt)
+        assert data is not None
 
     def test_multiplos_produtos_pega_primeiro(self):
         # Quando dois produtos estão no texto, deve pegar o de menor índice

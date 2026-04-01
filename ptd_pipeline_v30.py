@@ -18,6 +18,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
+from ptd_constants import EIXOS, _EIXO_PATS, detectar_eixo as _detectar_eixo_const
+
 import requests
 import pandas as pd
 import numpy as np
@@ -77,20 +79,9 @@ PROVENIENCIA = {
     'versao':      '3.0-melhorado',
 }
 
-# ── Constantes de eixo ────────────────────────────────────────────────
-EIXOS = {
-    1:'Centrado no Cidadão e Inclusivo', 2:'Integrado e Colaborativo',
-    3:'Inteligente e Inovador',          4:'Confiável e Seguro',
-    5:'Transparente, Aberto e Participativo', 6:'Eficiente e Sustentável',
-}
-_EIXO_PATS = [
-    (1, re.compile(r'cidad[ãa]o|inclusiv|servi[cç]os digitais|unifica[cç][aã]o de canais', re.I)),
-    (2, re.compile(r'integrad|colaborat|interoperab', re.I)),
-    (3, re.compile(r'inteligent|inovad|govern[aâ]n[cç]a.*dados|gest[aã]o.*dados', re.I)),
-    (4, re.compile(r'confi[aá]vel|segur|privacidade|ppsi', re.I)),
-    (5, re.compile(r'transparent|aberto|participat|dados abertos', re.I)),
-    (6, re.compile(r'eficient|sustent', re.I)),
-]
+# ── Constantes de eixo — importadas de ptd_constants.py (fonte única) ────────
+# EIXOS e _EIXO_PATS importados acima; reatribuídos para compatibilidade local
+# (não duplicar — qualquer alteração vai para ptd_constants.py)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -280,15 +271,8 @@ logger.info(f'Sanity: {len(df_san)} PDFs | {df_san.texto_ok.sum()} texto | '
 # ════════════════════════════════════════════════════════════════════════
 
 def detectar_eixo(texto: str) -> Optional[int]:
-    if not texto:
-        return None
-    m = re.search(r'eixo\s*([1-6])\b|E-([1-6])\b', texto, re.I)
-    if m:
-        return int(m.group(1) or m.group(2))
-    for num, pat in _EIXO_PATS:
-        if pat.search(texto):
-            return num
-    return None
+    """Wrapper para ptd_constants.detectar_eixo (fonte única de padrões)."""
+    return _detectar_eixo_const(texto)
 
 def _is_img_pdf(path: Path) -> bool:
     try:
@@ -298,6 +282,43 @@ def _is_img_pdf(path: Path) -> bool:
         return len(txt.split()) < 50
     except Exception:
         return True
+
+# ── Column-aware extraction ────────────────────────────────────────────────────
+# Padrões de palavras-chave para identificar colunas pelo header
+# (mesmo padrão já usado em _parse_risk_df para tabelas de risco)
+_COL_KEYS: dict[str, tuple] = {
+    'servico': ('serviço', 'servi', 'nome do servi', 'descri'),
+    'produto': ('produto', 'entrega', 'item'),
+    'subeixo': ('subeixo', 'sub-eixo', 'diretriz'),
+    'area':    ('área', 'area', 'setor', 'unidade'),
+    'data':    ('data', 'prazo', 'previsão', 'previsao', 'dt_'),
+}
+
+def _col_map(df: pd.DataFrame) -> dict[str, Optional[int]]:
+    """Mapeia nomes de colunas do DataFrame a campos semânticos.
+
+    Retorna dict {field: col_index | None}.
+    Se nenhum header reconhecível, retorna dict vazio (fallback posicional).
+    """
+    col_names = [str(c).lower().strip() for c in df.columns]
+    result: dict[str, Optional[int]] = {}
+    for field, keywords in _COL_KEYS.items():
+        for idx, name in enumerate(col_names):
+            if any(k in name for k in keywords):
+                result[field] = idx
+                break
+    return result
+
+def _get_cell(cells: list[str], cmap: dict, field: str, fallback_idx: Optional[int]) -> str:
+    """Retorna célula por header (cmap) ou por índice posicional (fallback)."""
+    idx = cmap.get(field, fallback_idx)
+    if idx is None:
+        return ''
+    if idx < 0:
+        idx = len(cells) + idx  # índice negativo → posição relativa ao fim
+    if 0 <= idx < len(cells):
+        return cells[idx]
+    return ''
 
 def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> list:
     """
@@ -335,6 +356,10 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
         if re.search(r'gestão de riscos|probabilidade.*ocorr', all_text, re.I):
             continue
 
+        # Detectar mapeamento por header (FIX: column-aware extraction)
+        cmap = _col_map(df)
+        has_headers = bool(cmap)
+
         for _, row in df.iterrows():
             cells = [str(v).strip() for v in row.values]
             full  = ' | '.join(c for c in cells if c and c.lower() not in ('nan',''))
@@ -346,11 +371,13 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
             if eixo_atual is None:
                 continue
 
-            servico    = cells[0] if cells else ''
-            produto    = cells[1] if len(cells) > 1 else ''
-            area       = cells[-2] if len(cells) > 2 else ''
-            data_e     = cells[-1] if len(cells) > 1 else ''
-            texto      = f'{servico} | {produto}'.strip(' |') if produto else servico
+            # Extrair campos por header quando disponível, posicional como fallback
+            servico = _get_cell(cells, cmap, 'servico', 0)
+            produto = _get_cell(cells, cmap, 'produto', 1 if len(cells) > 1 else None)
+            area    = _get_cell(cells, cmap, 'area',   -2 if len(cells) > 2 else None)
+            data_e  = _get_cell(cells, cmap, 'data',   -1 if len(cells) > 1 else None)
+
+            texto = f'{servico} | {produto}'.strip(' |') if produto else servico
 
             # parse_flag básico
             parse_flag = 'ok' if servico and produto else \
@@ -367,9 +394,10 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
                 'ncols':       len(df.columns),
                 'area':        area[:120],
                 'data_entrega':data_e[:20],
+                'col_map_ok':  has_headers,  # flag: usou mapeamento por header
                 'extrator':    'docling',
                 'parse_flag':  parse_flag,
-                'pdf_sha256':  pdf_sha256,  # FIX: rastreabilidade
+                'pdf_sha256':  pdf_sha256,
             })
     return rows
 
