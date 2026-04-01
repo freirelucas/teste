@@ -126,6 +126,7 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .fonte h4{font-size:13px;font-weight:600;margin-bottom:3px}
 .fonte .url{font-size:11px;color:var(--text2);margin-bottom:7px}
 .fonte p{font-size:12px;color:var(--text2);line-height:1.6}
+[data-nid]{transition:opacity .15s}
 </style></head><body>
 <div id="app">
 <div id="sidebar">
@@ -663,6 +664,19 @@ shodan:{exam:'Kanku, Seienchin, Garyu, Seipai. 10 lutas de 3min. Tameshiwari 3 t
 const NMAP=Object.fromEntries(NODES.map(n=>[n.id,n]));
 const TMAP=Object.fromEntries(TECHS.map(t=>[t.id,t]));
 
+// Platonic solid shape config per node type
+// Grammar → Geometry: acao=Fire/Tetrahedron, dachi=Earth/Cube, direcao=Air/Octahedron,
+// ido=Water/Icosahedron, alvo=Aether/Dodecahedron, buki_mao=Hexagon(Fire+Earth), buki_pe=Diamond
+const SHAPE_CFG={
+  acao:    {sides:3,rot:-30, star:false,outerR:1.55},
+  dachi:   {sides:4,rot:45,  star:false,outerR:1.45},
+  direcao: {sides:8,rot:22.5,star:false,outerR:1.35},
+  ido:     {sides:5,rot:0,   star:true, outerR:1.5},
+  alvo:    {sides:5,rot:-18, star:false,outerR:1.45},
+  buki_mao:{sides:6,rot:0,   star:false,outerR:1.4},
+  buki_pe: {sides:4,rot:0,   star:false,outerR:1.5},
+};
+
 // Build edges for constellation: each tech → star from nodes[0] to others
 function buildEdges(){
 const edges=[];
@@ -761,12 +775,67 @@ renderSVG(svg,nodes,edges,W,H);
 setupCvEvents(svg,W,H);
 }
 
+// ===== GEOMETRY HELPERS =====
+function polyPoints(cx,cy,r,sides,rot){
+rot=rot||0;let pts='';
+for(let i=0;i<sides;i++){
+  const a=(i/sides)*Math.PI*2-Math.PI/2+rot*Math.PI/180;
+  pts+=(cx+r*Math.cos(a)).toFixed(2)+','+(cy+r*Math.sin(a)).toFixed(2)+' ';
+}
+return pts.trim();
+}
+function starPoints(cx,cy,r,rot){
+rot=rot||0;const ri=r*.42;let pts='';
+for(let i=0;i<10;i++){
+  const a=(i/10)*Math.PI*2-Math.PI/2+rot*Math.PI/180;
+  const rc=i%2===0?r:ri;
+  pts+=(cx+rc*Math.cos(a)).toFixed(2)+','+(cy+rc*Math.sin(a)).toFixed(2)+' ';
+}
+return pts.trim();
+}
+function shapePts(cx,cy,r,cfg){
+return cfg.star?starPoints(cx,cy,r,cfg.rot):polyPoints(cx,cy,r,cfg.sides,cfg.rot);
+}
+function renderClusterHalos(g,W,H){
+const hg=document.createElementNS('http://www.w3.org/2000/svg','g');
+hg.setAttribute('pointer-events','none');
+Object.entries(SHAPE_CFG).forEach(([type,cfg])=>{
+  const c=clusterCenter(type,W,H);
+  const col=NT[type];
+  const halo=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  halo.setAttribute('points',shapePts(c.x,c.y,72,cfg));
+  halo.setAttribute('fill',col);
+  halo.setAttribute('fill-opacity','.045');
+  halo.setAttribute('stroke',col);
+  halo.setAttribute('stroke-width','1');
+  halo.setAttribute('stroke-opacity','.12');
+  hg.appendChild(halo);
+});
+g.insertBefore(hg,g.firstChild);
+}
+
 function renderSVG(svg,nodes,edges,W,H){
 svg.innerHTML='';
+// Background mandala: concentric heptagons (7 sides = 7 semantic categories)
+const bg=document.createElementNS('http://www.w3.org/2000/svg','g');
+bg.setAttribute('pointer-events','none');
+[.28,.44,.60,.76,.92].forEach(frac=>{
+  const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  p.setAttribute('points',polyPoints(W/2,H/2,Math.min(W,H)*frac/2,7,0));
+  p.setAttribute('fill','none');
+  p.setAttribute('stroke','#c9a84c');
+  p.setAttribute('stroke-width','0.5');
+  p.setAttribute('opacity','.04');
+  bg.appendChild(p);
+});
+svg.appendChild(bg);
 const ni={};nodes.forEach(n=>ni[n.id]=n);
 const g=document.createElementNS('http://www.w3.org/2000/svg','g');
 g.setAttribute('id','cv-g');
 svg.appendChild(g);
+
+// Cluster halos (background geometric shapes per semantic group)
+renderClusterHalos(g,W,H);
 
 // Edges
 const eg=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -775,13 +844,22 @@ g.appendChild(eg);
 edges.forEach((e,i)=>{
   const s=ni[e.source],t=ni[e.target];
   if(!s||!t)return;
+  const sType=NMAP[e.source]&&NMAP[e.source].type;
+  const tType=NMAP[e.target]&&NMAP[e.target].type;
+  const isBukiAcao=((sType==='buki_mao'||sType==='buki_pe')&&tType==='acao')||
+    (sType==='acao'&&(tType==='buki_mao'||tType==='buki_pe'));
+  const isDirecao=sType==='direcao'||tType==='direcao';
+  const isAlvo=sType==='alvo'||tType==='alvo';
+  const sw=e.tech.kataOnly?'1':isBukiAcao?'2.2':isAlvo?'1.1':'1.4';
+  const op=e.tech.kataOnly?'.28':isBukiAcao?'.5':isDirecao?'.28':'.35';
+  const dash=e.tech.kataOnly?'5,4':isDirecao&&!e.tech.kataOnly?'4,3':'none';
   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
   line.setAttribute('x1',s.x);line.setAttribute('y1',s.y);
   line.setAttribute('x2',t.x);line.setAttribute('y2',t.y);
   line.setAttribute('stroke',BS[e.tech.belt]||'#444');
-  line.setAttribute('stroke-width',e.tech.kataOnly?'1':'1.4');
-  line.setAttribute('stroke-dasharray',e.tech.kataOnly?'5,4':'none');
-  line.setAttribute('opacity','.35');
+  line.setAttribute('stroke-width',sw);
+  line.setAttribute('stroke-dasharray',dash);
+  line.setAttribute('opacity',op);
   line.setAttribute('data-ti',TECHS.indexOf(e.tech));
   line.style.cursor='pointer';
   eg.appendChild(line);
@@ -797,18 +875,38 @@ edges.forEach((e,i)=>{
   eg.appendChild(hit);
 });
 
-// Nodes
+// Nodes — Platonic polygon shapes per semantic/grammatical type
 const ng=document.createElementNS('http://www.w3.org/2000/svg','g');
 ng.setAttribute('id','cv-nodes');
 g.appendChild(ng);
 nodes.forEach(n=>{
-  const r=n.type==='acao'?10:8;
-  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',r);
-  c.setAttribute('fill',NT[n.type]);c.setAttribute('opacity','.9');
-  c.setAttribute('stroke','#0b0b10');c.setAttribute('stroke-width','1.5');
-  c.setAttribute('data-nid',n.id);c.style.cursor='pointer';
-  ng.appendChild(c);
+  const r=n.type==='acao'?11:9;
+  const cfg=SHAPE_CFG[n.type]||{sides:6,rot:0,star:false,outerR:1.4};
+  const col=NT[n.type];
+  const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
+  grp.setAttribute('data-nid',n.id);
+  grp.style.cursor='pointer';
+
+  // Outer platonic ring
+  const outer=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  outer.setAttribute('points',shapePts(n.x,n.y,r*cfg.outerR,cfg));
+  outer.setAttribute('fill','none');
+  outer.setAttribute('stroke',col);
+  outer.setAttribute('stroke-width','0.7');
+  outer.setAttribute('opacity','.28');
+  outer.setAttribute('pointer-events','none');
+  grp.appendChild(outer);
+
+  // Filled inner polygon (núcleo)
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',shapePts(n.x,n.y,r,cfg));
+  poly.setAttribute('fill',col);
+  poly.setAttribute('opacity','.88');
+  poly.setAttribute('stroke','#0b0b10');
+  poly.setAttribute('stroke-width','1.2');
+  grp.appendChild(poly);
+
+  ng.appendChild(grp);
 
   const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
   txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+11);
@@ -847,7 +945,10 @@ svg.addEventListener('mouseleave',()=>tip.style.opacity='0');
 svg.addEventListener('click',ev=>{
   const el=ev.target;
   const ti=el.dataset&&el.dataset.ti;
-  const nid=el.dataset&&el.dataset.nid;
+  // Walk up DOM to find data-nid (now on <g> wrapper around polygons)
+  let nidEl=el;
+  while(nidEl&&nidEl!==svg&&!(nidEl.dataset&&nidEl.dataset.nid))nidEl=nidEl.parentElement;
+  const nid=nidEl&&nidEl.dataset&&nidEl.dataset.nid;
   if(nid){
     showNodeDetail(nid);
   } else if(ti!==undefined&&ti!==''){
@@ -925,7 +1026,7 @@ svg.querySelectorAll('[data-ti]').forEach(el=>{
   el.setAttribute('opacity',connected?'.85':'.12');
 });
 svg.querySelectorAll('[data-nid]').forEach(el=>{
-  el.setAttribute('opacity',el.dataset.nid===nid?'1':'.35');
+  el.setAttribute('opacity',el.dataset.nid===nid?'1':'.22');
 });
 }
 
@@ -935,7 +1036,7 @@ document.getElementById('detail').classList.remove('open');
 const svg=document.getElementById('cv');
 svg.querySelectorAll('[data-ti]').forEach(el=>el.setAttribute('opacity',
   el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'?'.35':'1'));
-svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','.9'));
+svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','1'));
 };
 
 // ===== DICTIONARY =====
