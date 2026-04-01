@@ -16,6 +16,7 @@
 import re, time, hashlib, json, warnings, logging
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 import requests
 import pandas as pd
@@ -97,7 +98,7 @@ _EIXO_PATS = [
 # FIX: substitui CATALOGO hardcoded (causa de 100/120 erros 404)
 # ════════════════════════════════════════════════════════════════════════
 
-def scrape_catalogo(url=PORTAL_BASE):
+def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
     """
     Extrai URLs dos PDFs diretamente do HTML do portal.
     Retorna DataFrame com colunas: sigla, url_entregas, url_diretivo, filename_e, filename_d
@@ -119,12 +120,20 @@ def scrape_catalogo(url=PORTAL_BASE):
     rows = []
 
     # Buscar links PDF na página
+    # O portal Plone adiciona sufixo /view — remover antes de processar
     for link in soup.find_all('a', href=True):
         href = link['href']
-        if not href.endswith('.pdf'):
+        # Normalizar URL: remover sufixo /view
+        clean = href.rstrip('/').removesuffix('/view')
+        if not clean.lower().endswith('.pdf'):
             continue
         txt = link.get_text(strip=True).lower()
-        fn  = href.split('/')[-1]
+        fn  = clean.split('/')[-1]
+        # URL de download: usar href limpo; completar se relativo
+        if clean.startswith('http'):
+            download_url = clean
+        else:
+            download_url = 'https://www.gov.br' + clean
 
         # Tentar inferir sigla pelo contexto do link
         parent_text = ''
@@ -135,7 +144,7 @@ def scrape_catalogo(url=PORTAL_BASE):
                 break
 
         rows.append({
-            'url': href if href.startswith('http') else PORTAL_BASE + fn,
+            'url': download_url,
             'filename': fn,
             'tipo': 'entregas' if 'entrega' in txt or 'entrega' in fn else
                     ('diretivo' if 'diretivo' in txt or 'diretivo' in fn or 'dcd' in fn else 'desconhecido'),
@@ -143,8 +152,8 @@ def scrape_catalogo(url=PORTAL_BASE):
         })
 
     df = pd.DataFrame(rows).drop_duplicates(subset=['filename'])
-    print(f'✅ Scraping: {len(df)} PDFs únicos encontrados')
-    print(f'   entregas: {(df.tipo=="entregas").sum()} | diretivos: {(df.tipo=="diretivo").sum()}')
+    logger.info(f'Scraping: {len(df)} PDFs únicos | '
+                f'entregas: {(df.tipo=="entregas").sum()} | diretivos: {(df.tipo=="diretivo").sum()}')
     return df
 
 df_catalogo_raw = scrape_catalogo()
@@ -162,7 +171,7 @@ def _sha256(path: Path) -> str:
 def _md5(path: Path) -> str:
     return hashlib.md5(path.read_bytes()).hexdigest()
 
-def baixar_um(url: str, dest: Path, max_retry=3) -> dict:
+def baixar_um(url: str, dest: Path, max_retry: int = 3) -> dict:
     log = {'url':url,'arquivo':dest.name,'http':None,'kb':None,
            'cache':False,'ok':False,'md5':None,'sha256':None,'erro':None}
     if dest.exists() and dest.stat().st_size > 1000:
@@ -270,7 +279,7 @@ logger.info(f'Sanity: {len(df_san)} PDFs | {df_san.texto_ok.sum()} texto | '
 # FIX: parse_flag (qualidade da extração linha a linha)
 # ════════════════════════════════════════════════════════════════════════
 
-def detectar_eixo(texto: str):
+def detectar_eixo(texto: str) -> Optional[int]:
     if not texto:
         return None
     m = re.search(r'eixo\s*([1-6])\b|E-([1-6])\b', texto, re.I)
