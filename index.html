@@ -606,7 +606,7 @@ techs:['Yoko Keage','Mae Keage'],
 note:'Yoko Keage substitui Kansetsu Geri.',
 silences:''},
 {id:'k_stai3',name:'Sokugi Taikyoku Sono San',belt:'laranja',time:'22s',
-origin:'',
+origin:'Criado por Mas Oyama como terceira forma da série Sokugi Taikyoku. Introduz combinações de chutes laterais e frontais em sucessão, preparando para o trabalho direcional do Pinan.',
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Mawashi Geri','Mae Keage'],
 note:'Primeiro kata com Mawashi Geri.',
@@ -763,6 +763,39 @@ note:'Oi-ashi reduz a distância explosivamente. O nidan (dois chutes da mesma p
 {id:'r17',name:'Tenshin + Gyaku Tsuki + Ura Mawashi',belt:'marrom',cat:'ido',
 steps:['Tenshin + Contra-ataque — Hajime!','  ▶ Tenshin (転身): passo de recuo em ângulo 45° atrás e para o lado, saindo da linha','  ▶ Imediatamente: Gyaku Tsuki ao centro aberto do oponente','  ▶ Ura Mawashi Geri jodan: chute gancho de calcanhar','  ▶ Yame! Mawatte!'],
 note:'Tenshin = transformar o corpo. Não é recuo — é posicionamento estratégico. Presente no Yantsu kata.'},
+{id:'r18',name:'Gedan Barai + Yoko Geri + Uraken + Gyaku Tsuki',belt:'amarela',
+steps:['Gedan Barai + Yoko Geri — Hajime!',
+  '  ▶ Gedan Barai: varredura baixa, abre a guarda do oponente',
+  '  ▶ Câmara lateral: joelho aponta para o chão',
+  '  ▶ Yoko Geri sokuto ao chudan',
+  '  ▶ Uraken Shomen Uchi ao pousar',
+  '  ▶ Gyaku Tsuki: fechamento',
+  '  ▶ Yame! Mawatte!'],
+note:'Defesa baixa → lateral → chicote → soco. Quatro alturas distintas em quatro tempos. Coordena os dois eixos posicionais num único renraku.'},
+{id:'r19',name:'Soto Uke + Empi + Uraken + Mae Geri + Gyaku Tsuki',belt:'shodan',
+steps:['Soto Uke + 5 tempos — Hajime!',
+  '  ▶ Soto Uke: bloqueio externo, abre a guarda',
+  '  ▶ Mae Empi: cotovelada frontal ao plexo — penetra a distância',
+  '  ▶ Uraken Gammen Uchi: chicote ao rosto, alcance de cotovelo',
+  '  ▶ Mae Geri chudan: cria distância de saída',
+  '  ▶ Gyaku Tsuki: fecha ao pousar',
+  '  ▶ Yame! Mawatte!'],
+note:'Cinco tempos, cinco armas: antebraço → cotovelo → dorso do punho → chusoku → seiken. O renraku completo do kumite — o padrão de entrada, controle e saída.'},
+{id:'r20',name:'Ushiro Mawashi Geri + Jodan Mawashi Geri + Gyaku Tsuki',belt:'shodan',
+steps:['Nidan Rotacional — Hajime!',
+  '  ▶ Rotação 360°: Ushiro Mawashi Geri — calcanhar ao jodan',
+  '  ▶ Continuação sem pousar: Mawashi Geri jodan com a mesma perna',
+  '  ▶ Gyaku Tsuki ao aterrissar com kiai',
+  '  ▶ Yame! Mawatte!'],
+note:'Dois chutes da mesma perna em rotação completa. Requer equilíbrio de Shodan. Exclusivo da faixa preta — proibido nos graus kyu.'},
+{id:'r21',name:'Tenshin + Ashi Barai + Otoshi Empi',belt:'shodan',
+steps:['Yakusoku Kumite — Hajime!',
+  '  ▶ Tenshin 45°: recuar em ângulo, sair da linha de ataque',
+  '  ▶ Oi Tsuki imediato ao flanco descoberto',
+  '  ▶ Ashi Barai: varredura de pé, desequilibra o oponente',
+  '  ▶ Otoshi Empi: cotovelada descendente ao oponente desequilibrado',
+  '  ▶ Kiai! — Yame! Naore! Rei!'],
+note:'Padrão de yakusoku kumite do Shodan: Tenshin + Barai + finalização. Requer uke (parceiro) nos exames IKO1. A trilogia do combate eficiente.'},
 ];
 
 const BELT_REQ={
@@ -1514,6 +1547,10 @@ svg.querySelectorAll('[data-ti]').forEach(el=>{
 svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','1'));
 svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
 };
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape'&&document.getElementById('detail').classList.contains('open'))
+  document.getElementById('det-close').click();
+});
 
 // ===== DICTIONARY =====
 let dictFilters={belt:'all',action:'all'};
@@ -2012,7 +2049,7 @@ s1.innerHTML='<h3>I. A Fórmula da Técnica</h3>'+
 const demoWrap=document.createElement('div');
 demoWrap.className='gram-demo-wrap';
 const sel=document.createElement('select');
-TECHS.filter(t=>!t.kataOnly).slice(0,20).forEach(t=>{
+TECHS.filter(t=>!t.kataOnly).forEach(t=>{
   const o=document.createElement('option');
   o.value=TECHS.indexOf(t);o.textContent=t.name;sel.appendChild(o);
 });
@@ -2150,8 +2187,6 @@ posSvg.appendChild(rect(kx+10,ky+66,10,32,'#c9a84c',.07)); // perna dir
   posSvg.appendChild(c);
   posSvg.appendChild(txt(x+5,y,id,NT.alvo+'aa',7,'start'));
 });
-// direction arrows (left side)
-[[kx-80,ky,'←','mae','frontal'],[kx-80,ky-26,'↗','age','ascendente'],[kx-80,ky+26,'↙','gedan dir.','']].forEach(([x,y,ic,lbl])=>{});
 const dirData=[
   {lbl:'Mae',sub:'frontal',a:-Math.PI/2},
   {lbl:'Ushiro',sub:'posterior',a:Math.PI/2},
@@ -2178,6 +2213,16 @@ dirData.forEach((d,i)=>{
   const labelAnchor=Math.cos(d.a)>0.3?'start':Math.cos(d.a)<-0.3?'end':'middle';
   posSvg.appendChild(txt(lx.toFixed(1),ly.toFixed(1),d.lbl,NT.direcao,8,labelAnchor));
   if(d.sub)posSvg.appendChild(txt(lx.toFixed(1),(+ly+8).toFixed(1),d.sub,NT.direcao+'66',6,labelAnchor));
+  // hit area: click direction → highlight in constellation
+  const hit=document.createElementNS(NS,'circle');
+  hit.setAttribute('cx',lx.toFixed(1));hit.setAttribute('cy',ly.toFixed(1));
+  hit.setAttribute('r','14');hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
+  const nodeId=d.lbl.toLowerCase();
+  hit.onclick=()=>{switchTab('constelacao');
+    if(NMAP[nodeId])highlightNode(nodeId); else highlightType('direcao');};
+  hit.onmouseenter=()=>{hit.setAttribute('fill',NT.direcao+'22');};
+  hit.onmouseleave=()=>{hit.setAttribute('fill','transparent');};
+  posSvg.appendChild(hit);
 });
 posSvg.appendChild(txt(dcx,dcy-dirR*1.3,'DIREÇÃO',NT.direcao,8,'middle'));
 posSvg.appendChild(txt(posW-10,20,'ALVO',NT.alvo,8,'end'));
@@ -2191,7 +2236,7 @@ div.appendChild(s3);
 // ---- Section 4: Silêncio Canônico ----
 const s4=document.createElement('div');s4.className='gram-s';
 s4.innerHTML='<h3>IV. O Silêncio Canônico</h3>'+
-  '<p>O espaço teórico de combinações dos 7 eixos é vastíssimo. O currículo IKO1 canoniza apenas 54 técnicas — uma fração radical.</p>';
+  '<p>O espaço teórico de combinações dos <strong style="color:var(--text)">5 eixos de combinação</strong> (arma, ação, direção, alvo — mais dachi contextual) é vastíssimo. O currículo IKO1 canoniza apenas 54 técnicas — uma fração radical.</p>';
 const silence=document.createElement('div');silence.className='gram-silence';
 // compute counts
 const nAcao=NODES.filter(n=>n.type==='acao').length;
