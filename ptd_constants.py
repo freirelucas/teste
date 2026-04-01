@@ -16,6 +16,15 @@ DIR_RAW  = DIR_ROOT / '01_raw_pdfs'
 DIR_LOG  = DIR_ROOT / '02_logs'
 DIR_DB   = DIR_ROOT / '03_database'
 
+# ── Portal de coleta (fonte única — não duplicar nos scripts) ─────────────────
+# ATENÇÃO: URL sem /ptds-vigentes/ — essa subpágina é legada (~18 PDFs antigos)
+# A página principal lista todos os ~90 órgãos com PTD vigente (~180 PDFs)
+PORTAL_BASE = (
+    'https://www.gov.br/governodigital/pt-br/'
+    'estrategias-e-governanca-digital/'
+    'planos-de-transformacao-digital'
+)
+
 # ── Eixos EFGD (Estratégia Federal de Governo Digital) ───────────────────────
 EIXOS: dict[int, str] = {
     1: 'Centrado no Cidadão e Inclusivo',

@@ -18,7 +18,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from ptd_constants import EIXOS, _EIXO_PATS, detectar_eixo as _detectar_eixo_const
+from ptd_constants import EIXOS, _EIXO_PATS, detectar_eixo as _detectar_eixo_const, PORTAL_BASE
 
 import requests
 import pandas as pd
@@ -51,11 +51,7 @@ HEADERS = {'User-Agent': 'IPEA-DIEST-Research/3.0 (pesquisa-governanca@ipea.gov.
 TIMEOUT = 60
 DELAY   = 1.5
 
-PORTAL_BASE = (
-    'https://www.gov.br/governodigital/pt-br/'
-    'estrategias-e-governanca-digital/'
-    'planos-de-transformacao-digital/ptds-vigentes/'
-)
+# PORTAL_BASE importado de ptd_constants.py (fonte única)
 
 try:
     from docling.document_converter import DocumentConverter, PdfFormatOption
