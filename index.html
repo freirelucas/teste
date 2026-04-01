@@ -825,14 +825,32 @@ const SHAPE_CFG={
   buki_pe: {sides:4,rot:0,   star:false,outerR:1.5},
 };
 
-// Build edges for constellation: each tech → star from nodes[0] to others
+/// Ido canonical map: techniques that use okuri (rotational/lateral) or tobi (jumping)
+// All others default to ayumi (normal step)
+const IDO_MAP={
+  t10:'okuri',t22:'okuri',t23:'okuri',t24:'okuri',t27:'okuri',
+  t29:'okuri',t30:'okuri',t31:'okuri',t36:'okuri',t37:'okuri',t39:'okuri',
+  k07:'okuri',
+  k05:'tobi', // Nidan Geri — only jumping technique
+};
+function getIdo(techId){return IDO_MAP[techId]||'ayumi';}
+
+// Build edges for constellation: star from nodes[0] (hub=buki) to all semantic dimensions
 function buildEdges(){
 const edges=[];
 TECHS.forEach(t=>{
   const ns=t.nodes.filter(id=>NMAP[id]);
+  const hub=ns[0];
   for(let i=1;i<ns.length;i++){
-    edges.push({source:ns[0],target:ns[i],tech:t});
+    edges.push({source:hub,target:ns[i],tech:t});
   }
+  // dachi: postura — fundação (outer ring)
+  if(t.dachi&&NMAP[t.dachi])
+    edges.push({source:hub,target:t.dachi,tech:t});
+  // ido: movimento — fluxo (mid ring)
+  const idoId=getIdo(t.id);
+  if(NMAP[idoId])
+    edges.push({source:hub,target:idoId,tech:t});
 });
 return edges;
 }
@@ -1157,9 +1175,11 @@ edges.forEach((e,i)=>{
     (sType==='acao'&&(tType==='buki_mao'||tType==='buki_pe'));
   const isDirecao=sType==='direcao'||tType==='direcao';
   const isAlvo=sType==='alvo'||tType==='alvo';
-  const sw=e.tech.kataOnly?'1':isBukiAcao?'2.2':isAlvo?'1.1':'1.4';
+  const isDachi=sType==='dachi'||tType==='dachi';
+  const isIdo=sType==='ido'||tType==='ido';
+  const sw=e.tech.kataOnly?'1':isBukiAcao?'2.2':isAlvo?'1.1':isDachi?'1.0':isIdo?'0.8':'1.4';
   const op='.05';
-  const dash=e.tech.kataOnly?'5,4':isDirecao&&!e.tech.kataOnly?'4,3':'none';
+  const dash=e.tech.kataOnly?'5,4':isDirecao&&!e.tech.kataOnly?'4,3':isIdo?'3,3':'none';
   const ti=TECHS.indexOf(e.tech);
   const col=BS[e.tech.belt]||'#444';
   if(cvMode==='chord'){
@@ -1304,8 +1324,9 @@ const roleDesc={
 };
 document.getElementById('det-desc').textContent=roleDesc[node.type]||'';
 const ul=document.getElementById('det-techs');
-ul.innerHTML='<div style="font-size:10px;color:var(--text2);margin-bottom:6px">TÉCNICAS ('+TECHS.filter(t=>t.nodes.includes(nid)).length+')</div>';
-TECHS.filter(t=>t.nodes.includes(nid)).forEach(t=>{
+const techsForNode=TECHS.filter(t=>t.nodes.includes(nid)||t.dachi===nid||getIdo(t.id)===nid);
+ul.innerHTML='<div style="font-size:10px;color:var(--text2);margin-bottom:6px">TÉCNICAS ('+techsForNode.length+')</div>';
+techsForNode.forEach(t=>{
   const li=document.createElement('li');
   li.style.borderLeftColor=BS[t.belt];
   li.innerHTML='<span style="font-weight:600;font-size:12px">'+t.name+'</span>'
@@ -1354,6 +1375,13 @@ if(tech.dachi){
     axHtml+=`<div class="gram-axis-lbl" style="color:${c}88">${d.pt}</div>`;
   }
 }
+const idoId=getIdo(tech.id);
+const idoNode=NMAP[idoId];
+if(idoNode){
+  const c=NT.ido;
+  fHtml+=`<span class="gram-op">·</span><div class="gram-slot" style="color:${c};border-color:${c}40;background:${c}0f;min-width:44px"><div class="gram-slot-lbl" style="color:${c}">Ido</div><div class="gram-slot-val">${idoNode.label}</div></div>`;
+  axHtml+=`<div class="gram-axis-lbl" style="color:${c}88">${idoNode.pt}</div>`;
+}
 fHtml+='</div>';axHtml+='</div>';
 ul.innerHTML='<div style="font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:.06em">FÓRMULA</div>'+fHtml+axHtml;
 det.classList.add('open');
@@ -1368,7 +1396,7 @@ svg.querySelectorAll('[data-ti]').forEach(el=>{
 svg.querySelectorAll('[data-ti]').forEach(el=>{
   const ti=el.dataset.ti;if(ti===undefined)return;
   const tech=TECHS[+ti];
-  const connected=tech&&tech.nodes.includes(nid);
+  const connected=tech&&(tech.nodes.includes(nid)||tech.dachi===nid||getIdo(tech.id)===nid);
   el.setAttribute('opacity',connected?'.85':'.12');
   // Pulse animation on connected visible line edges
   if(connected&&el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'){
@@ -1391,9 +1419,12 @@ svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
 const cvg=document.getElementById('cv-g');
 const eg=document.getElementById('cv-edges');
 const ni={};SIM_NODES.forEach(n=>ni[n.id]=n);
-TECHS.filter(t=>t.nodes.includes(nid)).forEach(t=>{
-  const pts=t.nodes.filter(id=>ni[id]).map(id=>ni[id].x.toFixed(1)+','+ni[id].y.toFixed(1)).join(' ');
-  if(!pts||t.nodes.filter(id=>ni[id]).length<3)return;
+TECHS.filter(t=>t.nodes.includes(nid)||t.dachi===nid||getIdo(t.id)===nid).forEach(t=>{
+  const allIds=[...t.nodes];
+  if(t.dachi&&ni[t.dachi])allIds.push(t.dachi);
+  const idoId=getIdo(t.id);if(ni[idoId])allIds.push(idoId);
+  const pts=allIds.filter(id=>ni[id]).map(id=>ni[id].x.toFixed(1)+','+ni[id].y.toFixed(1)).join(' ');
+  if(!pts||allIds.filter(id=>ni[id]).length<3)return;
   const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
   poly.setAttribute('points',pts);
   poly.setAttribute('fill',BS[t.belt]||'#888');
@@ -1412,7 +1443,9 @@ const svg=document.getElementById('cv');
 svg.querySelectorAll('[data-ti]').forEach(el=>{
   const ti=el.dataset.ti;if(ti===undefined)return;
   const tech=TECHS[+ti];if(!tech)return;
-  const connected=tech.nodes.some(nid=>{const node=NMAP[nid];return node&&node.type===type;});
+  const connected=tech.nodes.some(nid=>{const node=NMAP[nid];return node&&node.type===type;})
+    ||(type==='dachi'&&tech.dachi&&NMAP[tech.dachi]?.type==='dachi')
+    ||(type==='ido'&&NMAP[getIdo(tech.id)]?.type==='ido');
   el.setAttribute('opacity',connected?'.72':'.04');
 });
 svg.querySelectorAll('[data-nid]').forEach(el=>{
@@ -2081,6 +2114,16 @@ function updateDemoFormula(){
         <div style="font-size:9px;color:${c}88;margin-top:1px">${d.pt}</div>
       </div>`;
     }
+  }
+  const dIdoId=getIdo(tech.id);
+  const dIdoNode=NMAP[dIdoId];
+  if(dIdoNode){
+    const c=NT.ido;
+    html+=`<span class="gram-op" style="font-size:16px">·</span><div class="gram-slot" style="color:${c};border-color:${c}55;background:${c}12;min-width:52px">
+      <div class="gram-slot-lbl" style="color:${c}">Ido</div>
+      <div class="gram-slot-val">${dIdoNode.label}</div>
+      <div style="font-size:9px;color:${c}88;margin-top:1px">${dIdoNode.pt}</div>
+    </div>`;
   }
   html+='</div>';
   const beltC=BS[tech.belt]||'#888';
