@@ -150,11 +150,12 @@ def slide_coleta(prs):
     caixa(sl, 'O QUE FOI COLETADO', 0.5, 0.2, 12, 0.7,
           tam=24, bold=True, alinha=PP_ALIGN.CENTER)
 
+    n_reg = f'{_KPIS["n_registros"]:,}'.replace(',', '.') if _KPIS.get('n_registros') else '5.825'
     numeros = [
-        ('90',   'órgãos\ncatalogados'),
-        ('54',   'PDFs únicos\nbaixados'),
-        ('5.825','linhas no\ncorpus bruto'),
-        ('4',    'grupos\ncompartilhados'),
+        ('90',  'órgãos\ncatalogados'),
+        ('54',  'PDFs únicos\nbaixados'),
+        (n_reg, 'linhas no\ncorpus bruto'),
+        ('4',   'grupos\ncompartilhados'),
     ]
     for i, (num, leg) in enumerate(numeros):
         x = 0.7 + i * 3.1
@@ -404,6 +405,27 @@ def slide_balanco(prs):
 # ════════════════════════════════════════════════════════
 # GERAR
 # ════════════════════════════════════════════════════════
+def _carregar_kpis() -> dict:
+    """Lê ptd_corpus_v21_metadados.json se existir e retorna KPIs reais."""
+    from pathlib import Path as _Path
+    import json as _json
+    meta_path = _Path('ptd_corpus/03_database/ptd_corpus_v21_metadados.json')
+    if not meta_path.exists():
+        return {}
+    try:
+        with open(meta_path, encoding='utf-8') as f:
+            m = _json.load(f)
+        return {
+            'n_registros':  m.get('corpus', {}).get('total_linhas', 0),
+            'n_orgaos':     len(set()),  # calculado abaixo via pivot
+            'parse_ok_pct': m.get('parse', {}).get('cobertura_servico_pct', 0),
+        }
+    except Exception:
+        return {}
+
+# KPIs globais — preenchidos com valores reais se disponíveis, senão placeholders
+_KPIS = _carregar_kpis()
+
 def gerar():
     from pathlib import Path as _Path
     prs = nova_apresentacao()

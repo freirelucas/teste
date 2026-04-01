@@ -13,7 +13,7 @@
 # ETAPA 5 — Extração de Riscos
 # ETAPA 6 — Exportação
 
-import re, time, hashlib, json, warnings
+import re, time, hashlib, json, warnings, logging
 from pathlib import Path
 from datetime import datetime
 
@@ -30,6 +30,19 @@ DIR_LOG = ROOT / '02_logs'
 DIR_DB  = ROOT / '03_database'
 for d in [DIR_RAW, DIR_LOG, DIR_DB]:
     d.mkdir(parents=True, exist_ok=True)
+
+# ── Logging centralizado ─────────────────────────────────────────────
+_log_file = DIR_LOG / f'pipeline_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%H:%M:%S',
+    handlers=[
+        logging.FileHandler(_log_file, encoding='utf-8'),
+        logging.StreamHandler(),
+    ],
+)
+logger = logging.getLogger('ptd_pipeline')
 
 HEADERS = {'User-Agent': 'IPEA-DIEST-Research/3.0 (pesquisa-governanca@ipea.gov.br)'}
 TIMEOUT = 60
@@ -48,10 +61,10 @@ try:
         TableStructureOptions, TableFormerMode,
     )
     _DOCLING_OK = True
-    print('✅ Docling disponível')
+    logger.info('Docling disponível')
 except Exception as e:
     _DOCLING_OK = False
-    print(f'⚠️  Docling indisponível — fallback PyMuPDF ({e})')
+    logger.warning(f'Docling indisponível — fallback PyMuPDF ({e})')
 
 PROVENIENCIA = {
     'fonte':       'Portal do Governo Digital / MGI',
@@ -92,14 +105,14 @@ def scrape_catalogo(url=PORTAL_BASE):
     try:
         from bs4 import BeautifulSoup
     except ImportError:
-        print('⚠️  beautifulsoup4 não instalado. Use pip install beautifulsoup4')
+        logger.warning('beautifulsoup4 não instalado. Use pip install beautifulsoup4')
         return pd.DataFrame()
 
     try:
         r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
         r.raise_for_status()
     except Exception as e:
-        print(f'✗ Falha no scraping: {e}')
+        logger.error(f'Falha no scraping: {e}')
         return pd.DataFrame()
 
     soup = BeautifulSoup(r.text, 'html.parser')
@@ -185,21 +198,22 @@ urls_para_baixar = {
     if row['url']
 }
 
-print(f'Baixando {len(urls_para_baixar)} PDFs únicos...')
+logger.info(f'Baixando {len(urls_para_baixar)} PDFs únicos...')
 logs_dl = []
 for i, (fn, url) in enumerate(urls_para_baixar.items(), 1):
     dest = DIR_RAW / fn
     log  = baixar_um(url, dest)
     icon = '📦' if log['cache'] else ('✓' if log['ok'] else '✗')
-    print(f'  {icon} [{i:>3}/{len(urls_para_baixar)}] {fn[:50]:50s}  {str(log["kb"])+"KB":>8}')
+    lvl  = logging.INFO if log['ok'] else logging.WARNING
+    logger.log(lvl, f'{icon} [{i:>3}/{len(urls_para_baixar)}] {fn[:50]:50s}  {str(log["kb"])+"KB":>8}')
     logs_dl.append(log)
     if not log['cache'] and log['ok']:
         time.sleep(DELAY)
 
 df_dl = pd.DataFrame(logs_dl)
 df_dl.to_csv(DIR_LOG / 'download_log.csv', index=False)
-print(f'\n✅ {df_dl.ok.sum()} OK | ✗ {(~df_dl.ok).sum()} erros | '
-      f'{df_dl[df_dl.ok]["kb"].sum()/1024:.1f} MB total')
+logger.info(f'{df_dl.ok.sum()} OK | {(~df_dl.ok).sum()} erros | '
+            f'{df_dl[df_dl.ok]["kb"].sum()/1024:.1f} MB total')
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -244,9 +258,9 @@ for i, row in df_san.iterrows():
         seen[row['md5']] = row['arquivo']
 
 df_san.to_csv(DIR_LOG / 'sanity_log.csv', index=False)
-print(f'✅ Sanity: {len(df_san)} PDFs | {df_san.texto_ok.sum()} texto | '
-      f'{df_san.image_pdf.sum()} imagem/OCR | '
-      f'{df_san.duplicata_de.notna().sum()} duplicatas')
+logger.info(f'Sanity: {len(df_san)} PDFs | {df_san.texto_ok.sum()} texto | '
+            f'{df_san.image_pdf.sum()} imagem/OCR | '
+            f'{df_san.duplicata_de.notna().sum()} duplicatas')
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -273,7 +287,7 @@ def _is_img_pdf(path: Path) -> bool:
         txt = ' '.join(p.get_text() for p in doc)
         doc.close()
         return len(txt.split()) < 50
-    except:
+    except Exception:
         return True
 
 def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> list:
@@ -359,7 +373,7 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str) -> list:
     rows = []
     try:
         doc = fitz.open(str(path))
-    except:
+    except Exception:
         return []
     for npag, pag in enumerate(doc, 1):
         eixo_atual = None  # FIX: reset por página
@@ -446,14 +460,15 @@ for _, srow in pdfs_ok.iterrows():
             rows    = _extrair_pymupdf(path, sigla, sha256)
             extrator = rows[0]['extrator'] if rows else 'pymupdf'
     except Exception as exc:
-        print(f'  ✗ {sigla}: {exc}')
+        logger.error(f'{sigla}: {exc}')
         logs_e.append({'sigla':sigla,'filename':fn,'status':'ERROR','n':0,'erro':str(exc)[:100]})
         continue
 
     all_rows_e.extend(rows)
     n = len(rows)
-    print(f'  {"✓" if n>0 else "⚠"} {sigla:12s}: {n:4d} entregas | '
-          f'{time.time()-t0:.1f}s | {extrator}')
+    lvl = logging.INFO if n > 0 else logging.WARNING
+    logger.log(lvl, f'{"✓" if n>0 else "⚠"} {sigla:12s}: {n:4d} entregas | '
+                    f'{time.time()-t0:.1f}s | {extrator}')
     logs_e.append({'sigla':sigla,'filename':fn,'status':'OK','n':n,'extrator':extrator})
 
     with open(CHECKPOINT_E,'a') as f:
@@ -461,8 +476,8 @@ for _, srow in pdfs_ok.iterrows():
 
 df_corpus = pd.DataFrame(all_rows_e) if all_rows_e else pd.DataFrame()
 pd.DataFrame(logs_e).to_csv(DIR_LOG / 'extracao_entregas_log.csv', index=False)
-print(f'\n✅ {len(df_corpus):,} registros | '
-      f'{df_corpus["sigla"].nunique() if not df_corpus.empty else 0} órgãos')
+logger.info(f'{len(df_corpus):,} registros | '
+            f'{df_corpus["sigla"].nunique() if not df_corpus.empty else 0} órgãos')
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -644,7 +659,7 @@ for _, srow in pdfs_diretivos.iterrows():
             doc.close()
             extrator = 'pymupdf'
     except Exception as exc:
-        print(f'  ✗ {sigla}: {exc}')
+        logger.error(f'{sigla}: {exc}')
         logs_r.append({'sigla': sigla, 'filename': fn, 'status': 'ERROR',
                        'n_riscos': 0, 'erro': str(exc)[:100]})
         continue
@@ -684,7 +699,7 @@ df_acoes  = (pd.DataFrame(all_acoes_r).drop_duplicates(subset=['acao_id'])
              if all_acoes_r else pd.DataFrame())
 df_bridge = pd.DataFrame(bridge) if bridge else pd.DataFrame()
 pd.DataFrame(logs_r).to_csv(DIR_LOG / 'extracao_riscos_log.csv', index=False)
-print(f'\n✅ {len(df_riscos)} riscos | {len(df_acoes)} ações | {len(df_bridge)} relações')
+logger.info(f'{len(df_riscos)} riscos | {len(df_acoes)} ações | {len(df_bridge)} relações')
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -700,7 +715,7 @@ def export_all(df: pd.DataFrame, stem: str):
         df.to_parquet(DIR_DB / f'{stem}.parquet', index=False)
     except Exception:
         pass
-    print(f'  {stem:35s}: {len(df):,} linhas')
+    logger.info(f'{stem:35s}: {len(df):,} linhas')
 
 # ── Corpus de entregas ────────────────────────────────────────────────
 if not df_corpus.empty:
@@ -828,13 +843,12 @@ manifesto = {
 }
 (DIR_DB / 'pipeline_manifest.json').write_text(
     json.dumps(manifesto, indent=2, ensure_ascii=False))
-print('\n✅ Manifesto de pipeline salvo: pipeline_manifest.json')
-print(f'   SHA-256 de {len(manifesto["pdfs_sha256"])} PDFs registrados')
-print(f'\n{"="*50}')
-print(f'  PTD-BR v3.0-melhorado — PIPELINE CONCLUÍDO')
-print(f'{"="*50}')
+logger.info(f'Manifesto salvo: pipeline_manifest.json | SHA-256 de {len(manifesto["pdfs_sha256"])} PDFs')
+logger.info('=' * 50)
+logger.info('PTD-BR v3.0-melhorado — PIPELINE CONCLUÍDO')
+logger.info('=' * 50)
 for stem, desc in manifesto["outputs"].items():
     p = DIR_DB / stem
     if p.exists():
-        print(f'  {stem:40s} {p.stat().st_size//1024:4d} KB')
-print(f'{"="*50}')
+        logger.info(f'{stem:40s} {p.stat().st_size//1024:4d} KB')
+logger.info('=' * 50)

@@ -166,6 +166,7 @@ def parse_linha(txt):
     dts       = list(PAT_DATA.finditer(area_data))
     data_ptd  = dts[-1].group() if dts else None
     area      = area_data[:area_data.rfind(data_ptd)].strip() if data_ptd else area_data.strip()
+    area      = area[:500] if area else area  # evitar célula gigante no CSV
     servico   = PAT_ID_GOVBR.sub('', servico).strip()
 
     if not servico:
