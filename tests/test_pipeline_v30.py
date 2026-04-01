@@ -5,38 +5,15 @@ Funções testadas: detectar_eixo, _is_img_pdf (mock), scrape_catalogo (mock)
 Execução:
     pytest tests/ -v
 """
+import sys
 import re
 import pytest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 
-
-# ── Cópia isolada de detectar_eixo para testes ───────────────────────────────
-
-EIXOS = {
-    1:'Centrado no Cidadão e Inclusivo', 2:'Integrado e Colaborativo',
-    3:'Inteligente e Inovador',          4:'Confiável e Seguro',
-    5:'Transparente, Aberto e Participativo', 6:'Eficiente e Sustentável',
-}
-_EIXO_PATS = [
-    (1, re.compile(r'cidad[ãa]o|inclusiv|servi[cç]os digitais|unifica[cç][aã]o de canais', re.I)),
-    (2, re.compile(r'integrad|colaborat|interoperab', re.I)),
-    (3, re.compile(r'inteligent|inovad|govern[aâ]n[cç]a.*dados|gest[aã]o.*dados', re.I)),
-    (4, re.compile(r'confi[aá]vel|segur|privacidade|ppsi', re.I)),
-    (5, re.compile(r'transparent|aberto|participat|dados abertos', re.I)),
-    (6, re.compile(r'eficient|sustent', re.I)),
-]
-
-def detectar_eixo(texto: str):
-    if not texto:
-        return None
-    m = re.search(r'eixo\s*([1-6])\b|E-([1-6])\b', texto, re.I)
-    if m:
-        return int(m.group(1) or m.group(2))
-    for num, pat in _EIXO_PATS:
-        if pat.search(texto):
-            return num
-    return None
+# Importar directamente de ptd_constants (fonte única — não duplicar)
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from ptd_constants import detectar_eixo, EIXOS
 
 
 # ── Testes de detectar_eixo ──────────────────────────────────────────────────
@@ -82,9 +59,13 @@ class TestDetectarEixo:
         assert detectar_eixo('privacidade de dados') == 4
 
     def test_e5_transparente(self):
-        # PAT_DATA busca 'transparent' como substring — 'transparente' e 'transparencia' ativam
         assert detectar_eixo('governo transparente') == 5
         assert detectar_eixo('dados abertos e participativos') == 5
+
+    def test_e5_transparencia_com_diacritico(self):
+        # FIX: 'transparência' (ê) deve ativar E5 — antes falhava com 'transparent'
+        assert detectar_eixo('transparência dos dados públicos') == 5
+        assert detectar_eixo('Política de Transparência e Acesso') == 5
 
     def test_e5_dados_abertos(self):
         assert detectar_eixo('publicação de dados abertos') == 5
@@ -92,8 +73,20 @@ class TestDetectarEixo:
     def test_e6_eficiente(self):
         assert detectar_eixo('gestão eficiente de recursos') == 6
 
+    def test_e6_eficiencia_com_diacritico(self):
+        # FIX: 'eficiência' (ê) deve ativar E6 — antes falhava com 'eficient'
+        assert detectar_eixo('eficiência administrativa dos serviços') == 6
+        assert detectar_eixo('Melhoria de Eficiência Operacional') == 6
+
     def test_e6_sustentavel(self):
         assert detectar_eixo('sustentabilidade digital') == 6
+
+    def test_e6_desburocratizacao(self):
+        # FIX: termos novos adicionados ao E6
+        assert detectar_eixo('desburocratização de processos internos') == 6
+
+    def test_e6_simplificacao(self):
+        assert detectar_eixo('simplificação de procedimentos administrativos') == 6
 
     # Edge cases
     def test_texto_vazio_retorna_none(self):

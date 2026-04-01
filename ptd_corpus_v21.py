@@ -22,6 +22,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, Tuple
 
+from ptd_constants import EIXOS
+
 DIR = Path('ptd_corpus/03_database')
 DIR_CFG = Path('config')
 DIR.mkdir(parents=True, exist_ok=True)
@@ -86,10 +88,15 @@ def _first_match_ac(automaton, texto: str, termos: list) -> Tuple[Optional[str],
     return best_term, best_start, best_end
 
 PAT_DATA = re.compile(
-    r'(\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}/\d{4}'
-    r'|[a-z]{3}[/-]\d{2,4}|[a-z]{2,4}/\d{2}'
-    r'|\d{1,2}[Tt]RIM\d{2}'
-    r'|(?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[/-]?(?:\d{2,4}))',
+    r'(\d{1,2}/\d{1,2}/\d{2,4}'             # DD/MM/AAAA ou DD/MM/AA
+    r'|\d{1,2}/\d{4}'                        # MM/AAAA
+    r'|\d[TtQq][/.\-]?\d{2,4}'              # 2T/25, 3T2025, 1Q/2026
+    r'|\d{1,2}[ºo°]?\s*[Tt]rim(?:estre)?[/.\-]?\d{2,4}'  # 2ºTrim/2025
+    r'|\d{1,2}[Tt]RIM\d{2}'                 # legado: 2TRIM25
+    r'|(?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)[./\-]?\d{2,4}'
+    r'|(?:janeiro|fevereiro|mar[çc]o|abril|maio|junho|julho|agosto'
+    r'|setembro|outubro|novembro|dezembro)\s*(?:de\s*)?\d{2,4}'
+    r'|\b(202[0-9])\b)',                     # ano isolado (menor prioridade)
     re.I
 )
 PAT_RUIDO    = re.compile(r'^(Servi[çc]o|Produto|Eixo|[AÁ]rea\s|Entregas|DtPact|DtEntrega)', re.I)
@@ -100,11 +107,7 @@ PAT_IA_REAL  = re.compile(
     re.I
 )
 
-EIXOS = {
-    1:'Centrado no Cidadão e Inclusivo', 2:'Integrado e Colaborativo',
-    3:'Inteligente e Inovador',          4:'Confiável e Seguro',
-    5:'Transparente, Aberto e Participativo', 6:'Eficiente e Sustentável',
-}
+# EIXOS importado de ptd_constants.py (fonte única — não duplicar)
 # Pré-compilar automatos para matching O(n)
 _AC_PRODUTOS = _build_automaton(PRODUTOS)
 _AC_SUBEIXOS = _build_automaton(SUBEIXOS)
@@ -131,11 +134,19 @@ def _load_csv(path: Path, label: str) -> Tuple[pd.DataFrame, str]:
     print(f'   {label:30s}: {len(df):,} linhas | sha256={h[:12]}…')
     return df, h
 
+def _try_load_csv(path: Path, label: str) -> Tuple[pd.DataFrame, str]:
+    """Como _load_csv, mas retorna DataFrame vazio se o arquivo não existir."""
+    if not path.exists():
+        print(f'   ⚠️  {label:30s}: não encontrado — pulando')
+        return pd.DataFrame(), ''
+    return _load_csv(path, label)
+
 print('\n✅ Etapa 1 — carregando dados')
 
 corpus, h_corpus = _load_csv(DIR / 'ptd_corpus_raw.csv', 'ptd_corpus_raw')
-pivot,  h_pivot  = _load_csv(DIR / 'ptd_pivot_eixos.csv', 'ptd_pivot_eixos')
-datas,  h_datas  = _load_csv(DIR / 'ptd_datas_assinatura.csv', 'ptd_datas_assinatura')
+# FIX: pivot e datas são inputs auxiliares — não quebrar se ausentes
+pivot,  h_pivot  = _try_load_csv(DIR / 'ptd_pivot_eixos.csv', 'ptd_pivot_eixos')
+datas,  h_datas  = _try_load_csv(DIR / 'ptd_datas_assinatura.csv', 'ptd_datas_assinatura')
 
 prov_path = DIR / 'proveniencia.json'
 if prov_path.exists():
