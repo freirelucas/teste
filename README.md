@@ -4,6 +4,8 @@
 Autores: Denise do Carmo Direito · Lucas Freire Silva
 Versão: 3.0-melhorado · Base legal: Decreto nº 12.198/2024 · Portaria SGD/MGI nº 6.618/2024
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/freirelucas/teste/blob/claude/setup-docling-pipeline-g11gg/PTD_BR_Corpus_Colab.ipynb)
+
 > Documento de trabalho — não citar sem autorização dos autores.
 
 ---
