@@ -126,6 +126,10 @@ def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
             continue
         txt = link.get_text(strip=True).lower()
         fn  = clean.split('/')[-1]
+        # Excluir guias/orientações que não são PTDs de órgãos
+        if re.search(r'guia\d*[-_]?\d*passos|template[-_]ptd|modelo[-_]ptd', fn, re.I):
+            logger.info(f'Ignorado (guia/template): {fn}')
+            continue
         # URL de download: usar href limpo; completar se relativo
         if clean.startswith('http'):
             download_url = clean
@@ -521,8 +525,11 @@ for _, srow in pdfs_ok.iterrows():
     if fn in processados_e:
         continue
 
-    # Inferir sigla do nome do arquivo
-    sigla = fn.split('_')[0].upper()[:10]
+    # Inferir sigla do nome do arquivo (pula prefixo "ptd_" quando presente)
+    _fn_parts  = fn.split('_')
+    _sigla_raw = _fn_parts[1] if _fn_parts[0].lower() == 'ptd' and len(_fn_parts) > 1 \
+                 else _fn_parts[0]
+    sigla = re.sub(r'[-].*', '', _sigla_raw).upper()[:10]  # pula prefixo "ptd_" e sufixo após "-"
     is_img = bool(srow['image_pdf'])
     t0 = time.time()
 
@@ -688,7 +695,9 @@ for _, srow in pdfs_diretivos.iterrows():
     fn     = srow['arquivo']
     path   = DIR_RAW / fn
     sha256 = srow['sha256']
-    sigla  = fn.split('_')[0].upper()[:10]
+    _fn_parts = fn.split('_')
+    sigla  = (_fn_parts[1] if _fn_parts[0].lower() == 'ptd' and len(_fn_parts) > 1
+              else _fn_parts[0]).upper()[:10]
 
     if fn in processados_r:
         continue
