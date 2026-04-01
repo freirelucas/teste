@@ -20,6 +20,7 @@ import pandas as pd
 import re, json, hashlib, numpy as np
 from pathlib import Path
 from datetime import datetime
+from typing import Optional, Tuple
 
 DIR = Path('ptd_corpus/03_database')
 DIR_CFG = Path('config')
@@ -29,7 +30,7 @@ DIR.mkdir(parents=True, exist_ok=True)
 # ETAPA 0 — Constantes (lidas de config/ quando possível)
 # ════════════════════════════════════════════════════════
 
-def _load_config(fname: str, fallback: dict) -> dict:
+def _load_config(fname: str, fallback: dict) -> dict:  # noqa: ANN401
     p = DIR_CFG / fname
     if p.exists():
         with open(p, encoding='utf-8') as f:
@@ -49,6 +50,40 @@ SUBEIXOS  = _cfg['subeixos']
 # Regras de correção de eixo (externas, versionadas)
 _corr_cfg = _load_config('correcoes_eixo.json', {'regras': []})
 CORRECOES_EIXO = _corr_cfg['regras']
+
+# ── Aho-Corasick (M8): automatos pré-compilados para matching O(n) ──────
+try:
+    import ahocorasick as _ac
+    _USE_AC = True
+except ImportError:
+    _USE_AC = False
+
+def _build_automaton(termos: list) -> object:
+    """Compila lista de termos em automato Aho-Corasick (fallback None se indisponível)."""
+    if not _USE_AC or not termos:
+        return None
+    A = _ac.Automaton()
+    for i, t in enumerate(termos):
+        A.add_word(t, (i, t))
+    A.make_automaton()
+    return A
+
+def _first_match_ac(automaton, texto: str, termos: list) -> Tuple[Optional[str], Optional[int], Optional[int]]:
+    """Retorna (termo, start, end) da primeira ocorrência (menor índice de início)."""
+    if automaton is None:
+        # Fallback linear
+        best_term, best_start, best_end = None, None, None
+        for t in termos:
+            idx = texto.find(t)
+            if idx >= 0 and (best_start is None or idx < best_start):
+                best_term, best_start, best_end = t, idx, idx + len(t)
+        return best_term, best_start, best_end
+    best_term, best_start, best_end = None, None, None
+    for end_idx, (_, term) in automaton.iter(texto):
+        start = end_idx - len(term) + 1
+        if best_start is None or start < best_start:
+            best_term, best_start, best_end = term, start, end_idx + 1
+    return best_term, best_start, best_end
 
 PAT_DATA = re.compile(
     r'(\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}/\d{4}'
@@ -70,9 +105,14 @@ EIXOS = {
     3:'Inteligente e Inovador',          4:'Confiável e Seguro',
     5:'Transparente, Aberto e Participativo', 6:'Eficiente e Sustentável',
 }
+# Pré-compilar automatos para matching O(n)
+_AC_PRODUTOS = _build_automaton(PRODUTOS)
+_AC_SUBEIXOS = _build_automaton(SUBEIXOS)
+
 print('✅ Etapa 0 — constantes carregadas')
 print(f'   {len(PRODUTOS)} produtos | {len(MAND_PROD)} mandatórios | '
       f'{len(CORRECOES_EIXO)} regras de correção de eixo')
+print(f'   Aho-Corasick: {"ativo" if _USE_AC else "indisponível (pip install pyahocorasick)"}')
 
 
 # ════════════════════════════════════════════════════════
@@ -83,7 +123,7 @@ print(f'   {len(PRODUTOS)} produtos | {len(MAND_PROD)} mandatórios | '
 def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def _load_csv(path: Path, label: str) -> pd.DataFrame:
+def _load_csv(path: Path, label: str) -> Tuple[pd.DataFrame, str]:
     if not path.exists():
         raise FileNotFoundError(f'{label} não encontrado: {path}')
     df = pd.read_csv(path)
@@ -131,7 +171,7 @@ print(f'   Média esperada: ~2,07 produtos/serviço (54 diretivos).')
 # ETAPA 2 — Parser de campos
 # ════════════════════════════════════════════════════════
 
-def parse_linha(txt):
+def parse_linha(txt) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str], Optional[str], str]:
     """
     Separa texto concatenado: Serviço | Produto | Subeixo | Área | Data
     Retorna (servico, produto, subeixo, area, data_ptd, parse_flag)
@@ -143,11 +183,8 @@ def parse_linha(txt):
     if PAT_RUIDO.match(t) or len(t) < 10:
         return None, None, None, None, None, 'ruido'
 
-    prod_found, prod_start, prod_end = None, None, None
-    for p in PRODUTOS:
-        idx = t.find(p)
-        if idx >= 0 and (prod_start is None or idx < prod_start):
-            prod_found, prod_start, prod_end = p, idx, idx + len(p)
+    # M8: Aho-Corasick O(n) — fallback linear se lib indisponível
+    prod_found, prod_start, prod_end = _first_match_ac(_AC_PRODUTOS, t, PRODUTOS)
 
     if prod_start is not None:
         servico = t[:prod_start].strip()
@@ -156,11 +193,8 @@ def parse_linha(txt):
         s = PAT_ID_GOVBR.sub('', t).strip()
         return s or None, None, None, None, None, 'sem_produto'
 
-    sub_found, sub_end = None, 0
-    for s in SUBEIXOS:
-        idx = resto.find(s)
-        if idx >= 0 and (sub_end == 0 or idx < sub_end):
-            sub_found, sub_end = s, idx + len(s)
+    sub_found, sub_start, sub_end = _first_match_ac(_AC_SUBEIXOS, resto, SUBEIXOS)
+    sub_end = sub_end if sub_end is not None else 0
 
     area_data = resto[sub_end:].strip() if sub_found else resto
     dts       = list(PAT_DATA.finditer(area_data))
@@ -194,7 +228,7 @@ print(f'   Cobertura data_ptd : {corpus.data_ptd.notna().mean()*100:.1f}%')
 # ETAPA 3 — Tipo de entrega
 # ════════════════════════════════════════════════════════
 
-def classificar_tipo_entrega(row) -> str:
+def classificar_tipo_entrega(row: pd.Series) -> str:
     prod = str(row.get('produto', '') or '')
     txt  = str(row.get('texto',   '') or '')
     if prod in MAND_PROD:
@@ -234,7 +268,7 @@ def _build_corretores(regras: list) -> list:
 
 _corretores = _build_corretores(CORRECOES_EIXO)
 
-def corrigir_eixo(row) -> int:
+def corrigir_eixo(row: pd.Series) -> int:
     eixo = row['eixo_num']
     for c in _corretores:
         if row.get('sigla') != c['sigla']:
