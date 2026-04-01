@@ -1028,15 +1028,36 @@ svg.querySelectorAll('[data-ti]').forEach(el=>{
 svg.querySelectorAll('[data-nid]').forEach(el=>{
   el.setAttribute('opacity',el.dataset.nid===nid?'1':'.22');
 });
+// Draw technique polygons: each connected technique forms a closed polygon
+// across its component nodes — a gramática linguística gera geometria
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
+const cvg=document.getElementById('cv-g');
+const eg=document.getElementById('cv-edges');
+const ni={};SIM_NODES.forEach(n=>ni[n.id]=n);
+TECHS.filter(t=>t.nodes.includes(nid)).forEach(t=>{
+  const pts=t.nodes.filter(id=>ni[id]).map(id=>ni[id].x.toFixed(1)+','+ni[id].y.toFixed(1)).join(' ');
+  if(!pts||t.nodes.filter(id=>ni[id]).length<3)return;
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',pts);
+  poly.setAttribute('fill',BS[t.belt]||'#888');
+  poly.setAttribute('fill-opacity','.09');
+  poly.setAttribute('stroke',BS[t.belt]||'#888');
+  poly.setAttribute('stroke-width','1');
+  poly.setAttribute('stroke-opacity','.4');
+  poly.setAttribute('class','tech-poly');
+  poly.setAttribute('pointer-events','none');
+  cvg.insertBefore(poly,eg);
+});
 }
 
 document.getElementById('det-close').onclick=()=>{
 document.getElementById('detail').classList.remove('open');
-// reset opacity
+// reset opacity + remove technique polygons
 const svg=document.getElementById('cv');
 svg.querySelectorAll('[data-ti]').forEach(el=>el.setAttribute('opacity',
   el.tagName==='line'&&el.getAttribute('stroke')!=='transparent'?'.35':'1'));
 svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','1'));
+svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
 };
 
 // ===== DICTIONARY =====
