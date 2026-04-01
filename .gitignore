@@ -1,4 +1,10 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-*.pyc
+
+# Dados gerados pelo pipeline (PDFs, CSVs, checkpoints) — não versionar
+ptd_corpus/
+
+# Relatório HTML gerado
+ptd_relatorio_v30.html
+ptd_test_mode/

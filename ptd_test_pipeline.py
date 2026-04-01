@@ -18,6 +18,8 @@ FAIL = erro que impede execução completa
 import sys, time, json, re, hashlib, warnings
 from pathlib import Path
 
+from ptd_constants import PORTAL_BASE
+
 warnings.filterwarnings('ignore')
 
 DIR_TEST = Path('ptd_test_mode')
@@ -45,9 +47,7 @@ def resultado(etapa, status, msg='', detalhe=''):
 N_TEST   = 3          # número de PDFs a testar
 MIN_ROWS = 2          # mínimo de registros esperado por PDF
 
-PORTAL_BASE = ('https://www.gov.br/governodigital/pt-br/'
-               'estrategias-e-governanca-digital/'
-               'planos-de-transformacao-digital/ptds-vigentes/')
+# PORTAL_BASE importado de ptd_constants.py (fonte única)
 
 # ════════════════════════════════════════════════════════════════════
 # ETAPA T1 — Descoberta de URLs + Download

@@ -18,7 +18,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from ptd_constants import EIXOS, _EIXO_PATS, detectar_eixo as _detectar_eixo_const
+from ptd_constants import EIXOS, _EIXO_PATS, detectar_eixo as _detectar_eixo_const, PORTAL_BASE
 
 import requests
 import pandas as pd
@@ -51,11 +51,7 @@ HEADERS = {'User-Agent': 'IPEA-DIEST-Research/3.0 (pesquisa-governanca@ipea.gov.
 TIMEOUT = 60
 DELAY   = 1.5
 
-PORTAL_BASE = (
-    'https://www.gov.br/governodigital/pt-br/'
-    'estrategias-e-governanca-digital/'
-    'planos-de-transformacao-digital/ptds-vigentes/'
-)
+# PORTAL_BASE importado de ptd_constants.py (fonte única)
 
 try:
     from docling.document_converter import DocumentConverter, PdfFormatOption
@@ -320,7 +316,8 @@ def _get_cell(cells: list[str], cmap: dict, field: str, fallback_idx: Optional[i
         return cells[idx]
     return ''
 
-def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> list:
+def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
+                     nome_pdf: str = '', url_fonte: str = '') -> list:
     """
     Extrai entregas via Docling TableFormer.
     FIX: eixo_atual resetado a cada nova página (evita contaminação).
@@ -341,7 +338,7 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
     last_page = -1
     eixo_atual = None  # resetado por página abaixo
 
-    for tbl in result.document.tables:
+    for tbl_idx, tbl in enumerate(result.document.tables):
         df  = tbl.export_to_dataframe(doc=result.document)
         pag = tbl.prov[0].page_no if tbl.prov else 0
 
@@ -360,7 +357,7 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
         cmap = _col_map(df)
         has_headers = bool(cmap)
 
-        for _, row in df.iterrows():
+        for row_idx, (_, row) in enumerate(df.iterrows()):
             cells = [str(v).strip() for v in row.values]
             full  = ' | '.join(c for c in cells if c and c.lower() not in ('nan',''))
             if len(full) < 10:
@@ -377,32 +374,37 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
             area    = _get_cell(cells, cmap, 'area',   -2 if len(cells) > 2 else None)
             data_e  = _get_cell(cells, cmap, 'data',   -1 if len(cells) > 1 else None)
 
-            texto = f'{servico} | {produto}'.strip(' |') if produto else servico
+            texto = full  # linha completa — necessário para Aho-Corasick do Layer 3
 
-            # parse_flag básico
-            parse_flag = 'ok' if servico and produto else \
-                         'sem_produto' if servico else 'sem_servico'
+            # parse_flag básico (será sobrescrito pelo Layer 3)
+            parse_flag = 'raw'
 
             if len(texto) < 5:
                 continue
             rows.append({
-                'sigla':       sigla,
-                'pagina':      pag,
-                'eixo_num':    eixo_atual,
-                'eixo_label':  EIXOS.get(eixo_atual,''),
-                'texto':       texto[:600],
-                'ncols':       len(df.columns),
-                'area':        area[:120],
-                'data_entrega':data_e[:20],
-                'col_map_ok':  has_headers,  # flag: usou mapeamento por header
-                'extrator':    'docling',
-                'parse_flag':  parse_flag,
-                'pdf_sha256':  pdf_sha256,
+                'sigla':        sigla,
+                'pagina':       pag,
+                'eixo_num':     eixo_atual,
+                'eixo_label':   EIXOS.get(eixo_atual,''),
+                'texto':        texto[:600],
+                'ncols':        len(df.columns),
+                'area':         area[:120],
+                'data_entrega': data_e[:20],
+                'col_map_ok':   has_headers,
+                'extrator':     'docling',
+                'parse_flag':   parse_flag,
+                'pdf_sha256':   pdf_sha256,
+                # ── rastreabilidade fina ──────────────────────────────
+                'tabela_idx':   tbl_idx,
+                'linha_tabela': row_idx,
+                'nome_pdf':     nome_pdf,
+                'url_fonte':    url_fonte,
             })
     return rows
 
 
-def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str) -> list:
+def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str,
+                     nome_pdf: str = '', url_fonte: str = '') -> list:
     """
     Fallback PyMuPDF.
     FIX: eixo_atual resetado a cada nova página.
@@ -415,46 +417,54 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str) -> list:
     for npag, pag in enumerate(doc, 1):
         eixo_atual = None  # FIX: reset por página
         try:
-            for tbl in pag.find_tables().tables:
+            for tbl_idx, tbl in enumerate(pag.find_tables().tables):
                 df = tbl.to_pandas()
-                for _, row in df.iterrows():
+                for row_idx, (_, row) in enumerate(df.iterrows()):
                     txt = ' '.join(str(v) for v in row.values if v)
                     e   = detectar_eixo(txt)
                     if e:
                         eixo_atual = e
                     if eixo_atual and len(txt) > 10:
                         rows.append({
-                            'sigla':       sigla,
-                            'pagina':      npag,
-                            'eixo_num':    eixo_atual,
-                            'eixo_label':  EIXOS.get(eixo_atual,''),
-                            'texto':       txt[:600],
-                            'ncols':       len(df.columns),
-                            'area':        '',
-                            'data_entrega':'',
-                            'extrator':    'pymupdf_tables',
-                            'parse_flag':  'sem_produto',
-                            'pdf_sha256':  pdf_sha256,
+                            'sigla':        sigla,
+                            'pagina':       npag,
+                            'eixo_num':     eixo_atual,
+                            'eixo_label':   EIXOS.get(eixo_atual,''),
+                            'texto':        txt[:600],
+                            'ncols':        len(df.columns),
+                            'area':         '',
+                            'data_entrega': '',
+                            'extrator':     'pymupdf_tables',
+                            'parse_flag':   'sem_produto',
+                            'pdf_sha256':   pdf_sha256,
+                            'tabela_idx':   tbl_idx,
+                            'linha_tabela': row_idx,
+                            'nome_pdf':     nome_pdf,
+                            'url_fonte':    url_fonte,
                         })
         except AttributeError:
-            for linha in pag.get_text().split('\n'):
+            for row_idx, linha in enumerate(pag.get_text().split('\n')):
                 linha = linha.strip()
                 e = detectar_eixo(linha)
                 if e:
                     eixo_atual = e
                 if eixo_atual and len(linha) > 10:
                     rows.append({
-                        'sigla':       sigla,
-                        'pagina':      npag,
-                        'eixo_num':    eixo_atual,
-                        'eixo_label':  EIXOS.get(eixo_atual,''),
-                        'texto':       linha[:600],
-                        'ncols':       None,
-                        'area':        '',
-                        'data_entrega':'',
-                        'extrator':    'pymupdf_text',
-                        'parse_flag':  'sem_produto',
-                        'pdf_sha256':  pdf_sha256,
+                        'sigla':        sigla,
+                        'pagina':       npag,
+                        'eixo_num':     eixo_atual,
+                        'eixo_label':   EIXOS.get(eixo_atual,''),
+                        'texto':        linha[:600],
+                        'ncols':        None,
+                        'area':         '',
+                        'data_entrega': '',
+                        'extrator':     'pymupdf_text',
+                        'parse_flag':   'sem_produto',
+                        'pdf_sha256':   pdf_sha256,
+                        'tabela_idx':   0,
+                        'linha_tabela': row_idx,
+                        'nome_pdf':     nome_pdf,
+                        'url_fonte':    url_fonte,
                     })
     doc.close()
     return rows
@@ -471,6 +481,13 @@ if CHECKPOINT_E.exists():
             processados_e.add(obj['filename'])
             all_rows_e.extend(obj['rows'])
     print(f'Retomando: {len(processados_e)} arquivos já processados')
+
+# URL lookup para rastreabilidade (filename → url_fonte)
+_cat_path = DIR_LOG / 'catalogo_scraped.csv'
+url_por_arquivo: dict = {}
+if _cat_path.exists():
+    _cat = pd.read_csv(_cat_path)
+    url_por_arquivo = dict(zip(_cat['filename'], _cat['url']))
 
 # Usar df_san para iterar apenas PDFs baixados com sucesso
 pdfs_ok = df_san[df_san[['kb_ok','sig_ok','pag_ok']].all(axis=1)]
@@ -490,11 +507,14 @@ for _, srow in pdfs_ok.iterrows():
     t0 = time.time()
 
     try:
+        _url = url_por_arquivo.get(fn, '')
         if _DOCLING_OK:
-            rows    = _extrair_docling(path, sigla, is_img, sha256)
+            rows    = _extrair_docling(path, sigla, is_img, sha256,
+                                       nome_pdf=fn, url_fonte=_url)
             extrator = 'docling'
         else:
-            rows    = _extrair_pymupdf(path, sigla, sha256)
+            rows    = _extrair_pymupdf(path, sigla, sha256,
+                                       nome_pdf=fn, url_fonte=_url)
             extrator = rows[0]['extrator'] if rows else 'pymupdf'
     except Exception as exc:
         logger.error(f'{sigla}: {exc}')
