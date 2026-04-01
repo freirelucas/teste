@@ -224,7 +224,12 @@ corpus['servico']    = [r[0] for r in parsed]
 corpus['produto']    = [r[1] for r in parsed]
 corpus['subeixo']    = [r[2] for r in parsed]
 corpus['area']       = [r[3] for r in parsed]
-corpus['data_ptd']   = [r[4] for r in parsed]
+corpus['data_ptd']   = [
+    r[4] if r[4] else (
+        str(raw).strip() if pd.notna(raw) and str(raw).strip() not in ('', 'nan') else None
+    )
+    for r, raw in zip(parsed, corpus.get('data_entrega', [None] * len(parsed)))
+]
 corpus['parse_flag'] = [r[5] for r in parsed]
 
 print('\n✅ Etapa 2 — parser aplicado')

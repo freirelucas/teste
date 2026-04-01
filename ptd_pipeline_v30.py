@@ -373,11 +373,10 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str) -> l
             area    = _get_cell(cells, cmap, 'area',   -2 if len(cells) > 2 else None)
             data_e  = _get_cell(cells, cmap, 'data',   -1 if len(cells) > 1 else None)
 
-            texto = f'{servico} | {produto}'.strip(' |') if produto else servico
+            texto = full  # linha completa — necessário para Aho-Corasick do Layer 3
 
-            # parse_flag básico
-            parse_flag = 'ok' if servico and produto else \
-                         'sem_produto' if servico else 'sem_servico'
+            # parse_flag básico (será sobrescrito pelo Layer 3)
+            parse_flag = 'raw'
 
             if len(texto) < 5:
                 continue

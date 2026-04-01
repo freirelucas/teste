@@ -8,12 +8,14 @@ Execução:
 import sys
 import re
 import pytest
+import pandas as pd
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 
 # Importar directamente de ptd_constants (fonte única — não duplicar)
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from ptd_constants import detectar_eixo, EIXOS
+from ptd_pipeline_v30 import _col_map, _get_cell
 
 
 # ── Testes de detectar_eixo ──────────────────────────────────────────────────
@@ -181,3 +183,55 @@ class TestStateMachineReset:
         assert 2 not in pags, 'Página 2 não deve ter registros (sem eixo detectado)'
         assert 1 in pags
         assert 3 in pags
+
+
+# ── Testes de _col_map ──────────────────────────────────────────────────────
+
+class TestColMap:
+    def _df(self, cols):
+        return pd.DataFrame(columns=cols)
+
+    def test_headers_completos(self):
+        df = self._df(['Serviço', 'Produto', 'Data'])
+        m = _col_map(df)
+        assert m.get('servico') == 0
+        assert m.get('produto') == 1
+        assert m.get('data') == 2
+
+    def test_entrega_mapeia_produto(self):
+        df = self._df(['Entrega', 'Prazo'])
+        m = _col_map(df)
+        assert m.get('produto') == 0
+        assert m.get('data') == 1
+
+    def test_sem_headers_reconheciveis(self):
+        df = self._df(['Col1', 'Col2', 'Col3'])
+        m = _col_map(df)
+        assert m == {}
+
+    def test_header_parcial(self):
+        df = self._df(['Nome do Serviço Digital', 'Coluna X'])
+        m = _col_map(df)
+        assert m.get('servico') == 0
+        assert 'produto' not in m
+
+
+# ── Testes de _get_cell ─────────────────────────────────────────────────────
+
+class TestGetCell:
+    CELLS = ['alfa', 'beta', 'gamma', 'delta']
+
+    def test_via_cmap(self):
+        assert _get_cell(self.CELLS, {'servico': 0}, 'servico', 99) == 'alfa'
+
+    def test_via_fallback_posicional(self):
+        assert _get_cell(self.CELLS, {}, 'servico', 1) == 'beta'
+
+    def test_indice_negativo(self):
+        assert _get_cell(self.CELLS, {}, 'servico', -1) == 'delta'
+
+    def test_fora_dos_limites(self):
+        assert _get_cell(self.CELLS, {}, 'servico', 99) == ''
+
+    def test_fallback_none(self):
+        assert _get_cell(self.CELLS, {}, 'servico', None) == ''
