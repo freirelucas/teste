@@ -128,8 +128,8 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .fonte p{font-size:12px;color:var(--text2);line-height:1.6}
 [data-nid]{transition:opacity .15s;transform-box:fill-box;transform-origin:center}
 @keyframes breathe{
-  0%,100%{transform:scale(1);filter:brightness(1)}
-  50%{transform:scale(1.07);filter:brightness(1.18)}
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.04)}
 }
 [data-nid][data-type="acao"]   {animation:breathe 2.6s ease-in-out infinite}
 [data-nid][data-type="dachi"]  {animation:breathe 6s   ease-in-out infinite}
@@ -727,6 +727,43 @@ const m={
 return m[type]||{x:W*.5,y:H*.5};
 }
 
+function fixedLayout(nodes,W,H){
+const cx=W/2,cy=H/2,half=Math.min(W,H)/2;
+const r0=half*.22,r1=half*.47,r2=half*.78;
+const RING0=['alvo'];
+const RING1=['acao','direcao','ido'];
+const RING2=['buki_mao','buki_pe','dachi'];
+const GAP=0.14;
+function placeRing(ring,r,startA){
+  const byType={};
+  ring.forEach(n=>{if(!byType[n.type])byType[n.type]=[];byType[n.type].push(n);});
+  const typeOrder=[...new Set(ring.map(n=>n.type))];
+  const totalArc=Math.PI*2-typeOrder.length*GAP;
+  const total=ring.length;
+  let a=startA;
+  typeOrder.forEach(type=>{
+    const g=byType[type]||[];
+    const arc=(g.length/total)*totalArc;
+    const step=arc/g.length;
+    g.forEach((n,i)=>{
+      const ang=a+step*(i+.5);
+      n.x=cx+r*Math.cos(ang);
+      n.y=cy+r*Math.sin(ang);
+      n.vx=0;n.vy=0;
+    });
+    a+=arc+GAP;
+  });
+}
+const ring0=nodes.filter(n=>RING0.includes(n.type));
+const ring1=nodes.filter(n=>RING1.includes(n.type));
+const ring2=nodes.filter(n=>RING2.includes(n.type));
+ring1.sort((a,b)=>RING1.indexOf(a.type)-RING1.indexOf(b.type));
+ring2.sort((a,b)=>RING2.indexOf(a.type)-RING2.indexOf(b.type));
+placeRing(ring0,r0,-Math.PI/2);
+placeRing(ring1,r1,-Math.PI/2);
+placeRing(ring2,r2,-Math.PI/2);
+}
+
 function runForce(nodes,edges,W,H){
 // init positions
 nodes.forEach(n=>{
@@ -790,7 +827,7 @@ svg.setAttribute('viewBox','0 0 '+W+' '+H);
 
 const nodes=NODES.map(n=>Object.assign({},n));
 const edges=buildEdges();
-runForce(nodes,edges,W,H);
+fixedLayout(nodes,W,H);
 SIM_NODES=nodes;SIM_EDGES=edges;SIM_W=W;SIM_H=H;
 
 renderSVG(svg,nodes,edges,W,H);
@@ -821,17 +858,39 @@ return cfg.star?starPoints(cx,cy,r,cfg.rot):polyPoints(cx,cy,r,cfg.sides,cfg.rot
 function renderClusterHalos(g,W,H){
 const hg=document.createElementNS('http://www.w3.org/2000/svg','g');
 hg.setAttribute('pointer-events','none');
-Object.entries(SHAPE_CFG).forEach(([type,cfg])=>{
-  const c=clusterCenter(type,W,H);
-  const col=NT[type];
-  const halo=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-  halo.setAttribute('points',shapePts(c.x,c.y,72,cfg));
-  halo.setAttribute('fill',col);
-  halo.setAttribute('fill-opacity','.10');
-  halo.setAttribute('stroke',col);
-  halo.setAttribute('stroke-width','1.5');
-  halo.setAttribute('stroke-opacity','.28');
-  hg.appendChild(halo);
+const NS='http://www.w3.org/2000/svg';
+const cx=W/2,cy=H/2,half=Math.min(W,H)/2;
+const RING_R={alvo:half*.22,acao:half*.47,direcao:half*.47,ido:half*.47,
+  buki_mao:half*.78,buki_pe:half*.78,dachi:half*.78};
+Object.entries(NT).forEach(([type,col])=>{
+  const ns=SIM_NODES.filter(n=>n.type===type);
+  if(!ns.length)return;
+  const r=RING_R[type];if(!r)return;
+  const angles=ns.map(n=>Math.atan2(n.y-cy,n.x-cx)).sort((a,b)=>a-b);
+  const pad=0.18;
+  const a1=angles[0]-pad,a2=angles[angles.length-1]+pad;
+  const x1=(cx+r*Math.cos(a1)).toFixed(1),y1=(cy+r*Math.sin(a1)).toFixed(1);
+  const x2=(cx+r*Math.cos(a2)).toFixed(1),y2=(cy+r*Math.sin(a2)).toFixed(1);
+  const large=a2-a1>Math.PI?1:0;
+  const path=document.createElementNS(NS,'path');
+  path.setAttribute('d',`M${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2}`);
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke',col);
+  path.setAttribute('stroke-width','28');
+  path.setAttribute('stroke-opacity','.07');
+  path.setAttribute('stroke-linecap','round');
+  hg.appendChild(path);
+  // Type label at arc midpoint
+  const amid=(a1+a2)/2;
+  const lr=r+(type==='alvo'?-28:28);
+  const txt=document.createElementNS(NS,'text');
+  txt.setAttribute('x',(cx+lr*Math.cos(amid)).toFixed(1));
+  txt.setAttribute('y',(cy+lr*Math.sin(amid)).toFixed(1));
+  txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','middle');
+  txt.setAttribute('font-size','8.5');txt.setAttribute('fill',col);txt.setAttribute('opacity','.4');
+  txt.setAttribute('pointer-events','none');txt.setAttribute('letter-spacing','.06em');
+  txt.textContent=type.replace('_','-').toUpperCase();
+  hg.appendChild(txt);
 });
 g.insertBefore(hg,g.firstChild);
 }
@@ -916,17 +975,17 @@ if(type==='acao'){
 
 function renderSVG(svg,nodes,edges,W,H){
 svg.innerHTML='';
-// Background mandala: concentric heptagons (7 sides = 7 semantic categories)
+// Background: concentric ring guides aligned with data rings (alvo / verb / instrument)
 const bg=document.createElementNS('http://www.w3.org/2000/svg','g');
 bg.setAttribute('pointer-events','none');
-[.28,.44,.60,.76,.92].forEach(frac=>{
-  const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-  p.setAttribute('points',polyPoints(W/2,H/2,Math.min(W,H)*frac/2,7,0));
-  p.setAttribute('fill','none');
-  p.setAttribute('stroke','#c9a84c');
-  p.setAttribute('stroke-width','0.8');
-  p.setAttribute('opacity','.09');
-  bg.appendChild(p);
+const _half=Math.min(W,H)/2;
+[{r:_half*.22,sw:'0.6',op:'.10'},{r:_half*.47,sw:'1',op:'.14'},{r:_half*.78,sw:'1',op:'.10'},
+ {r:_half*1.05,sw:'0.5',op:'.04'},{r:_half*1.28,sw:'0.4',op:'.03'}].forEach(({r,sw,op})=>{
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx',W/2);c.setAttribute('cy',H/2);c.setAttribute('r',r.toFixed(1));
+  c.setAttribute('fill','none');c.setAttribute('stroke','#c9a84c');
+  c.setAttribute('stroke-width',sw);c.setAttribute('opacity',op);
+  bg.appendChild(c);
 });
 svg.appendChild(bg);
 // Kan-ku (看空) — diamond + inner circle at canvas center, Kyokushin symbol
@@ -936,13 +995,13 @@ const kkR=Math.min(W,H)*.46,kkCx=W/2,kkCy=H/2;
 const kkD=document.createElementNS('http://www.w3.org/2000/svg','polygon');
 kkD.setAttribute('points',`${kkCx},${(kkCy-kkR).toFixed(1)} ${(kkCx+kkR).toFixed(1)},${kkCy} ${kkCx},${(kkCy+kkR).toFixed(1)} ${(kkCx-kkR).toFixed(1)},${kkCy}`);
 kkD.setAttribute('fill','none');kkD.setAttribute('stroke','#c9a84c');
-kkD.setAttribute('stroke-width','1.2');kkD.setAttribute('opacity','.07');
+kkD.setAttribute('stroke-width','1.5');kkD.setAttribute('opacity','.11');
 kk.appendChild(kkD);
 const kkC=document.createElementNS('http://www.w3.org/2000/svg','circle');
 kkC.setAttribute('cx',kkCx);kkC.setAttribute('cy',kkCy);
 kkC.setAttribute('r',(Math.min(W,H)*.14).toFixed(1));
 kkC.setAttribute('fill','none');kkC.setAttribute('stroke','#c9a84c');
-kkC.setAttribute('stroke-width','1');kkC.setAttribute('opacity','.07');
+kkC.setAttribute('stroke-width','1');kkC.setAttribute('opacity','.11');
 kk.appendChild(kkC);
 [[kkCx,kkCy-kkR,kkCx,kkCy+kkR],[kkCx-kkR,kkCy,kkCx+kkR,kkCy]].forEach(([x1,y1,x2,y2])=>{
   const l=document.createElementNS('http://www.w3.org/2000/svg','line');
@@ -1002,7 +1061,7 @@ const ng=document.createElementNS('http://www.w3.org/2000/svg','g');
 ng.setAttribute('id','cv-nodes');
 g.appendChild(ng);
 nodes.forEach(n=>{
-  const r=n.type==='acao'?14:12;
+  const r=n.type==='acao'?20:17;
   const col=NT[n.type];
   const grp=document.createElementNS('http://www.w3.org/2000/svg','g');
   grp.setAttribute('data-nid',n.id);
@@ -1011,7 +1070,7 @@ nodes.forEach(n=>{
   renderNodeWireframe(grp,n.x,n.y,r,n.type,col);
   ng.appendChild(grp);
   const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+12);
+  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+13);
   txt.setAttribute('text-anchor','middle');txt.setAttribute('font-size','9.5');
   txt.setAttribute('fill','#99aacc');txt.setAttribute('pointer-events','none');
   txt.textContent=n.label;
