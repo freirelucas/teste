@@ -27,6 +27,9 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
+# Chart.js CDN (fallback gracioso se offline)
+CHARTJS_CDN = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
+
 # ── Args ──────────────────────────────────────────────────────────────
 SAMPLE_N = 50
 OUT_FILE = Path('ptd_relatorio_v30.html')
@@ -120,6 +123,67 @@ def barra(val, total, cor='#1A7F7A'):
 flag_cores = {'ok':'#1A7F7A','sem_produto':'#D97706','sem_servico':'#E63946',
               'ruido':'#999','vazio':'#ccc'}
 
+# ── Riscos (opcional) ─────────────────────────────────────────────────
+riscos_path = DIR_DB / 'ptd_riscos.csv'
+df_riscos = pd.read_csv(riscos_path) if riscos_path.exists() else None
+
+def _riscos_section(df_r) -> str:
+    """Gera seção HTML de riscos com gráfico Chart.js (probabilidade × impacto)."""
+    if df_r is None or df_r.empty:
+        return ''
+    n_riscos   = len(df_r)
+    n_orgaos_r = df_r['sigla'].nunique() if 'sigla' in df_r.columns else '—'
+    prob_dist  = df_r['probabilidade'].value_counts().to_dict() if 'probabilidade' in df_r.columns else {}
+    imp_dist   = df_r['impacto'].value_counts().to_dict() if 'impacto' in df_r.columns else {}
+    trat_dist  = df_r['opcao_tratamento'].value_counts().to_dict() if 'opcao_tratamento' in df_r.columns else {}
+
+    prob_labels = json.dumps(list(prob_dist.keys()))
+    prob_vals   = json.dumps(list(prob_dist.values()))
+    imp_labels  = json.dumps(list(imp_dist.keys()))
+    imp_vals    = json.dumps(list(imp_dist.values()))
+    trat_labels = json.dumps(list(trat_dist.keys()))
+    trat_vals   = json.dumps(list(trat_dist.values()))
+    pal = ['#0D2B4E','#1A7F7A','#D97706','#E63946','#457B9D','#6A4C93']
+    cores_r = json.dumps((pal * 10)[:max(len(prob_dist), len(imp_dist), len(trat_dist), 1)])
+
+    return f"""
+<div class="card">
+  <h2>Análise de Riscos ({n_riscos:,} registros · {n_orgaos_r} órgãos)</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:8px">
+    <div>
+      <h3 style="font-size:13px;color:#0D2B4E;margin-bottom:6px">Probabilidade</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chartProb"></canvas></div>
+    </div>
+    <div>
+      <h3 style="font-size:13px;color:#0D2B4E;margin-bottom:6px">Impacto</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chartImp"></canvas></div>
+    </div>
+    <div>
+      <h3 style="font-size:13px;color:#0D2B4E;margin-bottom:6px">Opção de Tratamento</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chartTrat"></canvas></div>
+    </div>
+  </div>
+  <script>
+  (function(){{
+    function barH(id, labels, data, bkgs) {{
+      new Chart(document.getElementById(id), {{
+        type: 'bar',
+        data: {{ labels: labels, datasets: [{{ data: data,
+          backgroundColor: bkgs, borderWidth: 0, borderRadius: 3 }}] }},
+        options: {{ indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: {{ legend: {{ display: false }} }},
+          scales: {{ x: {{ beginAtZero: true, grid: {{ color: '#f0f0f0' }} }},
+                    y: {{ grid: {{ display: false }} }} }} }}
+      }});
+    }}
+    var cores = {cores_r};
+    barH('chartProb',  {prob_labels},  {prob_vals},  cores);
+    barH('chartImp',   {imp_labels},   {imp_vals},   cores);
+    barH('chartTrat',  {trat_labels},  {trat_vals},  cores);
+  }})();
+  </script>
+</div>"""
+
 # ── Construir HTML ─────────────────────────────────────────────────────
 ts = datetime.now().strftime('%d/%m/%Y %H:%M')
 versao_pipeline = manifest.get('versao_pipeline', prov.get('versao', '3.0'))
@@ -162,7 +226,9 @@ html = f"""<!DOCTYPE html>
   .prov-item .k{{font-weight:600;color:#0D2B4E;min-width:160px}}
   .prov-item .v{{color:#555;word-break:break-all}}
   footer{{text-align:center;padding:24px;color:#999;font-size:11px}}
+  .chart-wrap{{position:relative;height:280px;margin-top:8px}}
 </style>
+<script src="{CHARTJS_CDN}"></script>
 </head>
 <body>
 <div class="header">
@@ -190,17 +256,49 @@ html = f"""<!DOCTYPE html>
   {''.join(f'<div class="alerta {a[0]}"><strong>{a[0]}</strong> — {esc(a[1])}</div>' for a in alertas)}
 </div>
 
-<!-- Eixos -->
+<!-- Eixos — Chart.js interativo -->
 <div class="card">
   <h2>Distribuição por Eixo EFGD</h2>
+  <div class="chart-wrap"><canvas id="chartEixos"></canvas></div>
+  <script>
+  (function(){{
+    var labels = {json.dumps([f'E{e}' for e in sorted(eixo_dist.keys())])};
+    var counts = {json.dumps([eixo_dist[e] for e in sorted(eixo_dist.keys())])};
+    var bkgs   = {json.dumps([CORES.get(e,'#999') for e in sorted(eixo_dist.keys())])};
+    var names  = {json.dumps([EIXOS.get(e,'') for e in sorted(eixo_dist.keys())])};
+    new Chart(document.getElementById('chartEixos'), {{
+      type: 'bar',
+      data: {{ labels: labels, datasets: [{{
+        label: 'Registros',
+        data: counts, backgroundColor: bkgs,
+        borderWidth: 0, borderRadius: 4,
+      }}]}},
+      options: {{
+        responsive: true, maintainAspectRatio: false,
+        plugins: {{
+          legend: {{ display: false }},
+          tooltip: {{ callbacks: {{ title: function(ctx) {{
+            return names[ctx[0].dataIndex];
+          }}, label: function(ctx) {{
+            var total = counts.reduce(function(a,b){{return a+b}},0);
+            return ctx.parsed.y.toLocaleString('pt-BR') + ' (' + (ctx.parsed.y/total*100).toFixed(1) + '%)';
+          }} }} }}
+        }},
+        scales: {{ y: {{ beginAtZero: true, grid: {{ color: '#f0f0f0' }} }},
+                  x: {{ grid: {{ display: false }} }} }}
+      }}
+    }});
+  }})();
+  </script>
+  <!-- Fallback para ambientes sem JS -->
+  <noscript>
   {chr(10).join(
-      f'<div class="eixo-bar">'
-      f'<div class="lbl">E{e} — {EIXOS.get(e, "")[:28]}</div>'
+      f'<div class="eixo-bar"><div class="lbl">E{e} — {EIXOS.get(e,"")[:28]}</div>'
       f'<div class="track"><div class="fill" style="width:{min(n/len(corpus)*100,100):.1f}%;background:{CORES.get(e,"#999")}">'
-      f'{n:,}</div></div>'
-      f'<small style="min-width:80px;text-align:right">{n/len(corpus)*100:.1f}%</small></div>'
+      f'{n:,}</div></div><small style="min-width:80px;text-align:right">{n/len(corpus)*100:.1f}%</small></div>'
       for e, n in sorted(eixo_dist.items())
   )}
+  </noscript>
 </div>
 
 <!-- Parse flags -->
@@ -238,6 +336,8 @@ html = f"""<!DOCTYPE html>
   </table>
   </div>
 </div>
+
+{_riscos_section(df_riscos)}
 
 <!-- Proveniência -->
 <div class="card">
