@@ -13,7 +13,7 @@
 # ETAPA 5 — Extração de Riscos
 # ETAPA 6 — Exportação
 
-import re, time, hashlib, json, warnings, logging
+import re, time, hashlib, json, warnings, logging, argparse as _ap
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -26,6 +26,16 @@ import numpy as np
 import fitz  # PyMuPDF
 
 warnings.filterwarnings('ignore')
+
+# ── Argumentos de linha de comando ───────────────────────────────────
+_parser = _ap.ArgumentParser(description='PTD-BR pipeline v3.0')
+_parser.add_argument('--force-download', action='store_true', default=False,
+                     help='Limpa checkpoints e re-processa todos os PDFs')
+_parser.add_argument('--max-pdfs', type=int, default=0,
+                     help='Limitar a N PDFs no loop de extração (0 = sem limite)')
+_args, _       = _parser.parse_known_args()  # parse_known_args: ignora args do pytest/outros
+FORCE_DOWNLOAD = _args.force_download
+MAX_PDFS       = _args.max_pdfs
 
 ROOT    = Path('ptd_corpus')
 DIR_RAW = ROOT / '01_raw_pdfs'
@@ -471,8 +481,15 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str,
 
 
 CHECKPOINT_E = DIR_LOG / '_checkpoint_entregas.jsonl'
+_CHECKPOINT_R = DIR_LOG / '_checkpoint_riscos.jsonl'  # antecipado para --force-download
 processados_e: set = set()
 all_rows_e:    list = []
+
+if FORCE_DOWNLOAD:
+    for _ck in (CHECKPOINT_E, _CHECKPOINT_R):
+        if _ck.exists():
+            _ck.unlink()
+            logger.info(f'--force-download: checkpoint removido → {_ck.name}')
 
 if CHECKPOINT_E.exists():
     with open(CHECKPOINT_E) as f:
@@ -491,6 +508,9 @@ if _cat_path.exists():
 
 # Usar df_san para iterar apenas PDFs baixados com sucesso
 pdfs_ok = df_san[df_san[['kb_ok','sig_ok','pag_ok']].all(axis=1)]
+if MAX_PDFS > 0:
+    pdfs_ok = pdfs_ok.head(MAX_PDFS)
+    logger.info(f'--max-pdfs: limitando extração a {len(pdfs_ok)} PDFs')
 logs_e  = []
 
 for _, srow in pdfs_ok.iterrows():
