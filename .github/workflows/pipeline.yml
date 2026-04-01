@@ -1,0 +1,133 @@
+name: PTD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "Modo de execução"
+        required: true
+        default: "test"
+        type: choice
+        options:
+          - test        # 3 PDFs: CGU, ANPD, ITI
+          - completo    # Todos os órgãos (demorado ~4h)
+      force_download:
+        description: "Forçar re-download (ignorar cache)"
+        required: false
+        default: false
+        type: boolean
+      max_pdfs:
+        description: "Limite de PDFs (0 = sem limite, apenas modo completo)"
+        required: false
+        default: "0"
+        type: string
+
+  schedule:
+    # Primeira segunda-feira de cada mês às 03:00 UTC
+    - cron: "0 3 1-7 * 1"
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300   # 5h — margem para modo completo
+
+    env:
+      MODO: ${{ github.event.inputs.modo || 'test' }}
+      FORCE_DOWNLOAD: ${{ github.event.inputs.force_download || 'false' }}
+      MAX_PDFS: ${{ github.event.inputs.max_pdfs || '0' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Tesseract
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Healthcheck pré-execução
+        run: python ptd_healthcheck.py
+
+      - name: Executar Test Mode (3 PDFs)
+        if: env.MODO == 'test'
+        run: |
+          python ptd_test_pipeline.py --verbose
+          echo "TEST_OK=true" >> $GITHUB_ENV
+
+      - name: Layer 1-2 — Extração completa
+        if: env.MODO == 'completo'
+        run: |
+          EXTRA_ARGS=""
+          if [ "$FORCE_DOWNLOAD" = "true" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --force-download"
+          fi
+          if [ "$MAX_PDFS" != "0" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --max-pdfs $MAX_PDFS"
+          fi
+          python ptd_pipeline_v30.py $EXTRA_ARGS
+
+      - name: Layer 3 — Curadoria semântica
+        if: env.MODO == 'completo'
+        run: python ptd_corpus_v21.py
+
+      - name: Gerar relatório HTML
+        if: env.MODO == 'completo'
+        run: |
+          python gerar_relatorio.py --output ptd_relatorio_v30.html
+          echo "RELATORIO_OK=true" >> $GITHUB_ENV
+
+      - name: Upload corpus (modo completo)
+        if: env.MODO == 'completo'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptd-corpus-${{ github.run_id }}
+          path: |
+            ptd_corpus/03_database/ptd_corpus_v21.csv
+            ptd_corpus/03_database/ptd_corpus_raw.csv
+            ptd_corpus/03_database/ptd_riscos.csv
+            ptd_corpus/03_database/ptd_pivot_eixos.csv
+            ptd_corpus/03_database/proveniencia.json
+            ptd_corpus/03_database/pipeline_manifest.json
+            ptd_relatorio_v30.html
+          retention-days: 90
+
+      - name: Upload corpus (modo test)
+        if: env.MODO == 'test'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptd-test-${{ github.run_id }}
+          path: |
+            ptd_test_mode/test_corpus.csv
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Resumo
+        if: always()
+        run: |
+          echo "## Resumo da execução" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Modo**: $MODO" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$MODO" = "completo" ] && [ -f ptd_corpus/03_database/ptd_corpus_v21.csv ]; then
+            NROWS=$(tail -n +2 ptd_corpus/03_database/ptd_corpus_v21.csv | wc -l)
+            NAGENCIAS=$(tail -n +2 ptd_corpus/03_database/ptd_corpus_v21.csv | cut -d',' -f1 | sort -u | wc -l)
+            echo "- **Registros**: $NROWS" >> $GITHUB_STEP_SUMMARY
+            echo "- **Órgãos**: $NAGENCIAS" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$MODO" = "test" ] && [ -f ptd_test_mode/test_corpus.csv ]; then
+            NROWS=$(tail -n +2 ptd_test_mode/test_corpus.csv | wc -l)
+            echo "- **Registros (test)**: $NROWS" >> $GITHUB_STEP_SUMMARY
+          fi
