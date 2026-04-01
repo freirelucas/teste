@@ -44,7 +44,6 @@ padding:9px 13px;font-size:12px;pointer-events:none;z-index:10;opacity:0;transit
 border-left:1px solid var(--border);padding:18px;overflow-y:auto;transform:translateX(100%);
 transition:transform .25s;z-index:5}
 #detail.open{transform:translateX(0)}
-#detail h3{font-size:16px;font-weight:700;margin-bottom:4px}
 #detail .dt{font-size:12px;color:var(--text2);margin-bottom:12px}
 .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;
 border:1px solid;margin:2px;letter-spacing:.03em}
@@ -52,8 +51,32 @@ border:1px solid;margin:2px;letter-spacing:.03em}
 #detail ul li{background:var(--bg3);border-radius:6px;padding:6px 10px;font-size:11px;
 border-left:3px solid;cursor:pointer;transition:all .15s}
 #detail ul li:hover{background:#ffffff08}
-#det-close{position:absolute;top:12px;right:12px;background:none;border:none;
-color:var(--text2);cursor:pointer;font-size:16px}
+#det-close{position:absolute;top:10px;right:10px;background:none;border:none;
+color:var(--text2);cursor:pointer;font-size:16px;border-radius:4px;padding:2px 4px}
+#det-close:hover{color:var(--text)}
+#det-back{position:absolute;top:10px;left:10px;background:none;border:1px solid var(--border);
+color:var(--text2);cursor:pointer;font-size:13px;border-radius:5px;padding:2px 7px;display:none;transition:all .15s}
+#det-back:hover{color:var(--gold);border-color:var(--gold);background:var(--gold2)}
+#det-counter{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:10px;
+color:var(--text2);letter-spacing:.04em;display:none;pointer-events:none;white-space:nowrap}
+#detail h3{font-size:16px;font-weight:700;margin-bottom:4px;padding-top:22px}
+/* NAV SEARCH */
+#nav-search-wrap{padding:2px 8px 8px;position:relative}
+#nav-search{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
+border-radius:7px;padding:6px 10px;font-size:12px;outline:none;box-sizing:border-box}
+#nav-search:focus{border-color:var(--gold)}
+#nav-search::placeholder{color:var(--text2);opacity:.7}
+#search-drop{position:absolute;left:8px;right:8px;top:calc(100% - 4px);background:var(--bg2);
+border:1px solid var(--border);border-radius:8px;z-index:200;overflow:hidden;display:none;
+box-shadow:0 4px 20px #0008}
+.sdrop-item{padding:7px 11px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--border)}
+.sdrop-item:last-child{border-bottom:none}
+.sdrop-item:hover,.sdrop-item.hi{background:var(--gold2)}
+.sdrop-item b{display:block;font-size:12px;color:var(--text)}
+.sdrop-item span{color:var(--text2);font-size:10px}
+/* Clickable gram-slots */
+.gram-slot.nav{cursor:pointer;transition:filter .14s,opacity .14s}
+.gram-slot.nav:hover{filter:brightness(1.3);opacity:.85}
 /* DICT */
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .f-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);
@@ -232,6 +255,10 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
     <button class="nav-btn" data-tab="fontes"><span class="ic">∂</span>Fontes</button>
     <button class="nav-btn" data-tab="gramatica"><span class="ic">λ</span>Gramática</button>
   </nav>
+  <div id="nav-search-wrap">
+    <input id="nav-search" placeholder="buscar técnica…" autocomplete="off" spellcheck="false">
+    <div id="search-drop"></div>
+  </div>
   <div class="sb-foot"><span style="font-size:15px;color:var(--gold);opacity:.75;margin-right:6px;vertical-align:middle" title="Kyokushin — Verdade Última">極真</span>CBKKO · IKO1 Honbu</div>
 </div>
 <div id="main">
@@ -245,7 +272,9 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
       <svg id="cv"></svg>
       <div id="tip"></div>
       <div id="detail">
+        <button id="det-back">←</button>
         <button id="det-close">✕</button>
+        <span id="det-counter"></span>
         <h3 id="det-name"></h3><div class="dt" id="det-type"></div>
         <div id="det-tags"></div>
         <div id="det-desc" style="font-size:12px;color:var(--text2);margin-top:10px;line-height:1.6"></div>
@@ -1305,7 +1334,25 @@ svg.addEventListener('wheel',ev=>{
 },{passive:false});
 }
 
-function showNodeDetail(nid){
+// ===== NAVIGATION STATE =====
+let navHistory=[]; // [{type:'node',id:nid}|{type:'tech',id:techIdx}]
+let navContext=[];  // tech list for ←/→ arrow navigation
+let navContextIdx=-1;
+
+function _updateNavUI(){
+  const back=document.getElementById('det-back');
+  const counter=document.getElementById('det-counter');
+  if(back) back.style.display=navHistory.length>1?'':'none';
+  if(counter){
+    const show=navContext.length>0&&navContextIdx>=0;
+    counter.style.display=show?'':'none';
+    if(show) counter.textContent=(navContextIdx+1)+' / '+navContext.length;
+  }
+}
+
+function showNodeDetail(nid,_hist){
+if(!_hist) navHistory.push({type:'node',id:nid});
+if(navHistory.length>20) navHistory.shift();
 const node=NMAP[nid];if(!node)return;
 const det=document.getElementById('detail');
 det.classList.remove('bodymap');
@@ -1335,12 +1382,18 @@ techsForNode.forEach(t=>{
   li.onclick=()=>showTechDetail(t);
   ul.appendChild(li);
 });
+navContext=techsForNode;
+navContextIdx=-1;
+_updateNavUI();
 det.classList.add('open');
 // highlight connected edges
 highlightNode(nid);
 }
 
-function showTechDetail(tech){
+function showTechDetail(tech,_hist){
+if(!_hist){navHistory.push({type:'tech',id:TECHS.indexOf(tech)});if(navHistory.length>20)navHistory.shift();}
+const ctxIdx=navContext.indexOf(tech);if(ctxIdx>=0)navContextIdx=ctxIdx;
+_updateNavUI();
 const det=document.getElementById('detail');
 det.classList.remove('bodymap');
 const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
@@ -1364,14 +1417,14 @@ orderedNodes.forEach((nid,i)=>{
   const node=NMAP[nid];if(!node)return;
   const c=NT[node.type];
   if(i>0){fHtml+='<span class="gram-op">·</span>';}
-  fHtml+=`<div class="gram-slot" style="color:${c};border-color:${c}40;background:${c}0f"><div class="gram-slot-lbl" style="color:${c}">${AXIS_LBL[node.type]||node.type}</div><div class="gram-slot-val">${node.label}</div></div>`;
+  fHtml+=`<div class="gram-slot nav" onclick="showNodeDetail('${nid}')" title="${node.pt}" style="color:${c};border-color:${c}40;background:${c}0f"><div class="gram-slot-lbl" style="color:${c}">${AXIS_LBL[node.type]||node.type}</div><div class="gram-slot-val">${node.label}</div></div>`;
   axHtml+=`<div class="gram-axis-lbl" style="color:${c}88">${node.pt}</div>`;
 });
 if(tech.dachi){
   const d=NMAP[tech.dachi];
   if(d){
     const c=NT.dachi;
-    fHtml+=`<span class="gram-sep">|</span><div class="gram-slot" style="color:${c};border-color:${c}40;background:${c}0f"><div class="gram-slot-lbl" style="color:${c}">Dachi</div><div class="gram-slot-val">${d.label}</div></div>`;
+    fHtml+=`<span class="gram-sep">|</span><div class="gram-slot nav" onclick="showNodeDetail('${tech.dachi}')" title="${d.pt}" style="color:${c};border-color:${c}40;background:${c}0f"><div class="gram-slot-lbl" style="color:${c}">Dachi</div><div class="gram-slot-val">${d.label}</div></div>`;
     axHtml+=`<div class="gram-axis-lbl" style="color:${c}88">${d.pt}</div>`;
   }
 }
@@ -1379,7 +1432,7 @@ const idoId=getIdo(tech.id);
 const idoNode=NMAP[idoId];
 if(idoNode){
   const c=NT.ido;
-  fHtml+=`<span class="gram-op">·</span><div class="gram-slot" style="color:${c};border-color:${c}40;background:${c}0f;min-width:44px"><div class="gram-slot-lbl" style="color:${c}">Ido</div><div class="gram-slot-val">${idoNode.label}</div></div>`;
+  fHtml+=`<span class="gram-op">·</span><div class="gram-slot nav" onclick="showNodeDetail('${idoId}')" title="${idoNode.pt}" style="color:${c};border-color:${c}40;background:${c}0f;min-width:44px"><div class="gram-slot-lbl" style="color:${c}">Ido</div><div class="gram-slot-val">${idoNode.label}</div></div>`;
   axHtml+=`<div class="gram-axis-lbl" style="color:${c}88">${idoNode.pt}</div>`;
 }
 fHtml+='</div>';axHtml+='</div>';
@@ -1567,7 +1620,7 @@ document.getElementById('det-techs').parentNode.insertBefore(wrap,document.getEl
 renderPlatonicLegend();
 }
 
-document.getElementById('det-close').onclick=()=>{
+function _closeDetail(){
 const det=document.getElementById('detail');
 det.classList.remove('open','bodymap');
 const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
@@ -1579,10 +1632,44 @@ svg.querySelectorAll('[data-ti]').forEach(el=>{
 });
 svg.querySelectorAll('[data-nid]').forEach(el=>el.setAttribute('opacity','1'));
 svg.querySelectorAll('.tech-poly').forEach(e=>e.remove());
+navHistory.length=0;navContext=[];navContextIdx=-1;
+document.getElementById('det-back').style.display='none';
+document.getElementById('det-counter').style.display='none';
+}
+document.getElementById('det-close').onclick=_closeDetail;
+document.getElementById('det-back').onclick=()=>{
+navHistory.pop(); // remove current
+const prev=navHistory.pop(); // remove prev (will be re-pushed)
+if(!prev)return;
+if(prev.type==='node') showNodeDetail(prev.id);
+else showTechDetail(TECHS[prev.id]);
 };
 document.addEventListener('keydown',e=>{
-if(e.key==='Escape'&&document.getElementById('detail').classList.contains('open'))
-  document.getElementById('det-close').click();
+const drop=document.getElementById('search-drop');
+// Search dropdown keyboard navigation
+if(drop&&drop.style.display!=='none'){
+  const items=[...drop.querySelectorAll('.sdrop-item')];
+  const active=drop.querySelector('.sdrop-item.hi');
+  let idx=active?items.indexOf(active):-1;
+  if(e.key==='ArrowDown'){e.preventDefault();idx=Math.min(idx+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('hi',i===idx));}
+  else if(e.key==='ArrowUp'){e.preventDefault();idx=Math.max(idx-1,0);items.forEach((it,i)=>it.classList.toggle('hi',i===idx));}
+  else if(e.key==='Enter'&&active){active.click();return;}
+  else if(e.key==='Escape'){document.getElementById('nav-search').value='';drop.style.display='none';return;}
+  return;
+}
+const det=document.getElementById('detail');
+if(!det.classList.contains('open'))return;
+if(e.key==='Escape'){_closeDetail();return;}
+if(e.key==='ArrowRight'&&navContext.length>0){
+  e.preventDefault();
+  navContextIdx=Math.min(navContextIdx+1,navContext.length-1);
+  if(navContextIdx<0)navContextIdx=0;
+  showTechDetail(navContext[navContextIdx],true);
+} else if(e.key==='ArrowLeft'&&navContext.length>0&&navContextIdx>0){
+  e.preventDefault();
+  navContextIdx--;
+  showTechDetail(navContext[navContextIdx],true);
+}
 });
 
 // ===== DICTIONARY =====
@@ -2342,6 +2429,35 @@ s5.appendChild(lin);
 div.appendChild(s5);
 }
 
+// ===== QUICK SEARCH =====
+function initSearch(){
+const inp=document.getElementById('nav-search');
+const drop=document.getElementById('search-drop');
+if(!inp||!drop)return;
+inp.addEventListener('input',()=>{
+  const q=inp.value.trim().toLowerCase();
+  drop.innerHTML='';
+  if(q.length<2){drop.style.display='none';return;}
+  const matches=TECHS.filter(t=>t.name.toLowerCase().includes(q)||t.pt.toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length){drop.style.display='none';return;}
+  matches.forEach(t=>{
+    const div=document.createElement('div');
+    div.className='sdrop-item';
+    div.innerHTML=`<b>${t.name}</b><span>${t.pt} · <span style="color:${BS[t.belt]}">${t.belt}</span></span>`;
+    div.onclick=()=>{
+      inp.value='';drop.style.display='none';
+      switchTab('constelacao');
+      // Wait for tab to be active before showing detail
+      requestAnimationFrame(()=>showTechDetail(t));
+    };
+    drop.appendChild(div);
+  });
+  drop.style.display='block';
+});
+inp.addEventListener('keydown',e=>{if(e.key==='Escape'){inp.value='';drop.style.display='none';}});
+document.addEventListener('click',e=>{if(!inp.contains(e.target)&&!drop.contains(e.target))drop.style.display='none';});
+}
+
 // ===== INIT =====
 function init(){
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -2355,6 +2471,7 @@ initIdo();
 renderMath();
 renderFontes();
 renderGramatica();
+initSearch();
 }
 init();
 </script></body></html>
