@@ -13,7 +13,8 @@
 # ETAPA 5 — Extração de Riscos
 # ETAPA 6 — Exportação
 
-import re, time, hashlib, json, warnings, logging, argparse as _ap
+import re, time, hashlib, json, warnings, logging, argparse as _ap, threading, os
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as _FuturesTimeout
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -33,9 +34,13 @@ _parser.add_argument('--force-download', action='store_true', default=False,
                      help='Limpa checkpoints e re-processa todos os PDFs')
 _parser.add_argument('--max-pdfs', type=int, default=0,
                      help='Limitar a N PDFs no loop de extração (0 = sem limite)')
+_parser.add_argument('--siglas', type=str, default='',
+                     help='Siglas separadas por vírgula para modo debug (ex: AGU,FUNAI,MD)')
 _args, _       = _parser.parse_known_args()  # parse_known_args: ignora args do pytest/outros
 FORCE_DOWNLOAD = _args.force_download
 MAX_PDFS       = _args.max_pdfs
+SIGLAS_DEBUG   = {s.strip().upper() for s in _args.siglas.split(',') if s.strip()}
+PDF_TIMEOUT    = int(os.getenv('PTD_PDF_TIMEOUT', '3600'))  # 1h default, override via env
 
 ROOT    = Path('ptd_corpus')
 DIR_RAW = ROOT / '01_raw_pdfs'
@@ -74,6 +79,14 @@ try:
 except Exception as e:
     _DOCLING_OK = False
     logger.warning(f'Docling indisponível — fallback PyMuPDF ({e})')
+
+try:
+    from ptd_ocr_fallback import extrair_ocr as _extrair_ocr_fallback
+    _OCR_FALLBACK_OK = True
+    logger.info('OCR fallback (pytesseract) disponível')
+except ImportError as _e:
+    _OCR_FALLBACK_OK = False
+    logger.warning(f'OCR fallback indisponível ({_e})')
 
 PROVENIENCIA = {
     'fonte':       'Portal do Governo Digital / MGI',
@@ -127,8 +140,9 @@ def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
         txt = link.get_text(strip=True).lower()
         fn  = clean.split('/')[-1]
         # Excluir guias/orientações que não são PTDs de órgãos
-        if re.search(r'guia\d*[-_]?\d*passos|template[-_]ptd|modelo[-_]ptd', fn, re.I):
-            logger.info(f'Ignorado (guia/template): {fn}')
+        if re.search(r'guia\d*[-_]?\d*passos|template[-_]ptd|modelo[-_]ptd'
+                     r'|abnt[-_]nbr', fn, re.I):
+            logger.info(f'Ignorado (guia/template/norma): {fn}')
             continue
         # URL de download: usar href limpo; completar se relativo
         if clean.startswith('http'):
@@ -330,23 +344,89 @@ def _get_cell(cells: list[str], cmap: dict, field: str, fallback_idx: Optional[i
         return cells[idx]
     return ''
 
+def _sigla_de_fn(fn: str) -> str:
+    """Infere sigla do órgão a partir do nome do arquivo.
+    - URL-decode ('%28' → '(', etc.)
+    - Pula prefixo 'ptd_'  →  ptd_aneel_... → ANEEL
+    - Corta sufixo após '-' →  midr-docdiretivo → MIDR
+    - Extrai [A-Z0-9] inicial → MF(RFB) → MF
+    """
+    from urllib.parse import unquote as _uq
+    parts = _uq(fn).split('_')
+    raw   = parts[1] if parts[0].lower() == 'ptd' and len(parts) > 1 else parts[0]
+    clean = re.sub(r'[-].*', '', raw).upper()
+    m = re.match(r'^[A-Z0-9]+', clean)
+    return (m.group(0) if m else clean)[:10]
+
+# ── Estrutura CGREP: tipo_doc e passo_ptd ────────────────────────────────────
+def _tipo_doc(fn: str) -> str:
+    """Classifica o tipo de documento PTD pelo nome do arquivo."""
+    f = fn.lower()
+    if re.search(r'anexo.{0,15}entrega|entrega.{0,10}assinado', f): return 'anexo_entregas'
+    if re.search(r'doc.{0,8}diretivo|docdiretivo',               f): return 'doc_diretivo'
+    if re.search(r'plano.{0,15}transform|ptd.{0,5}\d{4}',        f): return 'plano_completo'
+    return 'outro'
+
+_TIPO_PASSO: dict[str, int] = {
+    'anexo_entregas': 6, 'doc_diretivo': 6, 'plano_completo': 6, 'outro': 6,
+}
+_PASSO_LABEL: dict[int, str] = {
+    6: 'Elaboração do Plano de Entregas',
+    7: 'Identificação de Riscos',
+}
+
+# ── Watchdog: heartbeat para PDFs lentos ─────────────────────────────────────
+def _watchdog(fn: str, stop: threading.Event,
+              interval: int = 60, warn_after: int = 300) -> None:
+    """Loga aviso a cada `interval` s depois de `warn_after` s de processamento."""
+    t0 = time.time()
+    while not stop.wait(interval):
+        el = time.time() - t0
+        if el >= warn_after:
+            logger.warning(f'⟳ Processando {fn} há {el/60:.0f} min...')
+
+# ── Caixa de resumo de fase ───────────────────────────────────────────────────
+def _fase_box(titulo: str, n_total: int, n_ok: int, n_warn: int,
+              dur_s: float, extra: str = '') -> None:
+    w = 62
+    linha_proc = f'  Processados: {n_total:<4}  |  \u2713 {n_ok}  \u26a0 {n_warn}'
+    linha_dur  = f'  Duração: {dur_s/60:.1f} min'
+    logger.info('\u2554' + '\u2550' * w + '\u2557')
+    logger.info(f'\u2551{titulo:^{w}}\u2551')
+    logger.info(f'\u2551{linha_proc:<{w}}\u2551')
+    logger.info(f'\u2551{linha_dur:<{w}}\u2551')
+    if extra:
+        logger.info(f'\u2551  {extra:<{w-2}}\u2551')
+    logger.info('\u255a' + '\u2550' * w + '\u255d')
+
+
 def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
-                     nome_pdf: str = '', url_fonte: str = '') -> list:
+                     nome_pdf: str = '', url_fonte: str = '',
+                     converter=None) -> list:
     """
     Extrai entregas via Docling TableFormer.
     FIX: eixo_atual resetado a cada nova página (evita contaminação).
     """
-    opts_kw = {
-        'do_table_structure': True,
-        'table_structure_options': TableStructureOptions(mode=TableFormerMode.ACCURATE),
-        'do_ocr': is_img,
-    }
-    if is_img:
-        opts_kw['ocr_options'] = TesseractCliOcrOptions(lang=['por'], force_full_page_ocr=True)
+    if converter is not None:
+        _cv = converter
+    else:
+        opts_kw = {
+            'do_table_structure': True,
+            'table_structure_options': TableStructureOptions(mode=TableFormerMode.ACCURATE),
+            'do_ocr': is_img,
+        }
+        if is_img:
+            opts_kw['ocr_options'] = TesseractCliOcrOptions(lang=['por'], force_full_page_ocr=True)
+        opts = PdfPipelineOptions(**opts_kw)
+        _cv  = DocumentConverter(format_options={'pdf': PdfFormatOption(pipeline_options=opts)})
 
-    opts      = PdfPipelineOptions(**opts_kw)
-    converter = DocumentConverter(format_options={'pdf': PdfFormatOption(pipeline_options=opts)})
-    result    = converter.convert(str(path))
+    try:
+        with ThreadPoolExecutor(max_workers=1) as _ex:
+            _fut = _ex.submit(_cv.convert, str(path))
+            result = _fut.result(timeout=PDF_TIMEOUT)
+    except _FuturesTimeout:
+        logger.error(f'TIMEOUT ({PDF_TIMEOUT}s): {nome_pdf} — pulando')
+        return []
 
     rows = []
     last_page = -1
@@ -361,7 +441,7 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
             eixo_atual = None
             last_page  = pag
 
-        if len(df.columns) < 2 or len(df) < 3:
+        if len(df.columns) < 2 or len(df) < 2:  # threshold 3→2: aceita tabelas com 1 linha de dados (MD, MEC, FIOCRUZ)
             continue
         all_text = ' '.join(df.values.flatten().astype(str))
         if re.search(r'gestão de riscos|probabilidade.*ocorr', all_text, re.I):
@@ -395,6 +475,7 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
 
             if len(texto) < 5:
                 continue
+            _td = _tipo_doc(nome_pdf)
             rows.append({
                 'sigla':        sigla,
                 'pagina':       pag,
@@ -408,6 +489,10 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
                 'extrator':     'docling',
                 'parse_flag':   parse_flag,
                 'pdf_sha256':   pdf_sha256,
+                # ── estrutura CGREP ───────────────────────────────────
+                'tipo_doc':     _td,
+                'passo_ptd':    _TIPO_PASSO.get(_td, 6),
+                'passo_label':  _PASSO_LABEL[_TIPO_PASSO.get(_td, 6)],
                 # ── rastreabilidade fina ──────────────────────────────
                 'tabela_idx':   tbl_idx,
                 'linha_tabela': row_idx,
@@ -439,6 +524,7 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str,
                     if e:
                         eixo_atual = e
                     if eixo_atual and len(txt) > 10:
+                        _td = _tipo_doc(nome_pdf)
                         rows.append({
                             'sigla':        sigla,
                             'pagina':       npag,
@@ -451,6 +537,9 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str,
                             'extrator':     'pymupdf_tables',
                             'parse_flag':   'sem_produto',
                             'pdf_sha256':   pdf_sha256,
+                            'tipo_doc':     _td,
+                            'passo_ptd':    _TIPO_PASSO.get(_td, 6),
+                            'passo_label':  _PASSO_LABEL[_TIPO_PASSO.get(_td, 6)],
                             'tabela_idx':   tbl_idx,
                             'linha_tabela': row_idx,
                             'nome_pdf':     nome_pdf,
@@ -463,6 +552,7 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str,
                 if e:
                     eixo_atual = e
                 if eixo_atual and len(linha) > 10:
+                    _td = _tipo_doc(nome_pdf)
                     rows.append({
                         'sigla':        sigla,
                         'pagina':       npag,
@@ -475,6 +565,9 @@ def _extrair_pymupdf(path: Path, sigla: str, pdf_sha256: str,
                         'extrator':     'pymupdf_text',
                         'parse_flag':   'sem_produto',
                         'pdf_sha256':   pdf_sha256,
+                        'tipo_doc':     _td,
+                        'passo_ptd':    _TIPO_PASSO.get(_td, 6),
+                        'passo_label':  _PASSO_LABEL[_TIPO_PASSO.get(_td, 6)],
                         'tabela_idx':   0,
                         'linha_tabela': row_idx,
                         'nome_pdf':     nome_pdf,
@@ -512,12 +605,36 @@ if _cat_path.exists():
 
 # Usar df_san para iterar apenas PDFs baixados com sucesso
 pdfs_ok = df_san[df_san[['kb_ok','sig_ok','pag_ok']].all(axis=1)]
+if SIGLAS_DEBUG:
+    pdfs_ok = pdfs_ok[pdfs_ok['arquivo'].apply(_sigla_de_fn).isin(SIGLAS_DEBUG)]
+    logger.info(f'--siglas (debug): {len(pdfs_ok)} PDFs de {sorted(SIGLAS_DEBUG)}')
 if MAX_PDFS > 0:
     pdfs_ok = pdfs_ok.head(MAX_PDFS)
     logger.info(f'--max-pdfs: limitando extração a {len(pdfs_ok)} PDFs')
-logs_e  = []
+logs_e   = []
+total_e  = len(pdfs_ok)
+_fase_t0 = time.time()
+_n_ok_e  = 0
+_n_wn_e  = 0
 
-for _, srow in pdfs_ok.iterrows():
+# Converter singletons — instanciados 1× por fase (evita 770 recarregamentos de peso)
+if _DOCLING_OK:
+    _opts_plain = PdfPipelineOptions(
+        do_table_structure=True,
+        table_structure_options=TableStructureOptions(mode=TableFormerMode.ACCURATE),
+        do_ocr=False)
+    _opts_ocr = PdfPipelineOptions(
+        do_table_structure=True,
+        table_structure_options=TableStructureOptions(mode=TableFormerMode.ACCURATE),
+        do_ocr=True,
+        ocr_options=TesseractCliOcrOptions(lang=['por'], force_full_page_ocr=True))
+    _converter_plain = DocumentConverter(format_options={'pdf': PdfFormatOption(pipeline_options=_opts_plain)})
+    _converter_ocr   = DocumentConverter(format_options={'pdf': PdfFormatOption(pipeline_options=_opts_ocr)})
+    logger.info('DocumentConverter instanciado (singleton × 2: plain + OCR)')
+else:
+    _converter_plain = _converter_ocr = None
+
+for _i, (_, srow) in enumerate(pdfs_ok.iterrows(), 1):
     fn     = srow['arquivo']
     path   = DIR_RAW / fn
     sha256 = srow['sha256']
@@ -525,34 +642,55 @@ for _, srow in pdfs_ok.iterrows():
     if fn in processados_e:
         continue
 
-    # Inferir sigla do nome do arquivo (pula prefixo "ptd_" quando presente)
-    _fn_parts  = fn.split('_')
-    _sigla_raw = _fn_parts[1] if _fn_parts[0].lower() == 'ptd' and len(_fn_parts) > 1 \
-                 else _fn_parts[0]
-    sigla = re.sub(r'[-].*', '', _sigla_raw).upper()[:10]  # pula prefixo "ptd_" e sufixo após "-"
+    sigla  = _sigla_de_fn(fn)
     is_img = bool(srow['image_pdf'])
     t0 = time.time()
+    logger.info(f'[{_i}/{total_e}] → {fn}')
 
+    _stop_e = threading.Event()
+    _wdog_e = threading.Thread(target=_watchdog, args=(fn, _stop_e), daemon=True)
+    _wdog_e.start()
     try:
         _url = url_por_arquivo.get(fn, '')
         if _DOCLING_OK:
-            rows    = _extrair_docling(path, sigla, is_img, sha256,
-                                       nome_pdf=fn, url_fonte=_url)
+            _cv = _converter_ocr if is_img else _converter_plain
+            rows     = _extrair_docling(path, sigla, is_img, sha256,
+                                        nome_pdf=fn, url_fonte=_url, converter=_cv)
             extrator = 'docling'
         else:
-            rows    = _extrair_pymupdf(path, sigla, sha256,
-                                       nome_pdf=fn, url_fonte=_url)
+            rows     = _extrair_pymupdf(path, sigla, sha256,
+                                        nome_pdf=fn, url_fonte=_url)
             extrator = rows[0]['extrator'] if rows else 'pymupdf'
+
+        # Fallback pytesseract para PDFs imagem onde Docling retorna vazio
+        if not rows and is_img and _OCR_FALLBACK_OK:
+            logger.info(f'  → OCR fallback (pytesseract) para {sigla}')
+            rows     = _extrair_ocr_fallback(path, sigla, sha256,
+                                             nome_pdf=fn, url_fonte=_url)
+            extrator = 'pytesseract_ocr'
+            if rows:
+                logger.info(f'  → OCR fallback: {len(rows)} linhas extraídas')
+            else:
+                logger.warning(f'  → OCR fallback: 0 linhas — {fn}')
     except Exception as exc:
         logger.error(f'{sigla}: {exc}')
         logs_e.append({'sigla':sigla,'filename':fn,'status':'ERROR','n':0,'erro':str(exc)[:100]})
+        _n_wn_e += 1
         continue
+    finally:
+        _stop_e.set()
 
     all_rows_e.extend(rows)
     n = len(rows)
+    elapsed = time.time() - t0
+    _avg_s  = (time.time() - _fase_t0) / _i
+    _eta    = _avg_s * (total_e - _i)
+    _eta_s  = f'{int(_eta//60)}min' if _eta > 90 else f'{_eta:.0f}s'
     lvl = logging.INFO if n > 0 else logging.WARNING
-    logger.log(lvl, f'{"✓" if n>0 else "⚠"} {sigla:12s}: {n:4d} entregas | '
-                    f'{time.time()-t0:.1f}s | {extrator}')
+    logger.log(lvl, f'[{_i}/{total_e}] {"✓" if n>0 else "⚠"} {sigla:<10}: '
+                    f'{n:4d} entregas | {elapsed:.1f}s | ETA ~{_eta_s}')
+    if n > 0: _n_ok_e += 1
+    else:     _n_wn_e += 1
     logs_e.append({'sigla':sigla,'filename':fn,'status':'OK','n':n,'extrator':extrator})
 
     with open(CHECKPOINT_E,'a') as f:
@@ -560,8 +698,11 @@ for _, srow in pdfs_ok.iterrows():
 
 df_corpus = pd.DataFrame(all_rows_e) if all_rows_e else pd.DataFrame()
 pd.DataFrame(logs_e).to_csv(DIR_LOG / 'extracao_entregas_log.csv', index=False)
-logger.info(f'{len(df_corpus):,} registros | '
-            f'{df_corpus["sigla"].nunique() if not df_corpus.empty else 0} órgãos')
+n_orgaos_e = df_corpus['sigla'].nunique() if not df_corpus.empty else 0
+logger.info(f'{len(df_corpus):,} registros | {n_orgaos_e} órgãos')
+_fase_box('ENTREGAS — fase concluída', total_e, _n_ok_e, _n_wn_e,
+          time.time() - _fase_t0,
+          f'{len(df_corpus):,} registros | {n_orgaos_e} órgãos')
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -687,17 +828,23 @@ pdfs_diretivos = df_san[
     df_san[['kb_ok', 'sig_ok', 'pag_ok']].all(axis=1) &
     df_san['arquivo'].apply(lambda x: bool(diretivo_pats.search(str(x))))
 ]
+if SIGLAS_DEBUG:
+    pdfs_diretivos = pdfs_diretivos[
+        pdfs_diretivos['arquivo'].apply(_sigla_de_fn).isin(SIGLAS_DEBUG)
+    ]
 
-logs_r = []
+logs_r   = []
 risco_id = len(all_riscos)
+total_r  = len(pdfs_diretivos)
+_fase_t0_r = time.time()
+_n_ok_r  = 0
+_n_wn_r  = 0
 
-for _, srow in pdfs_diretivos.iterrows():
+for _j, (_, srow) in enumerate(pdfs_diretivos.iterrows(), 1):
     fn     = srow['arquivo']
     path   = DIR_RAW / fn
     sha256 = srow['sha256']
-    _fn_parts = fn.split('_')
-    sigla  = (_fn_parts[1] if _fn_parts[0].lower() == 'ptd' and len(_fn_parts) > 1
-              else _fn_parts[0]).upper()[:10]
+    sigla = _sigla_de_fn(fn)
 
     if fn in processados_r:
         continue
@@ -706,20 +853,22 @@ for _, srow in pdfs_diretivos.iterrows():
     t0 = time.time()
     all_r: list = []
     all_a: dict = {}
+    logger.info(f'[{_j}/{total_r}] → {fn}')
 
+    _stop_r = threading.Event()
+    _wdog_r = threading.Thread(target=_watchdog, args=(fn, _stop_r), daemon=True)
+    _wdog_r.start()
     try:
         if _DOCLING_OK:
-            opts_kw = {
-                'do_table_structure': True,
-                'table_structure_options': TableStructureOptions(mode=TableFormerMode.ACCURATE),
-                'do_ocr': is_img,
-            }
-            if is_img:
-                opts_kw['ocr_options'] = TesseractCliOcrOptions(
-                    lang=['por'], force_full_page_ocr=True)
-            opts  = PdfPipelineOptions(**opts_kw)
-            conv  = DocumentConverter(format_options={'pdf': PdfFormatOption(pipeline_options=opts)})
-            res   = conv.convert(str(path))
+            _cv_r = _converter_ocr if is_img else _converter_plain
+            try:
+                with ThreadPoolExecutor(max_workers=1) as _ex_r:
+                    _fut_r = _ex_r.submit(_cv_r.convert, str(path))
+                    res = _fut_r.result(timeout=PDF_TIMEOUT)
+            except _FuturesTimeout:
+                logger.error(f'TIMEOUT ({PDF_TIMEOUT}s): {fn} — pulando')
+                _n_wn_r += 1
+                continue
             for tbl in res.document.tables:
                 df_t = tbl.export_to_dataframe(doc=res.document)
                 if _is_risk_table(df_t):
@@ -748,10 +897,18 @@ for _, srow in pdfs_diretivos.iterrows():
         logger.error(f'{sigla}: {exc}')
         logs_r.append({'sigla': sigla, 'filename': fn, 'status': 'ERROR',
                        'n_riscos': 0, 'erro': str(exc)[:100]})
+        _n_wn_r += 1
         continue
+    finally:
+        _stop_r.set()
 
+    # Adicionar passo CGREP + risco_id a cada risco
+    _td_r = _tipo_doc(fn)
     for i, r in enumerate(all_r):
-        r['risco_id'] = risco_id + i
+        r['risco_id']   = risco_id + i
+        r['tipo_doc']   = _td_r
+        r['passo_ptd']  = 7
+        r['passo_label'] = _PASSO_LABEL[7]
     risco_id += len(all_r)
     all_riscos.extend(all_r)
 
@@ -768,8 +925,15 @@ for _, srow in pdfs_diretivos.iterrows():
                                'acao_id': f'{sigla}__{cod}', 'codigo': cod})
 
     n = len(all_r)
-    print(f'  {"✓" if n > 0 else "⚠"} {sigla:12s}: {n:2d} riscos | '
-          f'{extrator} | {time.time()-t0:.1f}s')
+    elapsed_r = time.time() - t0
+    _avg_r    = (time.time() - _fase_t0_r) / _j
+    _eta_r    = _avg_r * (total_r - _j)
+    _eta_rs   = f'{int(_eta_r//60)}min' if _eta_r > 90 else f'{_eta_r:.0f}s'
+    lvl_r = logging.INFO if n > 0 else logging.WARNING
+    logger.log(lvl_r, f'[{_j}/{total_r}] {"✓" if n>0 else "⚠"} {sigla:<10}: '
+                      f'{n:3d} riscos | {elapsed_r:.1f}s | ETA ~{_eta_rs}')
+    if n > 0: _n_ok_r += 1
+    else:     _n_wn_r += 1
     logs_r.append({'sigla': sigla, 'filename': fn, 'status': 'OK',
                    'n_riscos': n, 'extrator': extrator})
 
@@ -784,6 +948,10 @@ df_riscos = pd.DataFrame(all_riscos) if all_riscos else pd.DataFrame()
 df_acoes  = (pd.DataFrame(all_acoes_r).drop_duplicates(subset=['acao_id'])
              if all_acoes_r else pd.DataFrame())
 df_bridge = pd.DataFrame(bridge) if bridge else pd.DataFrame()
+n_orgaos_r = df_riscos['sigla'].nunique() if not df_riscos.empty else 0
+_fase_box('RISCOS — fase concluída', total_r, _n_ok_r, _n_wn_r,
+          time.time() - _fase_t0_r,
+          f'{len(df_riscos)} riscos | {n_orgaos_r} órgãos')
 pd.DataFrame(logs_r).to_csv(DIR_LOG / 'extracao_riscos_log.csv', index=False)
 logger.info(f'{len(df_riscos)} riscos | {len(df_acoes)} ações | {len(df_bridge)} relações')
 
@@ -937,4 +1105,9 @@ for stem, desc in manifesto["outputs"].items():
     p = DIR_DB / stem
     if p.exists():
         logger.info(f'{stem:40s} {p.stat().st_size//1024:4d} KB')
+_run_url = None
+if os.environ.get('GITHUB_RUN_ID') and os.environ.get('GITHUB_REPOSITORY'):
+    _run_url = (f"https://github.com/{os.environ['GITHUB_REPOSITORY']}"
+                f"/actions/runs/{os.environ['GITHUB_RUN_ID']}")
+    logger.info(f'📦 Artefatos: {_run_url}')
 logger.info('=' * 50)

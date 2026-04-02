@@ -20,7 +20,7 @@ Input:  ptd_corpus/03_database/ptd_corpus_v21.csv   (preferencial)
         ptd_corpus/03_database/pipeline_manifest.json
         ptd_corpus/03_database/proveniencia.json
 """
-import sys, json, hashlib, re
+import sys, json, hashlib, re, os
 from pathlib import Path
 from datetime import datetime
 
@@ -377,3 +377,48 @@ print(f'✅ Relatório salvo: {OUT_FILE}  ({kb} KB)')
 print(f'   Alertas: {sum(1 for a in alertas if a[0]=="WARN")} avisos, '
       f'{sum(1 for a in alertas if a[0]=="OK")} OK')
 print(f'   Abra no browser: file://{OUT_FILE.resolve()}')
+if os.environ.get('GITHUB_RUN_ID') and os.environ.get('GITHUB_REPOSITORY'):
+    _dl = (f"https://github.com/{os.environ['GITHUB_REPOSITORY']}"
+           f"/actions/runs/{os.environ['GITHUB_RUN_ID']}")
+    print(f'📦 Download: {_dl}')
+
+# ── ptd_run_summary.json — lido pelo assistente IA via MCP após cada run ─────
+try:
+    _raw_path = DIR_DB / 'ptd_corpus_raw.csv'
+    _raw = pd.read_csv(_raw_path) if _raw_path.exists() else corpus
+
+    _por_orgao = []
+    for _sig, _g in _raw.groupby('sigla'):
+        _ext = _g['extrator'].mode()[0] if 'extrator' in _g.columns and len(_g) else None
+        _por_orgao.append({
+            'sigla':      _sig,
+            'n_entregas': int(len(_g)),
+            'extrator':   str(_ext) if _ext is not None else None,
+            'status':     'ok' if len(_g) > 0 else 'zero',
+        })
+
+    _cob_path = DIR_DB / 'ptd_cobertura_passos.csv'
+    _cob = pd.read_csv(_cob_path) if _cob_path.exists() else None
+    _zero_sig = (list(_cob[_cob['p6_entregas'] == 0]['sigla'])
+                 if _cob is not None else [])
+    _extratores = (_raw['extrator'].value_counts().to_dict()
+                   if 'extrator' in _raw.columns else {})
+
+    _summary = {
+        'run_id':               os.environ.get('GITHUB_RUN_ID', 'local'),
+        'timestamp':            datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+        'branch':               os.environ.get('GITHUB_REF_NAME', 'local'),
+        'n_orgaos':             int(n_orgaos),
+        'n_registros_raw':      int(len(_raw)),
+        'n_registros_v21':      int(len(corpus)),
+        'pct_ok':               float(pct_ok),
+        'extratores':           {str(k): int(v) for k, v in _extratores.items()},
+        'orgaos_zero_entregas': _zero_sig,
+        'por_orgao':            _por_orgao,
+    }
+    _summary_path = DIR_DB / 'ptd_run_summary.json'
+    _summary_path.write_text(
+        json.dumps(_summary, ensure_ascii=False, indent=2), encoding='utf-8')
+    print(f'📊 Diagnóstico salvo: {_summary_path}')
+except Exception as _e:
+    print(f'⚠ ptd_run_summary.json não gerado: {_e}')
