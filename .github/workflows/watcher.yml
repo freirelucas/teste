@@ -43,19 +43,30 @@ jobs:
           fi
 
           N_ZERO=$(jq '.orgaos_zero_entregas | length' ptd_run_summary.json)
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-          echo "n_zero=$N_ZERO" >> $GITHUB_OUTPUT
+          STAGE=$(jq -r '.stage // 0' ptd_run_summary.json)
+          STAGE_LABEL=$(jq -r '.stage_label // "cobertura"' ptd_run_summary.json)
+          PCT_OK=$(jq -r '.pct_ok // 0' ptd_run_summary.json)
+          echo "run_id=$RUN_ID"       >> $GITHUB_OUTPUT
+          echo "n_zero=$N_ZERO"       >> $GITHUB_OUTPUT
+          echo "stage=$STAGE"         >> $GITHUB_OUTPUT
+          echo "stage_label=$STAGE_LABEL" >> $GITHUB_OUTPUT
+          echo "pct_ok=$PCT_OK"       >> $GITHUB_OUTPUT
 
-          if [ "$N_ZERO" = "0" ]; then
+          if [ "$STAGE" = "3" ] && [ "$N_ZERO" = "0" ]; then
             echo "status=done" >> $GITHUB_OUTPUT
-            echo "✅ Todos os órgãos extraídos com sucesso!"
+            echo "✅ Pipeline convergiu — todos os estágios completos!"
+          elif [ "$STAGE" != "0" ] && [ "$N_ZERO" = "0" ] && \
+               python3 -c "import sys; sys.exit(0 if float('$PCT_OK') >= 80 else 1)" 2>/dev/null; then
+            # Estágio 2+ com pct_ok≥80%: precisa de revisão humana antes de avançar
+            echo "status=needs_human_review" >> $GITHUB_OUTPUT
+            echo "⚠ Estágio $STAGE ($STAGE_LABEL) requer revisão humana antes de continuar."
           else
             echo "status=needs_fix" >> $GITHUB_OUTPUT
-            echo "⚠ $N_ZERO órgãos ainda zerados — aplicando próximo fix..."
+            echo "⚠ Estágio $STAGE ($STAGE_LABEL) — $N_ZERO zerados, pct_ok=$PCT_OK% — aplicando fix..."
           fi
 
       - name: Checkout branch de trabalho
-        if: steps.check.outputs.status == 'needs_fix'
+        if: steps.check.outputs.status == 'needs_fix' || steps.check.outputs.status == 'needs_human_review'
         uses: actions/checkout@v4
         with:
           ref: claude/setup-docling-pipeline-g11gg
@@ -63,7 +74,7 @@ jobs:
           fetch-depth: 1
 
       - name: Setup Python (para state machine)
-        if: steps.check.outputs.status == 'needs_fix'
+        if: steps.check.outputs.status == 'needs_fix' || steps.check.outputs.status == 'needs_human_review'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -203,6 +214,67 @@ jobs:
               Path('ptd_pipeline_v30.py').write_text(pl)
               print(f"ptd_pipeline_v30.py: table_min_rows → {min_rows}")
           PYEOF
+
+      - name: Gravar stage_status.json e checkpoint humano
+        if: steps.check.outputs.status == 'needs_human_review' || steps.check.outputs.status == 'done'
+        run: |
+          git fetch origin pipeline-outputs
+          git checkout -B pipeline-outputs origin/pipeline-outputs 2>/dev/null || \
+            (git checkout --orphan pipeline-outputs && git rm -rf . --quiet)
+
+          python3 << 'PYEOF'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path('ptd_run_summary.json').read_text()) \
+              if Path('ptd_run_summary.json').exists() else {}
+
+          # Gerar lista de candidatos para revisão humana por estágio
+          stage = summary.get('stage', 0)
+          review_items = []
+          if stage == 1:
+              # Stage 1: listar orgs com maior taxa sem_produto
+              for o in sorted(summary.get('por_orgao', []),
+                              key=lambda x: x.get('sem_produto_n', 0), reverse=True)[:15]:
+                  if o.get('sem_produto_n', 0) > 0:
+                      review_items.append({
+                          'sigla': o['sigla'],
+                          'sem_produto_n': o['sem_produto_n'],
+                          'sem_produto_pct': o.get('sem_produto_pct'),
+                          'acao': 'adicionar produtos em config/produtos_sgd_v23.json'
+                      })
+          elif stage == 2:
+              # Stage 2: listar orgs com menor col_map_ok_rate
+              for o in sorted(summary.get('por_orgao', []),
+                              key=lambda x: x.get('col_map_ok_rate') or 100)[:10]:
+                  if (o.get('col_map_ok_rate') or 100) < 70:
+                      review_items.append({
+                          'sigla': o['sigla'],
+                          'col_map_ok_rate': o.get('col_map_ok_rate'),
+                          'acao': 'adicionar keywords em config/col_keys_extra.json'
+                      })
+
+          status = {
+              'stage':       stage,
+              'stage_label': summary.get('stage_label', ''),
+              'pct_ok':      summary.get('pct_ok', 0),
+              'n_zero':      len(summary.get('orgaos_zero_entregas', [])),
+              'needs_human_review': stage in (1, 2),
+              'review_items': review_items,
+              'run_id':      summary.get('run_id', ''),
+              'timestamp':   summary.get('timestamp', ''),
+          }
+          Path('stage_status.json').write_text(
+              json.dumps(status, indent=2, ensure_ascii=False))
+          print(f"stage_status.json: estágio {stage}, {len(review_items)} itens para revisão")
+          PYEOF
+
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+          git add stage_status.json
+          git commit -m "watcher: stage_status atualizado — estágio ${{ steps.check.outputs.stage }} (${{ steps.check.outputs.stage_label }})" \
+            --allow-empty
+          git push origin pipeline-outputs
 
       - name: Commit fixes e disparar próximo run
         if: steps.check.outputs.status == 'needs_fix'

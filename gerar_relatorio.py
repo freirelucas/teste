@@ -390,11 +390,30 @@ try:
     _por_orgao = []
     for _sig, _g in _raw.groupby('sigla'):
         _ext = _g['extrator'].mode()[0] if 'extrator' in _g.columns and len(_g) else None
+
+        # parse_flag metrics (Stage 1)
+        _flags = _g['parse_flag'].value_counts().to_dict() if 'parse_flag' in _g.columns else {}
+        _n = max(len(_g), 1)
+        _pct_ok_org   = round(_flags.get('ok', 0) / _n * 100, 1)
+        _sem_prod_n   = int(_flags.get('sem_produto', 0))
+        _sem_prod_pct = round(_sem_prod_n / _n * 100, 1)
+
+        # col_map_ok rate (Stage 2) — proporção de linhas com headers reconhecidos
+        _col_ok_rate  = round(
+            _g['col_map_ok'].mean() * 100, 1
+        ) if 'col_map_ok' in _g.columns and len(_g) else None
+
         _por_orgao.append({
-            'sigla':      _sig,
-            'n_entregas': int(len(_g)),
-            'extrator':   str(_ext) if _ext is not None else None,
-            'status':     'ok' if len(_g) > 0 else 'zero',
+            'sigla':          _sig,
+            'n_entregas':     int(len(_g)),
+            'extrator':       str(_ext) if _ext is not None else None,
+            'status':         'ok' if len(_g) > 0 else 'zero',
+            # Stage 1 — parse quality
+            'pct_ok':         _pct_ok_org,
+            'sem_produto_n':  _sem_prod_n,
+            'sem_produto_pct': _sem_prod_pct,
+            # Stage 2 — field recognition
+            'col_map_ok_rate': _col_ok_rate,
         })
 
     _cob_path = DIR_DB / 'ptd_cobertura_passos.csv'
@@ -404,14 +423,39 @@ try:
     _extratores = (_raw['extrator'].value_counts().to_dict()
                    if 'extrator' in _raw.columns else {})
 
+    # Detectar estágio atual da iteração de qualidade
+    _n_zero = len(_zero_sig)
+    _sem_prod_global = round(
+        sum(o['sem_produto_n'] for o in _por_orgao) / max(len(_raw), 1) * 100, 1)
+    _col_ok_global   = round(
+        float(np.nanmean([o['col_map_ok_rate'] for o in _por_orgao
+                          if o['col_map_ok_rate'] is not None])), 1
+    ) if any(o['col_map_ok_rate'] is not None for o in _por_orgao) else None
+
+    if _n_zero > 0:
+        _stage = 0   # cobertura
+    elif pct_ok < 80:
+        _stage = 1   # parse quality / sem_produto
+    elif _col_ok_global is not None and _col_ok_global < 70:
+        _stage = 2   # reconhecimento de colunas
+    else:
+        _stage = 3   # riscos / completo
+
+    _stage_labels = {0: 'cobertura', 1: 'parse_quality',
+                     2: 'field_recognition', 3: 'riscos_coverage'}
+
     _summary = {
         'run_id':               os.environ.get('GITHUB_RUN_ID', 'local'),
         'timestamp':            datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
         'branch':               os.environ.get('GITHUB_REF_NAME', 'local'),
+        'stage':                _stage,
+        'stage_label':          _stage_labels[_stage],
         'n_orgaos':             int(n_orgaos),
         'n_registros_raw':      int(len(_raw)),
         'n_registros_v21':      int(len(corpus)),
         'pct_ok':               float(pct_ok),
+        'sem_produto_pct':      _sem_prod_global,
+        'col_map_ok_rate':      _col_ok_global,
         'extratores':           {str(k): int(v) for k, v in _extratores.items()},
         'orgaos_zero_entregas': _zero_sig,
         'por_orgao':            _por_orgao,

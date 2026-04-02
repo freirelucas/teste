@@ -499,6 +499,28 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
                 'nome_pdf':     nome_pdf,
                 'url_fonte':    url_fonte,
             })
+
+    # ── Orçamento de pixels (Docling) ──────────────────────────────────
+    # Estima cobertura comparando área total das tabelas extraídas com
+    # a área total das páginas do documento (proxy sem re-renderizar).
+    try:
+        _total_area = sum(
+            (p.size.width * p.size.height)
+            for p in result.document.pages.values()
+            if p.size
+        )
+        _covered_area = 0.0
+        for tbl in result.document.tables:
+            for prov in (tbl.prov or []):
+                b = prov.bbox
+                _covered_area += abs((b.r - b.l) * (b.t - b.b))
+        if _total_area > 0:
+            _px_cov = round(_covered_area / _total_area * 100, 1)
+            logger.info(f'  pixel_budget (Docling) {nome_pdf}: {_px_cov:.1f}% '
+                        f'(área tabelas/{_total_area:.0f} px²)')
+    except Exception:
+        pass   # pixel_budget é informativo, não bloqueia
+
     return rows
 
 

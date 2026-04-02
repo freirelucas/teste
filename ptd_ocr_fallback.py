@@ -137,6 +137,58 @@ def parse_lines_to_rows(lines: list[str], sigla: str, pagina: int,
     return rows
 
 
+def pixel_budget(img: 'Image.Image',
+                 dark_threshold: int = 200) -> dict:
+    """Calcula o orçamento de pixels de uma página.
+
+    Retorna um dict com:
+      - total_dark:   pixels escuros (conteúdo gráfico total)
+      - covered:      pixels em regiões de texto reconhecido pelo OCR
+      - coverage_pct: percentual do conteúdo coberto pelo parser
+
+    Conceito: o "orçamento" é o total de pixels escuros (elementos gráficos
+    — texto, tabelas, figuras). O parser "debita" os pixels das regiões de
+    texto que efetivamente reconhece. coverage_pct baixo indica que o
+    documento tem muito conteúdo que o OCR não capturou.
+    """
+    if not _OCR_DEPS_OK:
+        return {'total_dark': 0, 'covered': 0, 'coverage_pct': 0.0}
+
+    arr = np.array(img.convert('L'))
+    total_dark = int((arr < dark_threshold).sum())
+
+    if total_dark == 0:
+        return {'total_dark': 0, 'covered': 0, 'coverage_pct': 100.0}
+
+    # Usar pytesseract image_to_data para obter bounding boxes por palavra
+    try:
+        data = pytesseract.image_to_data(
+            img, lang='por', config='--psm 6',
+            output_type=pytesseract.Output.DICT)
+    except Exception:
+        return {'total_dark': total_dark, 'covered': 0, 'coverage_pct': 0.0}
+
+    # Máscara de pixels "cobertos" pelas regiões reconhecidas
+    covered_mask = np.zeros(arr.shape, dtype=bool)
+    for i, conf in enumerate(data['conf']):
+        if int(conf) < 30:   # descartar reconhecimentos de baixa confiança
+            continue
+        x, y = data['left'][i], data['top'][i]
+        w, h = data['width'][i], data['height'][i]
+        if w > 0 and h > 0:
+            covered_mask[y:y+h, x:x+w] = True
+
+    # Pixels escuros que estão dentro de regiões reconhecidas
+    covered_dark = int(((arr < dark_threshold) & covered_mask).sum())
+    coverage_pct = round(covered_dark / total_dark * 100, 1)
+
+    return {
+        'total_dark': total_dark,
+        'covered':    covered_dark,
+        'coverage_pct': coverage_pct,
+    }
+
+
 def extrair_ocr(path: Path, sigla: str, sha256: str,
                 nome_pdf: str = '', url_fonte: str = '',
                 dpi: int = 200) -> list[dict]:
@@ -145,6 +197,7 @@ def extrair_ocr(path: Path, sigla: str, sha256: str,
     Ponto de entrada chamado pelo pipeline quando Docling retorna rows == [].
     Usa OCR_CONFIG para obter rotação correta por sigla.
     Retorna [] silenciosamente se dependências não estiverem instaladas.
+    Loga pixel_budget por página para rastrear cobertura de extração.
     """
     if not _OCR_DEPS_OK:
         return []
@@ -154,6 +207,8 @@ def extrair_ocr(path: Path, sigla: str, sha256: str,
     doc.close()
 
     all_rows: list[dict] = []
+    total_dark_all, covered_all = 0, 0
+
     for idx in range(n_pages):
         try:
             img = render_page(path, idx, dpi=dpi, rotate_image=rot)
@@ -164,12 +219,20 @@ def extrair_ocr(path: Path, sigla: str, sha256: str,
         if not is_content_page(img):
             continue
 
+        budget = pixel_budget(img)
+        total_dark_all += budget['total_dark']
+        covered_all    += budget['covered']
+
         lines = ocr_page(img)
         rows  = parse_lines_to_rows(lines, sigla, idx + 1,
                                     nome_pdf=nome_pdf, url_fonte=url_fonte,
                                     sha256=sha256)
         all_rows.extend(rows)
 
+    if total_dark_all > 0:
+        doc_coverage = round(covered_all / total_dark_all * 100, 1)
+        logger.info(f'  pixel_budget {sigla}: {doc_coverage:.1f}% '
+                    f'({covered_all:,}/{total_dark_all:,} px escuros cobertos)')
     return all_rows
 
 
