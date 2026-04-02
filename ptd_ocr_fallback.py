@@ -41,8 +41,7 @@ logger = logging.getLogger('ptd')
 
 # ── Configuração por sigla: rotação necessária (graus anti-horário) ───────────
 # INCRA e FUNDACENTRO têm PDFs digitalizados em modo paisagem (90° ou 270°)
-OCR_CONFIG: dict[str, dict] = {
-    'AGU':         {'rot': 0},
+OCR_CONFIG: dict[str, dict] = {},
     'FUNAI':       {'rot': 0},
     'ITI':         {'rot': 0},
     'SGPR':        {'rot': 0},
@@ -53,7 +52,7 @@ OCR_CONFIG: dict[str, dict] = {
 
 
 def render_page(pdf_path: Path, page_idx: int,
-                dpi: int = 200, rotate_image: int = 0) -> Image.Image:
+                dpi: int = 200, rotate_image: int = 0) -> 'Image.Image':
     """Renderiza uma página do PDF como PIL Image.
 
     Extraído do script do usuário (render_page).
@@ -70,7 +69,7 @@ def render_page(pdf_path: Path, page_idx: int,
     return img
 
 
-def is_content_page(img: Image.Image,
+def is_content_page(img: 'Image.Image',
                     dark_threshold: int = 200,
                     min_dark_pct: float = 1.0) -> bool:
     """Retorna True se a página tem conteúdo (não é branca/vazia).
@@ -201,7 +200,9 @@ def extrair_ocr(path: Path, sigla: str, sha256: str,
     """
     if not _OCR_DEPS_OK:
         return []
-    rot = OCR_CONFIG.get(sigla.upper(), {}).get('rot', 0)
+    cfg = OCR_CONFIG.get(sigla.upper(), {})
+    rot = cfg.get('rot', 0)
+    dpi = cfg.get('dpi', dpi)
     doc = fitz.open(str(path))
     n_pages = len(doc)
     doc.close()

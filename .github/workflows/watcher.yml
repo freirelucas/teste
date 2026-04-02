@@ -187,8 +187,9 @@ jobs:
               indent=4).replace('true','True').replace('false','False') + '\n'
 
           # Substituir bloco OCR_CONFIG
+          # Regex com suporte a dicts aninhados: \{(?:[^{}]|\{[^{}]*\})*\}
           fb = re.sub(
-              r'OCR_CONFIG: dict\[str, dict\] = \{[^}]+\}',
+              r'OCR_CONFIG: dict\[str, dict\] = \{(?:[^{}]|\{[^{}]*\})*\}',
               new_cfg.rstrip(),
               fb, flags=re.DOTALL)
           Path('ptd_ocr_fallback.py').write_text(fb)

@@ -88,9 +88,9 @@ try:
     from ptd_ocr_fallback import extrair_ocr as _extrair_ocr_fallback
     _OCR_FALLBACK_OK = True
     logger.info('OCR fallback (pytesseract) disponível')
-except ImportError as _e:
+except Exception as _e:   # ImportError ou NameError (PIL ausente em anotações)
     _OCR_FALLBACK_OK = False
-    logger.warning(f'OCR fallback indisponível ({_e})')
+    logger.warning(f'OCR fallback indisponível ({type(_e).__name__}: {_e})')
 
 PROVENIENCIA = {
     'fonte':       'Portal do Governo Digital / MGI',
@@ -256,7 +256,7 @@ else:
         if not log['cache'] and log['ok']:
             time.sleep(DELAY)
 
-    df_dl = pd.DataFrame(logs_dl)
+    df_dl = pd.DataFrame(logs_dl) if logs_dl else pd.DataFrame(columns=['url','arquivo','cache','ok','kb'])
     df_dl.to_csv(DIR_LOG / 'download_log.csv', index=False)
     logger.info(f'{df_dl.ok.sum()} OK | {(~df_dl.ok).sum()} erros | '
                 f'{df_dl[df_dl.ok]["kb"].sum()/1024:.1f} MB total')
