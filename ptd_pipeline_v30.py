@@ -34,9 +34,12 @@ _parser.add_argument('--force-download', action='store_true', default=False,
                      help='Limpa checkpoints e re-processa todos os PDFs')
 _parser.add_argument('--max-pdfs', type=int, default=0,
                      help='Limitar a N PDFs no loop de extração (0 = sem limite)')
+_parser.add_argument('--siglas', type=str, default='',
+                     help='Siglas separadas por vírgula para modo debug (ex: AGU,FUNAI,MD)')
 _args, _       = _parser.parse_known_args()  # parse_known_args: ignora args do pytest/outros
 FORCE_DOWNLOAD = _args.force_download
 MAX_PDFS       = _args.max_pdfs
+SIGLAS_DEBUG   = {s.strip().upper() for s in _args.siglas.split(',') if s.strip()}
 PDF_TIMEOUT    = int(os.getenv('PTD_PDF_TIMEOUT', '3600'))  # 1h default, override via env
 
 ROOT    = Path('ptd_corpus')
@@ -602,6 +605,9 @@ if _cat_path.exists():
 
 # Usar df_san para iterar apenas PDFs baixados com sucesso
 pdfs_ok = df_san[df_san[['kb_ok','sig_ok','pag_ok']].all(axis=1)]
+if SIGLAS_DEBUG:
+    pdfs_ok = pdfs_ok[pdfs_ok['arquivo'].apply(_sigla_de_fn).isin(SIGLAS_DEBUG)]
+    logger.info(f'--siglas (debug): {len(pdfs_ok)} PDFs de {sorted(SIGLAS_DEBUG)}')
 if MAX_PDFS > 0:
     pdfs_ok = pdfs_ok.head(MAX_PDFS)
     logger.info(f'--max-pdfs: limitando extração a {len(pdfs_ok)} PDFs')
@@ -822,6 +828,10 @@ pdfs_diretivos = df_san[
     df_san[['kb_ok', 'sig_ok', 'pag_ok']].all(axis=1) &
     df_san['arquivo'].apply(lambda x: bool(diretivo_pats.search(str(x))))
 ]
+if SIGLAS_DEBUG:
+    pdfs_diretivos = pdfs_diretivos[
+        pdfs_diretivos['arquivo'].apply(_sigla_de_fn).isin(SIGLAS_DEBUG)
+    ]
 
 logs_r   = []
 risco_id = len(all_riscos)
