@@ -244,6 +244,28 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .gram-kanji-hero{font-size:48px;color:var(--gold);opacity:.85;line-height:1;margin-bottom:6px;
   text-align:center;letter-spacing:.05em}
 .gram-kanji-sub{font-size:10px;color:var(--text2);letter-spacing:.12em;text-align:center}
+/* ===== RESPONSIVO MOBILE ===== */
+@media (max-width:680px){
+  #app{flex-direction:column-reverse}
+  #sidebar{width:100%;height:56px;min-height:56px;border-right:none;border-top:1px solid var(--border);flex-direction:row;flex-shrink:0;padding:0}
+  .sb-logo,.sb-foot,#nav-search-wrap{display:none}
+  .sb-nav{flex-direction:row;overflow-x:auto;padding:3px 4px;flex:1;gap:0;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:stretch}
+  .sb-nav::-webkit-scrollbar{display:none}
+  .nav-btn{flex-direction:column;font-size:8px;padding:4px 2px;gap:1px;min-width:44px;flex:1;text-align:center;justify-content:center;border-radius:7px;border:none!important}
+  .nav-btn .ic{font-size:17px;width:auto;display:block;text-align:center}
+  #detail{width:100%;bottom:56px}
+  #detail h3{font-size:14px}
+  .gram-3pillar{flex-direction:column}
+  .gram-kk{flex-direction:column;gap:10px}
+  .dict-grid{grid-template-columns:1fr!important}
+  .kata-grid{grid-template-columns:1fr!important}
+  .filters{gap:4px}
+  .f-btn{padding:3px 9px;font-size:10px}
+  .panel-inner{padding:16px}
+  .gram-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  #belt-bar{padding:3px 5px;gap:3px}
+  .bb-btn{padding:2px 5px}
+}
 </style></head><body>
 <div id="app">
 <div id="sidebar">
@@ -2194,10 +2216,14 @@ s1.innerHTML='<h3>I. A Fórmula da Técnica</h3>'+
 const demoWrap=document.createElement('div');
 demoWrap.className='gram-demo-wrap';
 const sel=document.createElement('select');
-TECHS.filter(t=>!t.kataOnly).forEach(t=>{
-  const o=document.createElement('option');
-  o.value=TECHS.indexOf(t);o.textContent=t.name;sel.appendChild(o);
-});
+const _kihon=TECHS.filter(t=>!t.kataOnly);
+const _kata=TECHS.filter(t=>t.kataOnly);
+const _og1=document.createElement('optgroup');_og1.label='Kihon ('+_kihon.length+')';
+_kihon.forEach(t=>{const o=document.createElement('option');o.value=TECHS.indexOf(t);o.textContent=t.name;_og1.appendChild(o);});
+sel.appendChild(_og1);
+const _og2=document.createElement('optgroup');_og2.label='Kata only ('+_kata.length+')';
+_kata.forEach(t=>{const o=document.createElement('option');o.value=TECHS.indexOf(t);o.textContent=t.name;_og2.appendChild(o);});
+sel.appendChild(_og2);
 const formulaDiv=document.createElement('div');
 formulaDiv.id='gram-formula-live';
 function updateDemoFormula(){
