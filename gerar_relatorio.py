@@ -46,8 +46,26 @@ corpus_path = DIR_DB / 'ptd_corpus_v21.csv'
 if not corpus_path.exists():
     corpus_path = DIR_DB / 'ptd_corpus_raw.csv'
 if not corpus_path.exists():
-    print('ERRO: corpus não encontrado. Rode ptd_pipeline_v30.py primeiro.')
-    sys.exit(1)
+    # Gerar summary mínimo mesmo sem corpus (permite diagnóstico de falha L1-2)
+    _dir_db = Path('ptd_corpus/03_database')
+    _dir_db.mkdir(parents=True, exist_ok=True)
+    _minimal = {
+        'ts': _dt.datetime.now().isoformat(timespec='seconds'),
+        'stage': 0,
+        'stage_label': 'cobertura',
+        'n_entregas': 0,
+        'n_orgaos': 0,
+        'pct_ok': 0.0,
+        'orgaos_zero_entregas': [],
+        'orgaos_zero_ou_noise': [],
+        'top_unmatched_phrases': [],
+        'orgs_below_50pct': [],
+        'erro': 'corpus_nao_encontrado — Layer 1-2 ou Layer 3 falhou',
+    }
+    (_dir_db / 'ptd_run_summary.json').write_text(
+        json.dumps(_minimal, ensure_ascii=False, indent=2), encoding='utf-8')
+    print('WARN: corpus não encontrado — ptd_run_summary.json mínimo gerado para diagnóstico.')
+    sys.exit(0)   # não falhar — deixar commit-diagnóstico commitar o summary
 
 corpus = pd.read_csv(corpus_path)
 print(f'Corpus: {len(corpus):,} linhas × {len(corpus.columns)} colunas')

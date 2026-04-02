@@ -53,7 +53,7 @@ OCR_CONFIG: dict[str, dict] = {
 
 
 def render_page(pdf_path: Path, page_idx: int,
-                dpi: int = 200, rotate_image: int = 0) -> Image.Image:
+                dpi: int = 200, rotate_image: int = 0) -> 'Image.Image':
     """Renderiza uma página do PDF como PIL Image.
 
     Extraído do script do usuário (render_page).
@@ -70,7 +70,7 @@ def render_page(pdf_path: Path, page_idx: int,
     return img
 
 
-def is_content_page(img: Image.Image,
+def is_content_page(img: 'Image.Image',
                     dark_threshold: int = 200,
                     min_dark_pct: float = 1.0) -> bool:
     """Retorna True se a página tem conteúdo (não é branca/vazia).
