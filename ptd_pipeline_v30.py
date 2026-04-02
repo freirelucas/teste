@@ -129,8 +129,9 @@ def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
         txt = link.get_text(strip=True).lower()
         fn  = clean.split('/')[-1]
         # Excluir guias/orientações que não são PTDs de órgãos
-        if re.search(r'guia\d*[-_]?\d*passos|template[-_]ptd|modelo[-_]ptd', fn, re.I):
-            logger.info(f'Ignorado (guia/template): {fn}')
+        if re.search(r'guia\d*[-_]?\d*passos|template[-_]ptd|modelo[-_]ptd'
+                     r'|abnt[-_]nbr', fn, re.I):
+            logger.info(f'Ignorado (guia/template/norma): {fn}')
             continue
         # URL de download: usar href limpo; completar se relativo
         if clean.startswith('http'):
@@ -331,6 +332,20 @@ def _get_cell(cells: list[str], cmap: dict, field: str, fallback_idx: Optional[i
     if 0 <= idx < len(cells):
         return cells[idx]
     return ''
+
+def _sigla_de_fn(fn: str) -> str:
+    """Infere sigla do órgão a partir do nome do arquivo.
+    - URL-decode ('%28' → '(', etc.)
+    - Pula prefixo 'ptd_'  →  ptd_aneel_... → ANEEL
+    - Corta sufixo após '-' →  midr-docdiretivo → MIDR
+    - Extrai [A-Z0-9] inicial → MF(RFB) → MF
+    """
+    from urllib.parse import unquote as _uq
+    parts = _uq(fn).split('_')
+    raw   = parts[1] if parts[0].lower() == 'ptd' and len(parts) > 1 else parts[0]
+    clean = re.sub(r'[-].*', '', raw).upper()
+    m = re.match(r'^[A-Z0-9]+', clean)
+    return (m.group(0) if m else clean)[:10]
 
 # ── Estrutura CGREP: tipo_doc e passo_ptd ────────────────────────────────────
 def _tipo_doc(fn: str) -> str:
@@ -613,11 +628,7 @@ for _i, (_, srow) in enumerate(pdfs_ok.iterrows(), 1):
     if fn in processados_e:
         continue
 
-    # Inferir sigla do nome do arquivo (pula prefixo "ptd_" quando presente)
-    _fn_parts  = fn.split('_')
-    _sigla_raw = _fn_parts[1] if _fn_parts[0].lower() == 'ptd' and len(_fn_parts) > 1 \
-                 else _fn_parts[0]
-    sigla = re.sub(r'[-].*', '', _sigla_raw).upper()[:10]
+    sigla  = _sigla_de_fn(fn)
     is_img = bool(srow['image_pdf'])
     t0 = time.time()
     logger.info(f'[{_i}/{total_e}] → {fn}')
@@ -804,11 +815,7 @@ for _j, (_, srow) in enumerate(pdfs_diretivos.iterrows(), 1):
     fn     = srow['arquivo']
     path   = DIR_RAW / fn
     sha256 = srow['sha256']
-    # Inferir sigla — pula prefixo "ptd_" e sufixo após "-" (consistente com entregas)
-    _fn_parts  = fn.split('_')
-    _sigla_raw = _fn_parts[1] if _fn_parts[0].lower() == 'ptd' and len(_fn_parts) > 1 \
-                 else _fn_parts[0]
-    sigla = re.sub(r'[-].*', '', _sigla_raw).upper()[:10]
+    sigla = _sigla_de_fn(fn)
 
     if fn in processados_r:
         continue
