@@ -1,0 +1,105 @@
+{
+  "run_id": "23920068743",
+  "timestamp": "2026-04-02T20:39:40",
+  "branch": "claude/setup-docling-pipeline-g11gg",
+  "stage": 0,
+  "stage_label": "cobertura",
+  "n_orgaos": 6,
+  "n_registros_raw": 200,
+  "n_registros_v21": 200,
+  "pct_ok": 36.0,
+  "sem_produto_pct": 0.0,
+  "col_map_ok_rate": 70.9,
+  "extratores": {
+    "docling": 200
+  },
+  "orgaos_zero_entregas": [],
+  "orgaos_zero_ou_noise": [
+    "AGU",
+    "FIOCRUZ",
+    "FUNAI",
+    "INCRA",
+    "ITI",
+    "SGPR"
+  ],
+  "orgs_below_50pct": [
+    {
+      "sigla": "AGU",
+      "pct_ok": 0.0,
+      "n": 39
+    },
+    {
+      "sigla": "FIOCRUZ",
+      "pct_ok": 0.0,
+      "n": 61
+    },
+    {
+      "sigla": "ITI",
+      "pct_ok": 0.0,
+      "n": 37
+    }
+  ],
+  "top_unmatched_phrases": [],
+  "por_orgao": [
+    {
+      "sigla": "AGU",
+      "n_entregas": 39,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 69.2
+    },
+    {
+      "sigla": "FIOCRUZ",
+      "n_entregas": 61,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "FUNAI",
+      "n_entregas": 29,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 72.4
+    },
+    {
+      "sigla": "INCRA",
+      "n_entregas": 19,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 0.0
+    },
+    {
+      "sigla": "ITI",
+      "n_entregas": 37,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 83.8
+    },
+    {
+      "sigla": "SGPR",
+      "n_entregas": 15,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 100.0
+    }
+  ]
+}

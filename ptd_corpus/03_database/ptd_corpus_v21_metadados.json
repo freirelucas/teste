@@ -1,0 +1,80 @@
+{
+  "versao_corpus": "2.1",
+  "data_geracao": "2026-04-02",
+  "input_hashes": {
+    "ptd_corpus_raw.csv": "9a2c9d007acc26be75b327a370f143b6b7d374d7f4a1afc96e0fe8daf3b0ccf5",
+    "ptd_pivot_eixos.csv": "8657349435458fdeac703028bfb2d90713cbbefa04f21f36c10126fe17b9684e",
+    "ptd_datas_assinatura.csv": "dd7c3f642522540a1a68ddbb3319e28b2f6e3f9b832fd86d2d28bda3862f446e"
+  },
+  "config_produtos": "config/produtos_sgd_v23.json",
+  "config_correcoes": "config/correcoes_eixo.json",
+  "unidade_analise": "comprometimento (servico × produto)",
+  "corpus": {
+    "total_linhas": 200,
+    "servicos_unicos": 176,
+    "fator_mult_medio": 1.14
+  },
+  "parse": {
+    "flags": {
+      "sem_produto": 122,
+      "ok": 72,
+      "ruido": 6
+    },
+    "cobertura_servico_pct": 97.0,
+    "cobertura_produto_pct": 36.0,
+    "cobertura_data_ptd_pct": 86.5
+  },
+  "eixos": {
+    "original": {
+      "1": 129,
+      "2": 6,
+      "3": 7,
+      "4": 53,
+      "5": 0,
+      "6": 5
+    },
+    "corrigido": {
+      "1": 129,
+      "2": 6,
+      "3": 7,
+      "4": 53,
+      "5": 0,
+      "6": 5
+    },
+    "n_reclassificados": 0,
+    "regras_aplicadas": [
+      "PGFN-E3-PAG8-2025"
+    ]
+  },
+  "tipo_entrega": {
+    "discricionario": 156,
+    "mandatorio_ppsi": 24,
+    "mandatorio_revisao": 10,
+    "mandatorio_avaliacao": 8,
+    "mandatorio_login": 2
+  },
+  "ia_real": {
+    "registros": 2,
+    "orgaos": 1
+  },
+  "datas": {
+    "validas": 35,
+    "total": 132
+  },
+  "proveniencia": {
+    "fonte": "Portal do Governo Digital / MGI",
+    "url_portal": "https://www.gov.br/governodigital/pt-br/estrategias-e-governanca-digital/planos-de-transformacao-digital",
+    "data_coleta": "2026-04-02",
+    "base_legal": "Decreto 12.198/2024 · Portaria SGD/MGI 6.618/2024",
+    "autores": [
+      "Denise do Carmo Direito",
+      "Lucas Freire Silva"
+    ],
+    "unidade": "COGIT/DIEST/IPEA",
+    "versao": "3.0-melhorado",
+    "n_entregas": 200,
+    "n_orgaos": 6,
+    "n_riscos": 67,
+    "versao_pipeline": "3.0-melhorado"
+  }
+}

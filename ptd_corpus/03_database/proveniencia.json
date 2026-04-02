@@ -1,0 +1,16 @@
+{
+  "fonte": "Portal do Governo Digital / MGI",
+  "url_portal": "https://www.gov.br/governodigital/pt-br/estrategias-e-governanca-digital/planos-de-transformacao-digital",
+  "data_coleta": "2026-04-02",
+  "base_legal": "Decreto 12.198/2024 · Portaria SGD/MGI 6.618/2024",
+  "autores": [
+    "Denise do Carmo Direito",
+    "Lucas Freire Silva"
+  ],
+  "unidade": "COGIT/DIEST/IPEA",
+  "versao": "3.0-melhorado",
+  "n_entregas": 200,
+  "n_orgaos": 6,
+  "n_riscos": 67,
+  "versao_pipeline": "3.0-melhorado"
+}

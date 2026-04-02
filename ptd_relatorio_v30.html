@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PTD-BR Corpus — Relatório de Qualidade</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f4f4;color:#333;font-size:14px}
+  .header{background:#0D2B4E;color:#fff;padding:24px 32px}
+  .header h1{font-size:22px;font-weight:700}
+  .header p{font-size:13px;opacity:.8;margin-top:4px}
+  .container{max-width:1200px;margin:24px auto;padding:0 16px}
+  .card{background:#fff;border-radius:8px;padding:20px;margin-bottom:20px;
+          box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .card h2{font-size:16px;font-weight:700;color:#0D2B4E;margin-bottom:14px;
+             border-bottom:2px solid #1A7F7A;padding-bottom:6px}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .kpi{background:#0D2B4E;color:#fff;border-radius:8px;padding:16px;text-align:center}
+  .kpi .val{font-size:32px;font-weight:700;color:#1A7F7A}
+  .kpi .lbl{font-size:11px;opacity:.75;margin-top:4px}
+  .alerta{padding:10px 14px;border-radius:6px;margin:6px 0;font-size:13px}
+  .alerta.OK  {background:#e8f5e9;border-left:4px solid #1A7F7A}
+  .alerta.WARN{background:#fff8e1;border-left:4px solid #D97706}
+  .alerta.INFO{background:#e3f2fd;border-left:4px solid #457B9D}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{background:#0D2B4E;color:#fff;padding:7px 10px;text-align:left;font-weight:600}
+  tr:nth-child(even){background:#f9f9f9}
+  td{padding:6px 10px;border-bottom:1px solid #eee;vertical-align:top}
+  .eixo-bar{display:flex;align-items:center;gap:10px;margin:5px 0}
+  .eixo-bar .lbl{width:200px;font-size:12px}
+  .eixo-bar .track{flex:1;background:#eee;border-radius:4px;height:18px}
+  .eixo-bar .fill{height:18px;border-radius:4px;display:flex;align-items:center;
+                   padding-left:8px;color:#fff;font-size:11px;font-weight:600}
+  .prov-item{display:flex;gap:8px;padding:4px 0;font-size:12px;border-bottom:1px solid #f0f0f0}
+  .prov-item .k{font-weight:600;color:#0D2B4E;min-width:160px}
+  .prov-item .v{color:#555;word-break:break-all}
+  footer{text-align:center;padding:24px;color:#999;font-size:11px}
+  .chart-wrap{position:relative;height:280px;margin-top:8px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="header">
+  <h1>PTD-BR Corpus — Relatório de Qualidade</h1>
+  <p>Pipeline 3.0-melhorado · Gerado em 02/04/2026 20:39 · IPEA/COGIT/DIEST</p>
+</div>
+<div class="container">
+
+<!-- KPIs -->
+<div class="card">
+  <h2>Visão Geral</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="val">200</div><div class="lbl">Registros totais</div></div>
+    <div class="kpi"><div class="val">6</div><div class="lbl">Órgãos com dados</div></div>
+    <div class="kpi"><div class="val">36%</div><div class="lbl">Parse OK</div></div>
+    <div class="kpi"><div class="val">5</div><div class="lbl">Eixos identificados</div></div>
+    <div class="kpi"><div class="val">132</div><div class="lbl">PDFs baixados</div></div>
+    <div class="kpi"><div class="val">132</div><div class="lbl">PDFs com SHA-256</div></div>
+  </div>
+</div>
+
+<!-- Alertas -->
+<div class="card">
+  <h2>Alertas de Qualidade</h2>
+  <div class="alerta WARN"><strong>WARN</strong> — Cobertura parse OK baixa: 36.0% — revisar parser ou PRODUTOS</div><div class="alerta WARN"><strong>WARN</strong> — Apenas 6/90 órgãos com dados — verificar scraping e downloads</div><div class="alerta WARN"><strong>WARN</strong> — 122 linhas sem produto identificado (61%) — considerar fuzzy match</div><div class="alerta WARN"><strong>WARN</strong> — 128 registros na fila de revisão humana (ptd_revisao_pendente.csv) | 0 já revisados manualmente</div>
+</div>
+
+<!-- Eixos — Chart.js interativo -->
+<div class="card">
+  <h2>Distribuição por Eixo EFGD</h2>
+  <div class="chart-wrap"><canvas id="chartEixos"></canvas></div>
+  <script>
+  (function(){
+    var labels = ["E1", "E2", "E3", "E4", "E6"];
+    var counts = [129, 6, 7, 53, 5];
+    var bkgs   = ["#1A7F7A", "#0D2B4E", "#D97706", "#E63946", "#6A4C93"];
+    var names  = ["Centrado no Cidad\u00e3o e Inclusivo", "Integrado e Colaborativo", "Inteligente e Inovador", "Confi\u00e1vel e Seguro", "Eficiente e Sustent\u00e1vel"];
+    new Chart(document.getElementById('chartEixos'), {
+      type: 'bar',
+      data: { labels: labels, datasets: [{
+        label: 'Registros',
+        data: counts, backgroundColor: bkgs,
+        borderWidth: 0, borderRadius: 4,
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { title: function(ctx) {
+            return names[ctx[0].dataIndex];
+          }, label: function(ctx) {
+            var total = counts.reduce(function(a,b){return a+b},0);
+            return ctx.parsed.y.toLocaleString('pt-BR') + ' (' + (ctx.parsed.y/total*100).toFixed(1) + '%)';
+          } } }
+        },
+        scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                  x: { grid: { display: false } } }
+      }
+    });
+  })();
+  </script>
+  <!-- Fallback para ambientes sem JS -->
+  <noscript>
+  <div class="eixo-bar"><div class="lbl">E1 — Centrado no Cidadão e Inclus</div><div class="track"><div class="fill" style="width:64.5%;background:#1A7F7A">129</div></div><small style="min-width:80px;text-align:right">64.5%</small></div>
+<div class="eixo-bar"><div class="lbl">E2 — Integrado e Colaborativo</div><div class="track"><div class="fill" style="width:3.0%;background:#0D2B4E">6</div></div><small style="min-width:80px;text-align:right">3.0%</small></div>
+<div class="eixo-bar"><div class="lbl">E3 — Inteligente e Inovador</div><div class="track"><div class="fill" style="width:3.5%;background:#D97706">7</div></div><small style="min-width:80px;text-align:right">3.5%</small></div>
+<div class="eixo-bar"><div class="lbl">E4 — Confiável e Seguro</div><div class="track"><div class="fill" style="width:26.5%;background:#E63946">53</div></div><small style="min-width:80px;text-align:right">26.5%</small></div>
+<div class="eixo-bar"><div class="lbl">E6 — Eficiente e Sustentável</div><div class="track"><div class="fill" style="width:2.5%;background:#6A4C93">5</div></div><small style="min-width:80px;text-align:right">2.5%</small></div>
+  </noscript>
+</div>
+
+<!-- Parse flags -->
+<div class="card">
+  <h2>Qualidade do Parser</h2>
+  <div style="margin:6px 0"><strong style="color:#D97706">sem_produto</strong> — <div style="background:#eee;border-radius:4px;height:14px;margin:2px 0"><div style="width:61.0%;background:#D97706;height:14px;border-radius:4px"></div></div><small>122 (61.0%)</small></div><div style="margin:6px 0"><strong style="color:#1A7F7A">ok</strong> — <div style="background:#eee;border-radius:4px;height:14px;margin:2px 0"><div style="width:36.0%;background:#1A7F7A;height:14px;border-radius:4px"></div></div><small>72 (36.0%)</small></div><div style="margin:6px 0"><strong style="color:#999">ruido</strong> — <div style="background:#eee;border-radius:4px;height:14px;margin:2px 0"><div style="width:3.0%;background:#999;height:14px;border-radius:4px"></div></div><small>6 (3.0%)</small></div>
+</div>
+
+<!-- Amostra auditável -->
+<div class="card">
+  <h2>Amostra Auditável (38 registros — texto original ↔ campos extraídos)</h2>
+  <div style="overflow-x:auto">
+  <table>
+    <tr>
+      <th>Órgão</th><th>Eixo</th><th>Flag</th>
+      <th>Texto original (bruto)</th>
+      <th>Serviço extraído</th><th>Produto</th><th>Tipo entrega</th>
+    </tr>
+    <tr><td><strong>INCRA</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#999">ruido</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Produto | Disponibilização em Acesso Digital | Integração ao Login Único | Evol ução do Serviço | Evolução do Serviço | Evolução do Serviço | Evoluçã ução do Serviço | ntegração ao</td><td style="max-width:160px;font-size:11px">nan</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#999">ruido</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Produto | Auto-avaliação, análise de lacunas e planejamento | Implementação do PPSI | Auto-avaliação, análise de lacunas e planejamento | Implementação do PPSI Auto-avaliação, anál</td><td style="max-width:160px;font-size:11px">nan</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">PPSI Ciclo 5 | Implementação do PPSI | Segurança e Privacidade | PR/COGETIC/PPD | 31/12/2024 | 31/12/2025</td><td style="max-width:160px;font-size:11px">PPSI Ciclo 5 |</td><td style="font-size:11px">Implementação do PPSI</td><td><small>mandatorio_ppsi</small></td></tr><tr><td><strong>ITI</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Validar Documentos Digitais | Realização de Autodiagnóstico de Qualidade | Serviços Digitais e Melhoria da Qualidade | CGOPEIDITEC | 30/06/2026</td><td style="max-width:160px;font-size:11px">Validar Documentos Digitais |</td><td style="font-size:11px">Realização de Autodiagnóstico de Qualidade</td><td><small>mandatorio_ppsi</small></td></tr><tr><td><strong>ITI</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">PPSI Ciclo 2 | Auto-avaliação, enát da prunos e planejamento | Segurança e Privacidade | Equipe PPSITI | 31/01/2025</td><td style="max-width:160px;font-size:11px">PPSI Ciclo 2 | Auto-avaliação, enát da prunos e planejamento | Segurança e Privacidade | Equipe PPSI</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar serviço de capacitação e treinamento técnico de profissionais e equipes em ricketisiose e outras doenças transmitidas por carrapatos (ambiente e vetores) - Fiocruz IOC/RJ</td><td style="max-width:160px;font-size:11px">Solicitar serviço de capacitação e treinamento técnico de profissionais e equipes em ricketisiose e </td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">E (PACIFICA) | O Disponibilização em Acesso Digital | Serviços Digitais e Melhoria da Qualidade | O SGE</td><td style="max-width:160px;font-size:11px">E (PACIFICA) | O</td><td style="font-size:11px">Disponibilização em Acesso Digital</td><td><small>discricionario</small></td></tr><tr><td><strong>SGPR</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Obter a carteira de Identidade Jovem (ID Jovem) | Integração à ferramenta de avaliação da I|satisfação dos usuários | Serviços Digitais e Melhoria da Qualidade | Equipe técnica da </td><td style="max-width:160px;font-size:11px">Obter a carteira de Identidade Jovem (ID Jovem) | Integração à ferramenta de avaliação da I|satisfaç</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Visitar Sala Verde - Diálogos em Biodiversidade e Saúde - Fiocruz Mata Atlântica/RJ | Disponibilização emAcessoDigital | Serviços Digitais e Melhoria da Qualidade | PR/CQuali | 31/</td><td style="max-width:160px;font-size:11px">Visitar Sala Verde - Diálogos em Biodiversidade e Saúde - Fiocruz Mata Atlântica/RJ | Disponibilizaç</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#0D2B4E;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E2</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Implantação da interoperabilidade com INSS do PACIFICA | Integração à base de dados de Benefícios Previdenciários | Governança e Gestão de Dados</td><td style="max-width:160px;font-size:11px">Implantação da interoperabilidade com INSS do PACIFICA |</td><td style="font-size:11px">Integração à base de dados</td><td><small>discricionario</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar exame e identificação de moluscos Biomphalaria (caramujos/esquistossomose) - Fiocruz/MG | Disponibilização emAcessoDigital | Serviços Digitais e Melhoria da Qualidade | P</td><td style="max-width:160px;font-size:11px">Solicitar exame e identificação de moluscos Biomphalaria (caramujos/esquistossomose) - Fiocruz/MG | </td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar resolução extrajudicial de conflitos previdenciários (PACIFICA) | | Integração à ferramenta de avaliação da satisfação dos usuários | Serviços Digitais e Melhoria da Qual</td><td style="max-width:160px;font-size:11px">Solicitar resolução extrajudicial de conflitos previdenciários (PACIFICA) | |</td><td style="font-size:11px">Integração à ferramenta de avaliação da satisfação dos usuários</td><td><small>mandatorio_avaliacao</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Visitar trilha interpretativa - Fiocruz Mata Atlântica/RJ | Disponibilização emAcessoDigital | Serviços Digitais e Melhoria da Qualidade | PR/CQuali | 31/12/2024 | 27/02/2025</td><td style="max-width:160px;font-size:11px">Visitar trilha interpretativa - Fiocruz Mata Atlântica/RJ | Disponibilização emAcessoDigital | Servi</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">[os NM (DESENROLA) | monemmioomiess Disponibilização em Acesso Digital | |prmsomusenemnommm | hoc | mis |</td><td style="max-width:160px;font-size:11px">[os NM (DESENROLA) | monemmioomiess</td><td style="font-size:11px">Disponibilização em Acesso Digital</td><td><small>discricionario</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Gestão | Privacidade</td><td style="max-width:160px;font-size:11px">Gestão | Privacidade</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>ITI</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">PPSI2 Ciclo 1 | Auto-avaliação, análise de lacunas e planejamento do PPSI | Segurança e Privacidade | Equipe PPSI/ITI | 31/01/2026</td><td style="max-width:160px;font-size:11px">PPSI2 Ciclo 1 |</td><td style="font-size:11px">Auto-avaliação, análise de lacunas e planejamento do PPSI</td><td><small>mandatorio_ppsi</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#999">ruido</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Eixo | Serviços Digitais e Melhoria da Quali | Unificação de Canais Digitais | Serviços Digitais e Melhoria da Quali | Serviços Digitais e Melhoria da Quali | Serviços Digitais e M</td><td style="max-width:160px;font-size:11px">nan</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Propor acordo para pagamento de dívidas com a União (Ministérios, Tribunal de Contas da União e outros órgãos ou instituições da Administração Pública Federal) | | Integração à fer</td><td style="max-width:160px;font-size:11px">Propor acordo para pagamento de dívidas com a União (Ministérios, Tribunal de Contas da União e outr</td><td style="font-size:11px">Integração à ferramenta de avaliação da satisfação dos usuários</td><td><small>mandatorio_avaliacao</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar diagnóstico de referência para febre maculosa em população de animais vertebrados domésticos e silvestres - Fiocruz IOC/RJ | Disponibilização emAcessoDigital | Serviços D</td><td style="max-width:160px;font-size:11px">Solicitar diagnóstico de referência para febre maculosa em população de animais vertebrados doméstic</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>ITI</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Realizar Assinatura Eletrônica | Revisão da descrição dos serviços | Serviços Digitais e Melhoria da Qualidade | CGOPE/DITEC | 30/06/2026</td><td style="max-width:160px;font-size:11px">Realizar Assinatura Eletrônica |</td><td style="font-size:11px">Revisão da descrição dos serviços</td><td><small>mandatorio_revisao</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">PPSI Ciclo 7 | Implementação do PPSI | Segurança e Privacidade | PR/COGETIC/PPD | 31/12/2024 | 31/12/2026</td><td style="max-width:160px;font-size:11px">PPSI Ciclo 7 |</td><td style="font-size:11px">Implementação do PPSI</td><td><small>mandatorio_ppsi</small></td></tr><tr><td><strong>SGPR</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Migração do Serviço "Obter a carteira de Identidade Jovem (ID Jovem)" para o Wallet gov.br | Migração de Serviço para Plataforma Unificada | [Unificação de Canais Digitais | Equipe</td><td style="max-width:160px;font-size:11px">Migração do Serviço "Obter a carteira de Identidade Jovem (ID Jovem)" para o Wallet gov.br | Migraçã</td><td style="font-size:11px">Unificação de Canais Digitais</td><td><small>discricionario</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#999">ruido</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Eixo | Segurança e Privacidade | Segurança e Privacidade | Segurança e Privacidade | Segurança e Privacidade planejamento Segurança e Privacidade | Segurança e Privacidade | planej</td><td style="max-width:160px;font-size:11px">nan</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar identificação de 'barbeiros' e outros percevejos (predadores e de cama) enviados pelo cidadão - Fiocruz IOC/RJ | Disponibilização emAcessoDigital | Serviços Digitais e Me</td><td style="max-width:160px;font-size:11px">Solicitar identificação de 'barbeiros' e outros percevejos (predadores e de cama) enviados pelo cida</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">“Desenrola” no Sapiens 2.0 para o cidadão (Requerimento das transações previstas na Lei 14973/2024) | Disponibilização em Acesso Digital | Serviços Digitais e Melhoria da Qualidade</td><td style="max-width:160px;font-size:11px">“Desenrola” no Sapiens 2.0 para o cidadão (Requerimento das transações previstas na Lei 14973/2024) </td><td style="font-size:11px">Disponibilização em Acesso Digital</td><td><small>discricionario</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Disponibilidade dos sistemas de acesso para O cidadão | Pouco provável | Muito alto | Reduzir (mitigar) | Ações sugeridas: (16) Planejamento e digitização das etapas; (19) Monitora</td><td style="max-width:160px;font-size:11px">Disponibilidade dos sistemas de acesso para O cidadão | Pouco provável | Muito alto | Reduzir (mitig</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#999">ruido</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Entregas pactuadas Servico/Acao | Solicitar Crédito Instalação | Solicitar Crédito Instalação | Solicitar Título de Assentamento | Solicitar Regularização de Ocupante em 8 ç p Asse</td><td style="max-width:160px;font-size:11px">nan</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Es autarquias e fundações públicas federais | O Revisão da descrição dos serviços | 1 Serviços Digitais e Melhoria da Qualidade | SGE</td><td style="max-width:160px;font-size:11px">Es autarquias e fundações públicas federais | O</td><td style="font-size:11px">Revisão da descrição dos serviços</td><td><small>mandatorio_revisao</small></td></tr><tr><td><strong>INCRA</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#999">ruido</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Entregas já concluídas não pactuadas Servico/Acao | PPSI Ciclo 1 | PPSI Ciclo 1 | PPSI Ciclo 2 | PPSI Ciclo 3 | PPSI Ciclo 3 | PPSI Ciclo 4</td><td style="max-width:160px;font-size:11px">nan</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>ITI</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Padronizar a disponibilização dos serviços do ITI nos P . ç o há canais digitais | Outros | Projetos Especiais | Ouvidoria | 30/12/2026</td><td style="max-width:160px;font-size:11px">Padronizar a disponibilização dos serviços do ITI nos P . ç o há canais digitais | Outros | Projetos</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Risco de Conformidade com a LGPD Outras Normas de Segurança | elMédio | fe Alto | iti | que.</td><td style="max-width:160px;font-size:11px">Risco de Conformidade com a LGPD Outras Normas de Segurança | elMédio | fe Alto | iti | que.</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>ITI</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Cadastrar Agente de Registro da ICP-Brasil | Realização de Autodiagnóstico de Qualidade | Serviços Digitais e Melhoria da Qualidade | CGNPE/DAFN | 30/09/2026</td><td style="max-width:160px;font-size:11px">Cadastrar Agente de Registro da ICP-Brasil |</td><td style="font-size:11px">Realização de Autodiagnóstico de Qualidade</td><td><small>mandatorio_ppsi</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar detecção de vírus para esclarecimento de surtos de doença diarréica aguda associada ao consumo de água contaminada - Fiocruz IOC/RJ | Disponibilização emAcessoDigital | S</td><td style="max-width:160px;font-size:11px">Solicitar detecção de vírus para esclarecimento de surtos de doença diarréica aguda associada ao con</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>FIOCRUZ</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar diagnóstico de referência em citomegalovírus - Fiocruz IOC/RJ | Disponibilização emAcessoDigital | Serviços Digitais e Melhoria da Qualidade | PR/CQuali | 31/12/2024 | 31</td><td style="max-width:160px;font-size:11px">Solicitar diagnóstico de referência em citomegalovírus - Fiocruz IOC/RJ | Disponibilização emAcessoD</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#E63946;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E4</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">PPSI Ciclo 6 | Auto-avaliação, análise de lacunas e planejamento | | Segurança e Privacidade | ES</td><td style="max-width:160px;font-size:11px">PPSI Ciclo 6 | Auto-avaliação, análise de lacunas e planejamento | | Segurança e Privacidade | ES</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr><tr><td><strong>FUNAI</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar o empréstimo de itens do acervo museológico |do MNPI | Integração ao Login único | Unificação de Canais Digitais | [Coordenação-Geral [de Tecnologia da Informação (CGTI |</td><td style="max-width:160px;font-size:11px">Solicitar o empréstimo de itens do acervo museológico |do MNPI | Integração ao Login único |</td><td style="font-size:11px">Unificação de Canais Digitais</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#1A7F7A;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E1</span></td><td><span style="color:#1A7F7A">ok</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">Solicitar negociação para prevenir ou encerrar litígios (judiciais ou extrajudiciais) contra a União | Disponibilização em Acesso Digital | Serviços Digitais e Melhoria da Qualidad</td><td style="max-width:160px;font-size:11px">Solicitar negociação para prevenir ou encerrar litígios (judiciais ou extrajudiciais) contra a União</td><td style="font-size:11px">Disponibilização em Acesso Digital</td><td><small>discricionario</small></td></tr><tr><td><strong>AGU</strong></td><td><span style="background:#0D2B4E;color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold">E2</span></td><td><span style="color:#D97706">sem_produto</span></td><td style="max-width:280px;word-break:break-word;font-size:11px">e remnfo ão de Sistemas | fe</td><td style="max-width:160px;font-size:11px">e remnfo ão de Sistemas | fe</td><td style="font-size:11px">nan</td><td><small>discricionario</small></td></tr>
+  </table>
+  </div>
+</div>
+
+
+<div class="card">
+  <h2>Análise de Riscos (67 registros · 6 órgãos)</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:8px">
+    <div>
+      <h3 style="font-size:13px;color:#0D2B4E;margin-bottom:6px">Probabilidade</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chartProb"></canvas></div>
+    </div>
+    <div>
+      <h3 style="font-size:13px;color:#0D2B4E;margin-bottom:6px">Impacto</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chartImp"></canvas></div>
+    </div>
+    <div>
+      <h3 style="font-size:13px;color:#0D2B4E;margin-bottom:6px">Opção de Tratamento</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chartTrat"></canvas></div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    function barH(id, labels, data, bkgs) {
+      new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ data: data,
+          backgroundColor: bkgs, borderWidth: 0, borderRadius: 3 }] },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                    y: { grid: { display: false } } } }
+      });
+    }
+    var cores = ["#0D2B4E", "#1A7F7A", "#D97706", "#E63946", "#457B9D", "#6A4C93"];
+    barH('chartProb',  ["Prov\u00e1vel", "Pouco prov\u00e1vel", "Muito prov\u00e1vel", "Raro", "Praticamente certo", "Provavel"],  [25, 16, 9, 2, 2, 1],  cores);
+    barH('chartImp',   ["Alto", "Muito alto", "M\u00e9dio", "Baixo", "M\u00e9dia", "Muito baixo"],   [17, 13, 7, 4, 2, 1],   cores);
+    barH('chartTrat',  ["Mitigar", "Transferir", "Aceitar"],  [46, 4, 2],  cores);
+  })();
+  </script>
+</div>
+
+<!-- Proveniência -->
+<div class="card">
+  <h2>Proveniência e Rastreabilidade</h2>
+  <div class="prov-item"><div class="k">fonte</div><div class="v">Portal do Governo Digital / MGI</div></div>
+<div class="prov-item"><div class="k">data_coleta</div><div class="v">2026-04-02</div></div>
+<div class="prov-item"><div class="k">versao_pipeline</div><div class="v">3.0-melhorado</div></div>
+<div class="prov-item"><div class="k">base_legal</div><div class="v">Decreto 12.198/2024 · Portaria SGD/MGI 6.618/2024</div></div>
+<div class="prov-item"><div class="k">autores</div><div class="v">Denise do Carmo Direito, Lucas Freire Silva</div></div>
+<div class="prov-item"><div class="k">unidade</div><div class="v">COGIT/DIEST/IPEA</div></div>
+<div class="prov-item"><div class="k">n_pdfs_sha256</div><div class="v">132</div></div>
+<div class="prov-item"><div class="k">corpus_sha256</div><div class="v">4c7c49a3442464df…</div></div>
+<div class="prov-item"><div class="k">data_relatorio</div><div class="v">02/04/2026 20:39</div></div>
+<div class="prov-item"><div class="k">nota</div><div class="v">Documento de trabalho — não citar sem autorização dos autores</div></div>
+</div>
+
+</div>
+<footer>PTD-BR Corpus · IPEA/COGIT/DIEST · 02/04/2026 20:39 · Relatório gerado por gerar_relatorio.py</footer>
+</body>
+</html>
