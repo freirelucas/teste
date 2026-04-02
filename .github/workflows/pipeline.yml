@@ -104,11 +104,13 @@ jobs:
           python ptd_pipeline_v30.py $EXTRA_ARGS
 
       - name: Layer 3 — Curadoria semântica
-        if: env.MODO == 'completo' || env.MODO == 'debug'
+        if: always() && (env.MODO == 'completo' || env.MODO == 'debug')
+        continue-on-error: true
         run: python ptd_corpus_v21.py
 
       - name: Gerar relatório HTML
-        if: env.MODO == 'completo' || env.MODO == 'debug'
+        if: always() && (env.MODO == 'completo' || env.MODO == 'debug')
+        continue-on-error: true
         run: |
           python gerar_relatorio.py --output ptd_relatorio_v30.html
           echo "RELATORIO_OK=true" >> $GITHUB_ENV
