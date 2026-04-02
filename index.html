@@ -161,6 +161,26 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
   color:var(--gold);cursor:pointer;border-radius:6px;padding:5px 12px;font-size:11px;
   letter-spacing:.03em;transition:background .18s}
 .dc-const-btn:hover{background:rgba(201,168,76,.2)}
+/* HELP OVERLAY */
+#help-overlay{position:fixed;inset:0;background:rgba(11,11,16,.88);z-index:9999;display:none;
+  align-items:center;justify-content:center}
+#help-overlay.open{display:flex}
+.help-box{background:var(--bg3);border:1px solid var(--border);border-radius:14px;
+  padding:24px 28px;min-width:260px;max-width:340px;width:90%}
+.help-box h3{font-size:14px;font-weight:600;color:var(--gold);margin-bottom:14px;
+  letter-spacing:.06em;text-align:center}
+.hk-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.hk-row:last-child{border-bottom:none}
+.hk-key{background:var(--bg2);border:1px solid var(--border);border-radius:4px;
+  padding:2px 7px;font-size:11px;font-family:monospace;color:var(--text);min-width:32px;text-align:center}
+.hk-desc{color:var(--text2);flex:1;padding-left:12px}
+.help-close{display:block;margin-top:14px;text-align:center;font-size:11px;
+  color:var(--text2);cursor:pointer;opacity:.6}
+.help-close:hover{opacity:1}
+/* DICT COUNT */
+#dict-count{font-size:10px;color:var(--text2);text-align:right;margin-top:8px;
+  padding-top:6px;border-top:1px solid var(--border);opacity:.7}
 [data-nid]{transition:opacity .15s;transform-box:fill-box;transform-origin:center}
 @keyframes breathe{
   0%,100%{transform:scale(1)}
@@ -268,6 +288,18 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
   .bb-btn{padding:2px 5px}
 }
 </style></head><body>
+<div id="help-overlay">
+  <div class="help-box">
+    <h3>Atalhos de Teclado</h3>
+    <div class="hk-row"><span class="hk-key">ESC</span><span class="hk-desc">Fechar painel / overlay</span></div>
+    <div class="hk-row"><span class="hk-key">?</span><span class="hk-desc">Mostrar / ocultar esta ajuda</span></div>
+    <div class="hk-row"><span class="hk-key">→</span><span class="hk-desc">Próxima técnica (painel aberto)</span></div>
+    <div class="hk-row"><span class="hk-key">←</span><span class="hk-desc">Técnica anterior (painel aberto)</span></div>
+    <div class="hk-row"><span class="hk-key">↑ ↓</span><span class="hk-desc">Navegar na busca rápida</span></div>
+    <div class="hk-row"><span class="hk-key">Enter</span><span class="hk-desc">Selecionar item da busca</span></div>
+    <span class="help-close" id="help-close">Pressione ESC ou ? para fechar</span>
+  </div>
+</div>
 <div id="app">
 <div id="sidebar">
   <div class="sb-logo">
@@ -324,6 +356,7 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
       <div class="filters" id="dict-filters"></div>
       <input class="search" id="dict-search" placeholder="Buscar técnica ou tradução…" autocomplete="off">
       <div class="dict-grid" id="dict-grid"></div>
+      <div id="dict-count"></div>
     </div>
   </div>
   <div class="panel" id="p-kata">
@@ -344,6 +377,7 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
         <label for="ido-nblocks" style="flex-shrink:0">Blocos:</label>
         <input type="range" id="ido-nblocks" min="3" max="12" value="4" style="flex:1;accent-color:var(--gold);cursor:pointer">
         <span id="ido-nblocks-val" style="min-width:16px;text-align:right;color:var(--text)">4</span>
+        <span id="ido-est" style="min-width:72px;text-align:right;opacity:.55;font-size:11px"></span>
       </div>
       <button class="gen-btn" onclick="generateIdo()">Gerar Sequência</button>
       <div id="ido-out"></div>
@@ -1719,7 +1753,15 @@ if(drop&&drop.style.display!=='none'){
   else if(e.key==='Escape'){document.getElementById('nav-search').value='';drop.style.display='none';return;}
   return;
 }
+if(e.key==='?'&&e.target.tagName!=='INPUT'){
+  const ov=document.getElementById('help-overlay');
+  ov.classList.toggle('open');return;
+}
 const det=document.getElementById('detail');
+if(e.key==='Escape'){
+  const ov=document.getElementById('help-overlay');
+  if(ov.classList.contains('open')){ov.classList.remove('open');return;}
+}
 if(!det.classList.contains('open'))return;
 if(e.key==='Escape'){_closeDetail();return;}
 if(e.key==='ArrowRight'&&navContext.length>0){
@@ -1791,7 +1833,13 @@ TECHS.filter(t=>{
   div.querySelector('.dc-exp').appendChild(btn);
   grid.appendChild(div);
 });
-if(grid.children.length===0)grid.innerHTML='<div style="color:var(--text2);font-size:13px">Nenhuma técnica encontrada.</div>';
+const countEl=document.getElementById('dict-count');
+if(grid.children.length===0){
+  grid.innerHTML='<div style="color:var(--text2);font-size:13px">Nenhuma técnica encontrada.</div>';
+  if(countEl)countEl.textContent='';
+} else {
+  if(countEl)countEl.textContent='Exibindo '+grid.children.length+' de '+TECHS.length+' técnicas';
+}
 }
 
 // ===== KATA =====
@@ -1877,7 +1925,13 @@ if(_sl){
   const defs={branca:3,laranja:3,azul:4,amarela:4,verde:5,marrom:6,shodan:8};
   _sl.value=defs[currentIdoBelt]||4;
   _sv.textContent=_sl.value;
-  _sl.oninput=()=>{_sv.textContent=_sl.value;};
+  const beltIdxEst=Object.keys(BELT_REQ).indexOf(currentIdoBelt);
+  const poolEst=RENRAKU.filter(r=>Object.keys(BELT_REQ).indexOf(r.belt)<=beltIdxEst);
+  const avgSteps=poolEst.length?poolEst.reduce((s,r)=>s+r.steps.length,0)/poolEst.length:4;
+  const _se=document.getElementById('ido-est');
+  function _updateEst(){if(_se)_se.textContent='~'+Math.round(parseInt(_sl.value)*avgSteps)+' golpes';}
+  _sl.oninput=()=>{_sv.textContent=_sl.value;_updateEst();};
+  _updateEst();
 }
 }
 
@@ -2584,6 +2638,9 @@ s5.appendChild(lin);
 div.appendChild(s5);
 }
 
+// ===== HELP OVERLAY =====
+document.getElementById('help-close').onclick=()=>document.getElementById('help-overlay').classList.remove('open');
+document.getElementById('help-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 // ===== QUICK SEARCH =====
 function initSearch(){
 const inp=document.getElementById('nav-search');
