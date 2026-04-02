@@ -20,7 +20,7 @@ Input:  ptd_corpus/03_database/ptd_corpus_v21.csv   (preferencial)
         ptd_corpus/03_database/pipeline_manifest.json
         ptd_corpus/03_database/proveniencia.json
 """
-import sys, json, hashlib, re
+import sys, json, hashlib, re, os
 from pathlib import Path
 from datetime import datetime
 
@@ -377,3 +377,7 @@ print(f'✅ Relatório salvo: {OUT_FILE}  ({kb} KB)')
 print(f'   Alertas: {sum(1 for a in alertas if a[0]=="WARN")} avisos, '
       f'{sum(1 for a in alertas if a[0]=="OK")} OK')
 print(f'   Abra no browser: file://{OUT_FILE.resolve()}')
+if os.environ.get('GITHUB_RUN_ID') and os.environ.get('GITHUB_REPOSITORY'):
+    _dl = (f"https://github.com/{os.environ['GITHUB_REPOSITORY']}"
+           f"/actions/runs/{os.environ['GITHUB_RUN_ID']}")
+    print(f'📦 Download: {_dl}')
