@@ -115,19 +115,28 @@ jobs:
       - name: Resumo
         if: always()
         run: |
-          echo "## Resumo da execução" >> $GITHUB_STEP_SUMMARY
+          echo "## PTD-BR Corpus — run ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Modo**: $MODO" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Modo** | $MODO |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Trigger** | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
           if [ "$MODO" = "completo" ] && [ -f ptd_corpus/03_database/ptd_corpus_v21.csv ]; then
             NROWS=$(tail -n +2 ptd_corpus/03_database/ptd_corpus_v21.csv | wc -l)
             NAGENCIAS=$(tail -n +2 ptd_corpus/03_database/ptd_corpus_v21.csv | cut -d',' -f1 | sort -u | wc -l)
-            echo "- **Registros**: $NROWS" >> $GITHUB_STEP_SUMMARY
-            echo "- **Órgãos**: $NAGENCIAS" >> $GITHUB_STEP_SUMMARY
+            echo "| **Registros** | $NROWS |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Órgãos** | $NAGENCIAS |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$MODO" = "completo" ] && [ -f ptd_corpus/03_database/ptd_cobertura_passos.csv ]; then
+            N_COMP=$(tail -n +2 ptd_corpus/03_database/ptd_cobertura_passos.csv | awk -F',' '$4>=2' | wc -l)
+            echo "| **Órgãos c/ entregas+riscos** | $N_COMP |" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "$MODO" = "test" ] && [ -f ptd_test_mode/test_corpus.csv ]; then
             NROWS=$(tail -n +2 ptd_test_mode/test_corpus.csv | wc -l)
-            echo "- **Registros (test)**: $NROWS" >> $GITHUB_STEP_SUMMARY
+            echo "| **Registros (test)** | $NROWS |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$MODO" = "completo" ]; then
+            echo "📦 **[Baixar corpus](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})** — artefato \`ptd-corpus-${{ github.run_id }}\` (90 dias)" >> $GITHUB_STEP_SUMMARY
           fi

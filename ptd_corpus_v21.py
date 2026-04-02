@@ -448,3 +448,20 @@ n_pend    = len(pendente)
 print(f'   revisao_status — auto: {n_auto} | manual: {n_manual} | pendente: {n_pend}')
 print(f'   {pendente_path.name}: {n_pend} linhas aguardando revisão')
 print(f'   {json_path.name}: {json_path.stat().st_size//1024} KB')
+
+# ── Cobertura CGREP: sigla × passo (10 passos do guia referencial) ──────────
+_p6 = corpus.groupby('sigla').size().rename('p6_entregas')
+_p7_path = DIR / 'ptd_riscos.csv'
+if _p7_path.exists():
+    _p7 = pd.read_csv(_p7_path).groupby('sigla').size().rename('p7_riscos')
+else:
+    _p7 = pd.Series(dtype=int, name='p7_riscos')
+_cob = pd.DataFrame({'sigla': sorted(corpus['sigla'].unique())})
+_cob = _cob.join(_p6, on='sigla').join(_p7, on='sigla').fillna(0)
+_cob[['p6_entregas', 'p7_riscos']] = _cob[['p6_entregas', 'p7_riscos']].astype(int)
+_cob['passos_cobertos'] = (_cob[['p6_entregas', 'p7_riscos']] > 0).sum(axis=1)
+_cob['score_completude'] = (_cob['passos_cobertos'] / 10).round(2)
+_cob_path = DIR / 'ptd_cobertura_passos.csv'
+_cob.to_csv(_cob_path, index=False)
+print(f'   ptd_cobertura_passos.csv: {len(_cob)} órgãos | '
+      f'{int((_cob["passos_cobertos"]>=2).sum())} com entregas+riscos (passos 6+7)')
