@@ -1,0 +1,2 @@
+19:42:21 INFO     Docling disponível
+19:42:21 WARNING  ptd_ocr_fallback: dependências ausentes (No module named 'pytesseract') — OCR fallback desativado
