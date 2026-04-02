@@ -41,7 +41,8 @@ logger = logging.getLogger('ptd')
 
 # ── Configuração por sigla: rotação necessária (graus anti-horário) ───────────
 # INCRA e FUNDACENTRO têm PDFs digitalizados em modo paisagem (90° ou 270°)
-OCR_CONFIG: dict[str, dict] = {},
+OCR_CONFIG: dict[str, dict] = {
+    'AGU':         {'rot': 0},
     'FUNAI':       {'rot': 0},
     'ITI':         {'rot': 0},
     'SGPR':        {'rot': 0},
