@@ -97,6 +97,8 @@ jobs:
             ptd_corpus/03_database/ptd_corpus_raw.csv
             ptd_corpus/03_database/ptd_riscos.csv
             ptd_corpus/03_database/ptd_pivot_eixos.csv
+            ptd_corpus/03_database/ptd_cobertura_passos.csv
+            ptd_corpus/03_database/ptd_revisao_pendente.csv
             ptd_corpus/03_database/proveniencia.json
             ptd_corpus/03_database/pipeline_manifest.json
             ptd_relatorio_v30.html

@@ -337,7 +337,7 @@ def _tipo_doc(fn: str) -> str:
     """Classifica o tipo de documento PTD pelo nome do arquivo."""
     f = fn.lower()
     if re.search(r'anexo.{0,15}entrega|entrega.{0,10}assinado', f): return 'anexo_entregas'
-    if re.search(r'doc.{0,5}diretivo|docdiretivo',               f): return 'doc_diretivo'
+    if re.search(r'doc.{0,8}diretivo|docdiretivo',               f): return 'doc_diretivo'
     if re.search(r'plano.{0,15}transform|ptd.{0,5}\d{4}',        f): return 'plano_completo'
     return 'outro'
 
@@ -363,13 +363,15 @@ def _watchdog(fn: str, stop: threading.Event,
 def _fase_box(titulo: str, n_total: int, n_ok: int, n_warn: int,
               dur_s: float, extra: str = '') -> None:
     w = 62
-    logger.info('╔' + '═' * w + '╗')
-    logger.info(f'║  {titulo:<{w-2}}║')
-    logger.info(f'║  Processados: {n_total:<4}  |  ✓ {n_ok}  ⚠ {n_warn:<{w-32}}║')
-    logger.info(f'║  Duração: {dur_s/60:.1f} min{"":<{w-22}}║')
+    linha_proc = f'  Processados: {n_total:<4}  |  \u2713 {n_ok}  \u26a0 {n_warn}'
+    linha_dur  = f'  Duração: {dur_s/60:.1f} min'
+    logger.info('\u2554' + '\u2550' * w + '\u2557')
+    logger.info(f'\u2551{titulo:^{w}}\u2551')
+    logger.info(f'\u2551{linha_proc:<{w}}\u2551')
+    logger.info(f'\u2551{linha_dur:<{w}}\u2551')
     if extra:
-        logger.info(f'║  {extra:<{w-2}}║')
-    logger.info('╚' + '═' * w + '╝')
+        logger.info(f'\u2551  {extra:<{w-2}}\u2551')
+    logger.info('\u255a' + '\u2550' * w + '\u255d')
 
 
 def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
