@@ -1,110 +1,106 @@
 {
-  "run_id": "23921408424",
-  "timestamp": "2026-04-02T21:15:19",
+  "run_id": "23922609745",
+  "timestamp": "2026-04-02T21:45:31",
   "branch": "claude/setup-docling-pipeline-g11gg",
-  "stage": 0,
-  "stage_label": "cobertura",
+  "stage": 1,
+  "stage_label": "parse_quality",
   "n_orgaos": 6,
-  "n_registros_raw": 206,
-  "n_registros_v21": 206,
-  "pct_ok": 35.9,
-  "sem_produto_pct": 0.0,
-  "col_map_ok_rate": 68.5,
+  "n_registros_raw": 200,
+  "n_registros_v21": 200,
+  "pct_ok": 36.0,
+  "sem_produto_pct": 61.0,
+  "col_map_ok_rate": 70.9,
   "extratores": {
-    "docling": 206
+    "docling": 200
   },
   "orgaos_zero_entregas": [],
-  "orgaos_zero_ou_noise": [
-    "AGU",
-    "FIOCRUZ",
-    "FUNAI",
-    "INCRA",
-    "ITI",
-    "SGPR"
-  ],
+  "orgaos_zero_ou_noise": [],
   "orgs_below_50pct": [
     {
-      "sigla": "AGU",
-      "pct_ok": 0.0,
-      "n": 39
-    },
-    {
       "sigla": "FIOCRUZ",
-      "pct_ok": 0.0,
-      "n": 62
-    },
-    {
-      "sigla": "FUNAI",
-      "pct_ok": 0.0,
-      "n": 30
+      "pct_ok": 13.1,
+      "n": 61
     },
     {
       "sigla": "ITI",
-      "pct_ok": 0.0,
+      "pct_ok": 45.9,
       "n": 37
     }
   ],
-  "top_unmatched_phrases": [],
+  "top_unmatched_phrases": [
+    {
+      "phrase": "Disponibilização emAcessoDigital",
+      "count": 23
+    },
+    {
+      "phrase": "Segurança e Privacidade",
+      "count": 10
+    },
+    {
+      "phrase": "Serviços Digitais",
+      "count": 5
+    }
+  ],
   "por_orgao": [
     {
       "sigla": "AGU",
       "n_entregas": 39,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 0.0,
-      "sem_produto_n": 0,
-      "sem_produto_pct": 0.0,
+      "pct_ok": 61.5,
+      "sem_produto_n": 15,
+      "sem_produto_pct": 38.5,
       "col_map_ok_rate": 69.2
     },
     {
       "sigla": "FIOCRUZ",
-      "n_entregas": 62,
+      "n_entregas": 61,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 0.0,
-      "sem_produto_n": 0,
-      "sem_produto_pct": 0.0,
+      "pct_ok": 13.1,
+      "sem_produto_n": 53,
+      "sem_produto_pct": 86.9,
       "col_map_ok_rate": 100.0
     },
     {
       "sigla": "FUNAI",
-      "n_entregas": 30,
+      "n_entregas": 29,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 0.0,
-      "sem_produto_n": 0,
-      "sem_produto_pct": 0.0,
-      "col_map_ok_rate": 70.0
+      "pct_ok": 34.5,
+      "sem_produto_n": 19,
+      "sem_produto_pct": 65.5,
+      "col_map_ok_rate": 72.4
     },
     {
       "sigla": "INCRA",
-      "n_entregas": 20,
+      "n_entregas": 19,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 0.0,
-      "sem_produto_n": 0,
-      "sem_produto_pct": 0.0,
-      "col_map_ok_rate": 5.0
+      "pct_ok": 5.3,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 63.2,
+      "col_map_ok_rate": 0.0
     },
     {
       "sigla": "ITI",
       "n_entregas": 37,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 0.0,
-      "sem_produto_n": 0,
-      "sem_produto_pct": 0.0,
+      "pct_ok": 45.9,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 54.1,
       "col_map_ok_rate": 83.8
     },
     {
       "sigla": "SGPR",
-      "n_entregas": 18,
+      "n_entregas": 15,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 0.0,
-      "sem_produto_n": 0,
-      "sem_produto_pct": 0.0,
-      "col_map_ok_rate": 83.3
+      "pct_ok": 80.0,
+      "sem_produto_n": 3,
+      "sem_produto_pct": 20.0,
+      "col_map_ok_rate": 100.0
     }
   ]
 }
