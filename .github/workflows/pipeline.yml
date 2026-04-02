@@ -30,6 +30,8 @@ jobs:
   pipeline:
     runs-on: ubuntu-latest
     timeout-minutes: 300   # 5h — margem para modo completo
+    permissions:
+      contents: write       # necessário para commitar diagnóstico em pipeline-outputs
 
     env:
       MODO: ${{ github.event.inputs.modo || 'test' }}
@@ -103,6 +105,35 @@ jobs:
             ptd_corpus/03_database/pipeline_manifest.json
             ptd_relatorio_v30.html
           retention-days: 90
+
+      - name: Commit diagnóstico ao branch pipeline-outputs
+        if: always() && env.MODO == 'completo'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Salvar arquivos de diagnóstico antes de mudar de branch
+          TMPD=$(mktemp -d)
+          cp ptd_corpus/03_database/ptd_run_summary.json     "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/03_database/ptd_cobertura_passos.csv "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/03_database/pipeline_manifest.json   "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/03_database/proveniencia.json        "$TMPD/" 2>/dev/null || true
+
+          # Criar ou atualizar branch pipeline-outputs
+          git stash --include-untracked 2>/dev/null || true
+          if git ls-remote --exit-code origin pipeline-outputs >/dev/null 2>&1; then
+            git checkout pipeline-outputs
+            git pull --ff-only origin pipeline-outputs 2>/dev/null || true
+          else
+            git checkout --orphan pipeline-outputs
+            git rm -rf . --quiet 2>/dev/null || true
+          fi
+
+          cp "$TMPD"/*.json "$TMPD"/*.csv . 2>/dev/null || true
+          git add -A
+          git commit -m "run/${{ github.run_id }}: diagnóstico automático [$(date -u +%Y-%m-%dT%H:%M)]" \
+            --allow-empty
+          git push origin pipeline-outputs
 
       - name: Upload corpus (modo test)
         if: env.MODO == 'test'

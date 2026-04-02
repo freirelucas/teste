@@ -24,10 +24,16 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-import fitz          # PyMuPDF
-import numpy as np
-import pytesseract
-from PIL import Image
+try:
+    import fitz          # PyMuPDF
+    import numpy as np
+    import pytesseract
+    from PIL import Image
+    _OCR_DEPS_OK = True
+except ImportError as _e:
+    _OCR_DEPS_OK = False
+    logging.getLogger('ptd').warning(
+        f'ptd_ocr_fallback: dependências ausentes ({_e}) — OCR fallback desativado')
 
 from ptd_constants import detectar_eixo
 
@@ -138,7 +144,10 @@ def extrair_ocr(path: Path, sigla: str, sha256: str,
 
     Ponto de entrada chamado pelo pipeline quando Docling retorna rows == [].
     Usa OCR_CONFIG para obter rotação correta por sigla.
+    Retorna [] silenciosamente se dependências não estiverem instaladas.
     """
+    if not _OCR_DEPS_OK:
+        return []
     rot = OCR_CONFIG.get(sigla.upper(), {}).get('rot', 0)
     doc = fitz.open(str(path))
     n_pages = len(doc)
