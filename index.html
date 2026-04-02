@@ -286,7 +286,54 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
   .gram-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
   #belt-bar{padding:3px 5px;gap:3px}
   .bb-btn{padding:2px 5px}
+  .nd-pair{grid-template-columns:1fr!important}
 }
+/* ===== CONSTRUTOR ===== */
+.const-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.const-field{display:flex;flex-direction:column;gap:5px}
+.const-field label{font-size:10px;color:var(--text2);letter-spacing:.07em;text-transform:uppercase}
+.const-field select{background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  font-size:12px;padding:6px 10px;border-radius:8px;cursor:pointer}
+.const-field select:focus{outline:none;border-color:var(--gold)}
+.const-field select:disabled{opacity:.35;cursor:not-allowed}
+.const-result{background:var(--bg2);border:1px solid rgba(201,168,76,.25);border-radius:14px;
+  padding:20px;margin:4px 0 16px;text-align:center;min-height:90px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.const-name-jp{font-size:24px;font-weight:700;letter-spacing:.06em;color:var(--text)}
+.const-name-pt{font-size:12px;color:var(--text2);font-style:italic}
+.const-axes{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:4px}
+.const-axis{font-size:10px;padding:2px 8px;border-radius:4px;letter-spacing:.04em}
+.const-axis.present{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.const-axis.implied{background:rgba(255,255,255,.04);color:var(--text2);border:1px solid var(--border)}
+.const-axis.absent{opacity:.3;color:var(--text2);border:1px dashed var(--border)}
+.const-empty{color:var(--text2);font-size:13px;opacity:.5}
+.const-matches-title{font-size:10px;color:var(--text2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.const-match{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:10px 13px;margin-bottom:6px;cursor:pointer;transition:border-color .15s;display:flex;align-items:center;gap:10px}
+.const-match:hover{border-color:var(--gold)}
+.const-match-score{font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(201,168,76,.12);color:var(--gold);flex-shrink:0}
+.const-match-exact{background:rgba(51,170,102,.12);color:#33aa66}
+.const-elision{background:var(--bg2);border-left:3px solid rgba(136,102,238,.5);border-radius:0 8px 8px 0;
+  padding:10px 14px;font-size:11px;color:var(--text2);line-height:1.7;margin-top:8px}
+/* Kata tech links */
+.kc-tl{font-size:11px;padding:3px 6px;border-bottom:1px solid var(--border);cursor:pointer;
+  transition:color .15s;border-radius:3px}
+.kc-tl:hover{color:var(--gold);background:rgba(201,168,76,.06)}
+/* Elision table */
+.elision-table{width:100%;border-collapse:collapse;font-size:11px;margin:12px 0}
+.elision-table th{font-size:10px;color:var(--text2);padding:5px 8px;
+  border-bottom:1px solid var(--border);text-align:left;letter-spacing:.06em}
+.elision-table td{padding:6px 8px;border-bottom:1px solid rgba(30,30,48,.5);
+  color:var(--text);line-height:1.5;vertical-align:top}
+.elision-table tr:last-child td{border-bottom:none}
+.elision-table .dim-name{font-weight:600;white-space:nowrap}
+/* Near-duplicate */
+.nd-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.nd-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.nd-name{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.nd-nodes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.nd-node{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.06)}
+.nd-diff{font-size:11px;color:var(--text2);border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
 </style></head><body>
 <div id="help-overlay">
   <div class="help-box">
@@ -320,6 +367,7 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
     <button class="nav-btn" data-tab="math"><span class="ic">∑</span>Matemática</button>
     <button class="nav-btn" data-tab="fontes"><span class="ic">∂</span>Fontes</button>
     <button class="nav-btn" data-tab="gramatica"><span class="ic">λ</span>Gramática</button>
+    <button class="nav-btn" data-tab="construtor"><span class="ic">⌨</span>Construtor</button>
   </nav>
   <div id="nav-search-wrap">
     <input id="nav-search" placeholder="buscar técnica…" autocomplete="off" spellcheck="false">
@@ -402,6 +450,15 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
       <h2>Gramática · Geometria · Filosofia</h2>
       <div class="sub">A língua do corpo — 5 eixos semânticos que descrevem toda técnica Kyokushin</div>
       <div id="gram-root"></div>
+    </div>
+  </div>
+  <div class="panel" id="p-construtor">
+    <div class="panel-inner">
+      <h2>Construtor</h2>
+      <div class="sub">Monte uma técnica · do português ao japonês · veja onde ela mora no corpus</div>
+      <div id="const-form"></div>
+      <div id="const-result" class="const-result"><span class="const-empty">Selecione uma ação para começar</span></div>
+      <div id="const-matches"></div>
     </div>
   </div>
 </div></div>
@@ -1901,6 +1958,11 @@ if(grid.children.length===0){
 }
 }
 
+function findAndShowTech(name){
+const t=TECHS.find(x=>x.name===name)||TECHS.find(x=>x.name.startsWith(name.split(' ')[0]));
+if(t){switchTab('constelacao');requestAnimationFrame(()=>showTechDetail(t));}
+}
+
 // ===== KATA =====
 let kataFilter='all';
 function initKata(){
@@ -1952,7 +2014,10 @@ KATA.filter(k=>{
     '</svg></div>'+
     '<div class="kc-note">'+k.note+'</div>'+
     (k.silences?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:.06em">SILÊNCIOS CANÔNICOS</div><div style="font-size:11px;color:var(--text2)">'+k.silences+'</div></div>':'')+
-    (k.techs&&k.techs.length?'<div class="kc-detail" style="'+(k.silences?'':'')+'"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">TÉCNICAS INTRODUZIDAS</div>'+k.techs.map(tc=>'<div style="font-size:11px;padding:2px 0;border-bottom:1px solid var(--border)">'+tc+'</div>').join('')+'</div>':'');
+    (k.techs&&k.techs.length?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">TÉCNICAS INTRODUZIDAS</div>'+k.techs.map(tc=>'<div class="kc-tl" data-tc="'+tc+'">'+tc+' <span style="opacity:.4;font-size:9px">→ constelação</span></div>').join('')+'</div>':'');
+  div.querySelectorAll('.kc-tl').forEach(el=>el.addEventListener('click',e=>{
+    e.stopPropagation();findAndShowTech(el.dataset.tc);
+  }));
   div.onclick=()=>div.classList.toggle('open');
   grid.appendChild(div);
 });
@@ -2090,6 +2155,203 @@ copyBtn.onclick=()=>{
   });
 };
 out.appendChild(copyBtn);
+}
+
+// ===== CONSTRUTOR PT→JP =====
+// Elision rules: canonical names omit "obvious" or "default" axes
+// TSUKI: mentions buki_mao + alvo, drops mae (default direction)
+// GERI/KEAGE: mentions direcao, drops buki_pe (standard foot weapons), drops alvo if chudan
+// UKE/BARAI: mentions direcao + alvo, drops buki unless shuto/koken
+// UCHI: mentions buki_mao + alvo or direcao
+const ELISION_RULES={
+  tsuki:{keep:['buki_mao','alvo'],optional:['direcao'],drop_if:{direcao:'mae'},order:['buki_mao','alvo','direcao','acao']},
+  uchi: {keep:['buki_mao'],choose:['alvo','direcao'],order:['buki_mao','alvo','direcao','acao']},
+  geri: {keep:['direcao'],optional:['alvo'],buki_pe_only:['hiza','kansetsu'],drop_if:{alvo:'chudan'},order:['alvo','direcao','buki_pe','acao']},
+  keage:{keep:['direcao'],buki_pe_only:['hiza'],order:['direcao','buki_pe','acao']},
+  uke:  {keep:['direcao','alvo'],buki_mao_only:['shuto','koken'],order:['buki_mao','direcao','alvo','acao']},
+  barai:{keep:['alvo'],optional:['direcao'],buki_mao_only:['shuto'],order:['buki_mao','alvo','direcao','acao']},
+};
+
+function buildCanonicalName(acao,bukim,bukipe,dir,alvo){
+  if(!acao)return null;
+  const L=id=>id&&NMAP[id]?NMAP[id].label:null;
+  const r=ELISION_RULES[acao]||{order:['buki_mao','buki_pe','direcao','alvo','acao']};
+  const parts=[];
+  if(acao==='tsuki'){
+    if(bukim)parts.push(L(bukim));
+    if(alvo)parts.push(L(alvo));
+    if(dir&&dir!=='mae')parts.push(L(dir));
+    parts.push(L(acao));
+  } else if(acao==='uchi'){
+    if(bukim)parts.push(L(bukim));
+    if(alvo)parts.push(L(alvo));
+    else if(dir)parts.push(L(dir));
+    parts.push(L(acao));
+  } else if(acao==='geri'||acao==='keage'){
+    if(alvo&&alvo!=='chudan')parts.push(L(alvo));
+    if(dir)parts.push(L(dir));
+    if(bukipe&&['hiza','kansetsu'].includes(bukipe))parts.push(L(bukipe));
+    parts.push(L(acao));
+  } else if(acao==='uke'){
+    if(bukim&&['shuto','koken'].includes(bukim))parts.push(L(bukim));
+    if(dir&&dir!=='mae')parts.push(L(dir));
+    if(alvo)parts.push(L(alvo));
+    parts.push(L(acao));
+  } else if(acao==='barai'){
+    if(bukim&&['shuto'].includes(bukim))parts.push(L(bukim));
+    if(alvo)parts.push(L(alvo));
+    if(dir&&dir!=='mae')parts.push(L(dir));
+    parts.push(L(acao));
+  } else {
+    [bukim,bukipe,dir,alvo,acao].filter(Boolean).forEach(id=>parts.push(L(id)));
+  }
+  return parts.filter(Boolean).join(' ');
+}
+
+function buildPtName(acao,bukim,bukipe,dir,alvo){
+  const P=id=>id&&NMAP[id]?NMAP[id].pt:null;
+  return [P(bukim)||P(bukipe),P(dir),P(alvo),P(acao)].filter(Boolean).join(' + ');
+}
+
+function findCorpusMatch(acao,bukim,bukipe,dir,alvo){
+  const selected=[acao,bukim,bukipe,dir,alvo].filter(Boolean);
+  if(!selected.length)return[];
+  return TECHS.map(t=>{
+    const tn=t.nodes.filter(Boolean);
+    const hits=selected.filter(n=>tn.includes(n)).length;
+    const exact=hits===selected.length&&selected.length===tn.length;
+    return{t,hits,exact};
+  }).filter(x=>x.hits>0).sort((a,b)=>b.hits-a.hits||(b.exact?1:-1)-(a.exact?1:-1)).slice(0,4);
+}
+
+function _axisLabel(id,type,presentInName,rule){
+  if(!id)return null;
+  const n=NMAP[id];if(!n)return null;
+  // Determine if this axis is in the name, implied, or absent
+  let state='absent';
+  if(presentInName)state='present';
+  else if(rule){
+    if(rule.keep&&rule.keep.includes(type))state='implied';
+  }
+  return{id,label:n.label,pt:n.pt,type,state};
+}
+
+function updateConstrutor(){
+  const acao=document.getElementById('cs-acao').value||null;
+  const bukim=document.getElementById('cs-bukim').value||null;
+  const bukipe=document.getElementById('cs-bukipe').value||null;
+  const dir=document.getElementById('cs-dir').value||null;
+  const alvo=document.getElementById('cs-alvo').value||null;
+
+  // Mutual exclusion
+  const bmSel=document.getElementById('cs-bukim');
+  const bpSel=document.getElementById('cs-bukipe');
+  if(bukim){bpSel.value='';bpSel.disabled=true;}else bpSel.disabled=false;
+  if(bukipe){bmSel.value='';bmSel.disabled=true;}else bmSel.disabled=false;
+
+  const result=document.getElementById('const-result');
+  const matches=document.getElementById('const-matches');
+
+  if(!acao){
+    result.innerHTML='<span class="const-empty">Selecione uma ação para começar</span>';
+    matches.innerHTML='';return;
+  }
+
+  const jpName=buildCanonicalName(acao,bukim,bukipe,dir,alvo);
+  const ptName=buildPtName(acao,bukim,bukipe,dir,alvo);
+
+  // Build axes display: which are present/implied/absent
+  const r=ELISION_RULES[acao]||{};
+  // Determine what's in the name
+  const inName=[];
+  if(acao==='tsuki'){if(bukim)inName.push(bukim);if(alvo)inName.push(alvo);if(dir&&dir!=='mae')inName.push(dir);}
+  else if(acao==='uchi'){if(bukim)inName.push(bukim);if(alvo)inName.push(alvo);else if(dir)inName.push(dir);}
+  else if(acao==='geri'||acao==='keage'){if(alvo&&alvo!=='chudan')inName.push(alvo);if(dir)inName.push(dir);if(bukipe&&['hiza','kansetsu'].includes(bukipe))inName.push(bukipe);}
+  else if(acao==='uke'){if(bukim&&['shuto','koken'].includes(bukim))inName.push(bukim);if(dir&&dir!=='mae')inName.push(dir);if(alvo)inName.push(alvo);}
+  else if(acao==='barai'){if(alvo)inName.push(alvo);if(dir&&dir!=='mae')inName.push(dir);}
+  inName.push(acao);
+
+  const axes=[];
+  const addAxis=(id,type)=>{
+    if(!id)return;
+    const n=NMAP[id];if(!n)return;
+    const inN=inName.includes(id);
+    const implied=!inN&&(id===acao||(type==='buki_pe'&&(acao==='geri'||acao==='keage')&&!['hiza','kansetsu'].includes(id))||(type==='buki_mao'&&(acao==='uke'||acao==='barai')&&!['shuto','koken'].includes(id))||(id==='mae'&&acao==='tsuki'));
+    axes.push({id,label:n.label,pt:n.pt,type,state:inN?'present':implied?'implied':'absent'});
+  };
+  addAxis(bukim,'buki_mao');addAxis(bukipe,'buki_pe');
+  addAxis(dir,'direcao');addAxis(alvo,'alvo');addAxis(acao,'acao');
+
+  const axHtml=axes.map(a=>`<span class="const-axis ${a.state}" title="${a.pt} · ${a.state==='present'?'no nome':a.state==='implied'?'implícito':'ausente/padrão'}">${a.label}</span>`).join('');
+
+  const elisionMsg={
+    tsuki:'<strong>Tsuki:</strong> weapon + target + action. Direção <em>mae</em> é elidida (padrão para socos lineares).',
+    uchi:'<strong>Uchi:</strong> weapon + target/direction + action.',
+    geri:'<strong>Geri:</strong> direction + action. Arma de pé (chusoku/sokuto/kakato) é elidida — padrão implícito pelo tipo.',
+    keage:'<strong>Keage:</strong> direction + action. Mesmo princípio do geri.',
+    uke:'<strong>Uke:</strong> direction + target + action. Arma de mão elidida — o antebraço é a arma por convenção defensiva.',
+    barai:'<strong>Barai:</strong> target + action. Direção <em>mae</em> elidida se frontal.',
+  }[acao]||'';
+
+  result.innerHTML=`
+    <div class="const-name-jp">${jpName}</div>
+    <div class="const-name-pt">${ptName}</div>
+    <div class="const-axes">${axHtml}</div>
+    ${elisionMsg?'<div class="const-elision">'+elisionMsg+'</div>':''}`;
+
+  // Corpus matches
+  const found=findCorpusMatch(acao,bukim,bukipe,dir,alvo);
+  if(!found.length){matches.innerHTML='<div style="font-size:12px;color:var(--text2);opacity:.6">Nenhuma técnica no corpus com estes componentes.</div>';return;}
+  matches.innerHTML='<div class="const-matches-title">No corpus</div>';
+  found.forEach(({t,hits,exact})=>{
+    const scoreLabel=exact?'✓ exato':`${hits}/${[acao,bukim,bukipe,dir,alvo].filter(Boolean).length} eixos`;
+    const d=document.createElement('div');d.className='const-match';
+    d.innerHTML=`<span class="const-match-score${exact?' const-match-exact':''}">${scoreLabel}</span>`+
+      `<div><div style="font-size:13px;font-weight:600">${t.name}</div>`+
+      `<div style="font-size:11px;color:var(--text2)">${t.pt} · <span style="color:${BS[t.belt]}">${t.belt}</span></div></div>`;
+    d.onclick=()=>{switchTab('constelacao');requestAnimationFrame(()=>showTechDetail(t));};
+    document.getElementById('const-matches').appendChild(d);
+  });
+}
+
+function initConstrutor(){
+  const form=document.getElementById('const-form');
+  if(!form||form.dataset.init)return;
+  form.dataset.init='1';
+
+  const acaoNodes=NODES.filter(n=>n.type==='acao');
+  const bukimNodes=NODES.filter(n=>n.type==='buki_mao');
+  const bukipeNodes=NODES.filter(n=>n.type==='buki_pe');
+  const dirNodes=NODES.filter(n=>n.type==='direcao');
+  const alvoNodes=NODES.filter(n=>n.type==='alvo');
+
+  function mkSel(id,nodes,placeholder,col){
+    const label=document.createElement('label');label.textContent=placeholder;
+    const sel=document.createElement('select');sel.id=id;
+    const opt0=document.createElement('option');opt0.value='';opt0.textContent='— '+placeholder;
+    sel.appendChild(opt0);
+    nodes.forEach(n=>{
+      const o=document.createElement('option');o.value=n.id;
+      o.textContent=n.label+' ('+n.pt+')';sel.appendChild(o);
+    });
+    sel.style.borderColor=col+'44';
+    sel.addEventListener('change',updateConstrutor);
+    const wrap=document.createElement('div');wrap.className='const-field';
+    wrap.appendChild(label);wrap.appendChild(sel);return wrap;
+  }
+
+  const grid=document.createElement('div');grid.className='const-grid';
+  grid.appendChild(mkSel('cs-acao',acaoNodes,'Ação *',NT.acao));
+  grid.appendChild(mkSel('cs-bukim',bukimNodes,'Arma de Mão',NT.buki_mao));
+  grid.appendChild(mkSel('cs-bukipe',bukipeNodes,'Arma de Pé',NT.buki_pe));
+  grid.appendChild(mkSel('cs-dir',dirNodes,'Direção',NT.direcao));
+  grid.appendChild(mkSel('cs-alvo',alvoNodes,'Alvo',NT.alvo));
+
+  const hint=document.createElement('p');
+  hint.style.cssText='font-size:11px;color:var(--text2);margin:0 0 12px;line-height:1.6';
+  hint.innerHTML='Selecione os componentes. O construtor aplica as <strong style="color:var(--text)">regras de elisão</strong> canônicas — os eixos omitidos do nome por convenção são marcados como <em>implícitos</em>.';
+
+  form.appendChild(hint);form.appendChild(grid);
 }
 
 // ===== MATH / ENTROPY =====
@@ -2742,6 +3004,76 @@ lin.style.cssText='margin-top:14px;padding:10px 14px;background:var(--bg2);borde
 lin.innerHTML='<strong style="color:var(--text);display:block;margin-bottom:4px;letter-spacing:.06em">LINHAGEM IKO1</strong>Mas Oyama (大山倍達) → IKO Honbu → CBKKO (Brasil) → este atlas<br><span style="opacity:.6">Shihan Choi Bae-Dal (최배달) · 1923–1994 · fundou a Kyokushinkaikan em 1964</span>';
 s5.appendChild(lin);
 div.appendChild(s5);
+
+// ---- Section 6: Gramática do Silêncio nos Nomes ----
+const s6=document.createElement('div');s6.className='gram-s';
+s6.innerHTML=`<h3>VI. A Gramática do Silêncio nos Nomes</h3>
+<p>Nomes canônicos são <strong style="color:var(--text)">diferenciais mínimos</strong> — mencionam apenas o que distingue a técnica dentro de sua família. O restante é elidido por convenção semântica. A ausência de um eixo no nome não é um vazio: é um pressuposto.</p>`;
+
+const elisionTable=document.createElement('table');elisionTable.className='elision-table';
+elisionTable.innerHTML=`<thead><tr>
+  <th>Ação</th><th>Presente no nome</th><th>Elidido</th><th>Motivo</th>
+</tr></thead><tbody>
+<tr><td class="dim-name" style="color:${NT.acao}">Tsuki</td>
+  <td><span style="color:${NT.buki_mao}">Arma·Mão</span> + <span style="color:${NT.alvo}">Alvo</span></td>
+  <td><span style="color:${NT.direcao}">mae</span> (direção)</td>
+  <td>Socos lineares são frontal por definição — <em>mae</em> é o padrão absoluto.</td></tr>
+<tr><td class="dim-name" style="color:${NT.acao}">Uchi</td>
+  <td><span style="color:${NT.buki_mao}">Arma·Mão</span> + <span style="color:${NT.alvo}">Alvo</span> ou <span style="color:${NT.direcao}">Direção</span></td>
+  <td>Raramente elidido — o instrumento é a identidade do golpe percussivo.</td>
+  <td>A arma define a forma do arco; sem ela não há distinção.</td></tr>
+<tr><td class="dim-name" style="color:${NT.acao}">Geri / Keage</td>
+  <td><span style="color:${NT.direcao}">Direção</span> + <span style="color:${NT.acao}">Ação</span></td>
+  <td><span style="color:${NT.buki_pe}">Arma·Pé</span> (chusoku / sokuto / kakato)</td>
+  <td>A superfície do pé é determinada pela direção: Mae → chusoku, Yoko → sokuto, Ushiro → kakato. Nomes o omitem porque é redundante.</td></tr>
+<tr><td class="dim-name" style="color:${NT.acao}">Uke / Barai</td>
+  <td><span style="color:${NT.direcao}">Direção</span> + <span style="color:${NT.alvo}">Alvo</span></td>
+  <td><span style="color:${NT.buki_mao}">Arma·Mão</span> (antebraço)</td>
+  <td>Bloqueios usam o antebraço estrutural por padrão. Quando outra superfície é usada (Shuto, Koken), ela <em>aparece</em> no nome.</td></tr>
+</tbody>`;
+s6.appendChild(elisionTable);
+
+// Near-duplicate case study
+const ndTitle=document.createElement('p');
+ndTitle.style.cssText='margin-top:16px;font-size:12px;color:var(--text2);line-height:1.7';
+ndTitle.innerHTML='<strong style="color:var(--text)">Paradoxo near-duplicate:</strong> dois nomes distintos que ocupam o mesmo endereço no grafo.';
+s6.appendChild(ndTitle);
+
+const ndPair=document.createElement('div');ndPair.className='nd-pair';
+[{name:'Uchi Mawashi Geri',pt:'chute circular interno',nodes:['geri','haisoku','mawashi'],diff:'Uchi = arco de <em>dentro para fora</em>. Informação só no nome.'},
+ {name:'Soto Mawashi Geri',pt:'chute circular externo',nodes:['geri','haisoku','mawashi'],diff:'Soto = arco de <em>fora para dentro</em>. Mesmo endereço, vetor oposto.'}
+].forEach(({name,pt,nodes,diff})=>{
+  const c=document.createElement('div');c.className='nd-card';
+  const nodesHtml=nodes.map(nid=>{
+    const n=NMAP[nid];
+    return n?`<span class="nd-node" style="color:${NT[n.type]}">${n.label}</span>`:'';
+  }).join('');
+  c.innerHTML=`<div class="nd-name">${name}</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:6px">${pt}</div>
+    <div class="nd-nodes">${nodesHtml}</div>
+    <div class="nd-diff">${diff}</div>`;
+  ndPair.appendChild(c);
+});
+s6.appendChild(ndPair);
+
+const ndConclusion=document.createElement('div');ndConclusion.className='gram-silence';
+ndConclusion.innerHTML='<strong>Consequência:</strong> o grafo de nós captura a <em>estrutura semântica profunda</em> — as dimensões anatômicas e físicas. O nome canônico captura distinções <em>táticas</em> que o grafo não modela. São dois sistemas complementares, não redundantes.';
+s6.appendChild(ndConclusion);
+div.appendChild(s6);
+
+// ---- Section 7: Reflexão Estética ----
+const s7=document.createElement('div');s7.className='gram-s';
+s7.innerHTML=`<h3>VII. O Atlas como Fenomenologia</h3>
+<p>Este atlas não é um banco de dados — é uma <strong style="color:var(--text)">fenomenologia do movimento</strong>. A constelação não lista técnicas: mapeia o espaço onde elas existem. A diferença é ontológica. Um catálogo pergunta "o que existe?". Uma fenomenologia pergunta "como é possível que isso exista?".</p>
+<p>54 de 10.584 combinações teóricas — menos de 0,4% do espaço possível. Oyama não ensinou 10.530 técnicas. A restrição não é pobreza de vocabulário: é <strong style="color:var(--text)">definição de identidade</strong>. O Kyokushin é precisamente o que resta quando tudo o mais é silenciado. O currículo é um ato de exclusão deliberada — uma escultura obtida por subtração.</p>
+<p>Os sólidos platônicos não são decoração. São a afirmação de que o corpo, ao se mover, resolve as mesmas geometrias que o universo resolve ao existir. Cada kata é um teorema. Cada técnica é um axioma. A constelação é o diagrama de provas de um sistema que tem cinquenta anos de verificação empírica no tatame.</p>`;
+
+const linkBtn=document.createElement('button');
+linkBtn.className='gen-btn';linkBtn.style.cssText='margin-top:14px;font-size:12px;padding:8px 18px';
+linkBtn.textContent='→ Explorar no Construtor';
+linkBtn.onclick=()=>switchTab('construtor');
+s7.appendChild(linkBtn);
+div.appendChild(s7);
 }
 
 // ===== HELP OVERLAY =====
@@ -2789,6 +3121,7 @@ initIdo();
 renderMath();
 renderFontes();
 renderGramatica();
+initConstrutor();
 initSearch();
 }
 init();
