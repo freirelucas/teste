@@ -304,9 +304,12 @@ for i, row in df_san.iterrows():
         seen[row['md5']] = row['arquivo']
 
 df_san.to_csv(DIR_LOG / 'sanity_log.csv', index=False)
-logger.info(f'Sanity: {len(df_san)} PDFs | {df_san.texto_ok.sum()} texto | '
-            f'{df_san.image_pdf.sum()} imagem/OCR | '
-            f'{df_san.duplicata_de.notna().sum()} duplicatas')
+if df_san.empty:
+    logger.info('Sanity: 0 PDFs em DIR_RAW (download ainda não executado)')
+else:
+    logger.info(f'Sanity: {len(df_san)} PDFs | {df_san.texto_ok.sum()} texto | '
+                f'{df_san.image_pdf.sum()} imagem/OCR | '
+                f'{df_san.duplicata_de.notna().sum()} duplicatas')
 
 
 # ════════════════════════════════════════════════════════════════════════
