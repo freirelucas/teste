@@ -77,6 +77,14 @@ except Exception as e:
     _DOCLING_OK = False
     logger.warning(f'Docling indisponível — fallback PyMuPDF ({e})')
 
+try:
+    from ptd_ocr_fallback import extrair_ocr as _extrair_ocr_fallback
+    _OCR_FALLBACK_OK = True
+    logger.info('OCR fallback (pytesseract) disponível')
+except ImportError as _e:
+    _OCR_FALLBACK_OK = False
+    logger.warning(f'OCR fallback indisponível ({_e})')
+
 PROVENIENCIA = {
     'fonte':       'Portal do Governo Digital / MGI',
     'url_portal':  PORTAL_BASE,
@@ -430,7 +438,7 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
             eixo_atual = None
             last_page  = pag
 
-        if len(df.columns) < 2 or len(df) < 3:
+        if len(df.columns) < 2 or len(df) < 2:  # threshold 3→2: aceita tabelas com 1 linha de dados (MD, MEC, FIOCRUZ)
             continue
         all_text = ' '.join(df.values.flatten().astype(str))
         if re.search(r'gestão de riscos|probabilidade.*ocorr', all_text, re.I):
@@ -647,6 +655,17 @@ for _i, (_, srow) in enumerate(pdfs_ok.iterrows(), 1):
             rows     = _extrair_pymupdf(path, sigla, sha256,
                                         nome_pdf=fn, url_fonte=_url)
             extrator = rows[0]['extrator'] if rows else 'pymupdf'
+
+        # Fallback pytesseract para PDFs imagem onde Docling retorna vazio
+        if not rows and is_img and _OCR_FALLBACK_OK:
+            logger.info(f'  → OCR fallback (pytesseract) para {sigla}')
+            rows     = _extrair_ocr_fallback(path, sigla, sha256,
+                                             nome_pdf=fn, url_fonte=_url)
+            extrator = 'pytesseract_ocr'
+            if rows:
+                logger.info(f'  → OCR fallback: {len(rows)} linhas extraídas')
+            else:
+                logger.warning(f'  → OCR fallback: 0 linhas — {fn}')
     except Exception as exc:
         logger.error(f'{sigla}: {exc}')
         logs_e.append({'sigla':sigla,'filename':fn,'status':'ERROR','n':0,'erro':str(exc)[:100]})
