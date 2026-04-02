@@ -1,4 +1,24 @@
-<!DOCTYPE html><html lang="pt"><head>
+<!DOCTYPE html>
+<!--
+  Atlas Kyokushin — freirelucas/teste
+  ─────────────────────────────────────────────────────────────────────────────
+  Estrutura racional do código (fontes canônicas por domínio):
+    css/style.css          ← todos os estilos
+    js/data.js             ← constantes de dados: NT, BS, NODES, TECHS, KATA,
+                              RENRAKU, BELT_REQ, NMAP, IDO_MAP, NODE_DEGREE
+    js/constellation.js    ← renderização SVG, layouts (mandala/corda/implícitos)
+    js/navigation.js       ← estado de navegação, showTechDetail, showNodeDetail
+    js/kata.js             ← renderKata, initKata, findAndShowTech
+    js/ido.js              ← initIdo, generateIdo, renraku rendering
+    js/construtor.js       ← ELISION_RULES, buildCanonicalName, initConstrutor
+    js/math.js             ← renderMath, entropia, análise do corpus
+    js/grammar.js          ← renderGramatica (seções I–VIII)
+    js/main.js             ← init(), switchTab, busca, áudio, auto-demo, mandala
+  ─────────────────────────────────────────────────────────────────────────────
+  index.html é a versão autocontida (portável) para deploy sem servidor.
+  Editar os arquivos em css/ e js/ para manutenção; sincronizar com o index.
+-->
+<html lang="pt"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Atlas Kyokushin</title>
 <style>
@@ -334,6 +354,52 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .nd-nodes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
 .nd-node{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.06)}
 .nd-diff{font-size:11px;color:var(--text2);border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
+/* ===== KATA ROTEIRO ===== */
+.kc-steps-wrap{margin-top:4px}
+.kc-steps-hdr{font-size:10px;color:var(--text2);margin-bottom:6px;letter-spacing:.07em;
+  display:flex;align-items:center;justify-content:space-between}
+.kc-step-item{font-size:11px;color:var(--text);padding:4px 8px;
+  border-bottom:1px solid rgba(30,30,48,.4);line-height:1.6}
+.kc-step-item:last-child{border-bottom:none}
+.kc-step-item.sub{color:var(--text2);padding-left:20px;font-style:italic;font-size:10.5px}
+.kc-step-item .kiai{color:#e85050;font-weight:700;font-size:10px;
+  padding:1px 5px;border-radius:3px;background:rgba(232,80,80,.1);margin-left:6px}
+.kc-step-item .step-n{color:var(--gold);min-width:22px;display:inline-block;font-size:10px}
+.kc-step-item .step-cmd{font-weight:500;color:var(--text)}
+.kc-step-item .step-sub{font-size:10px;color:var(--text2)}
+/* ===== ÁUDIO / SPEAK ===== */
+.speak-btn{background:none;border:1px solid var(--border);border-radius:6px;
+  color:var(--text2);font-size:11px;padding:3px 8px;cursor:pointer;
+  transition:color .15s,border-color .15s;letter-spacing:.04em}
+.speak-btn:hover{color:var(--gold);border-color:var(--gold)}
+.speak-btn:disabled{opacity:.3;cursor:not-allowed}
+/* ===== CONSTRUTOR AUTO-DEMO ===== */
+.demo-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 0 4px;border-top:1px solid var(--border);margin-top:12px}
+.demo-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;font-size:12px;padding:5px 14px;cursor:pointer;transition:border-color .15s}
+.demo-btn:hover{border-color:var(--gold)}
+.demo-btn.active{border-color:var(--gold);color:var(--gold)}
+.demo-speed{background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:6px;font-size:11px;padding:4px 8px;cursor:pointer}
+.demo-prog{font-size:11px;color:var(--text2);min-width:40px;text-align:right;margin-left:auto}
+/* ===== MANDALA MODE TOGGLE ===== */
+.mandal-toggle{display:flex;gap:4px;margin-left:auto}
+.mt-btn{background:none;border:1px solid var(--border);color:var(--text2);
+  font-size:10px;padding:3px 9px;border-radius:5px;cursor:pointer;
+  transition:color .15s,border-color .15s,background .15s;letter-spacing:.04em}
+.mt-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.08)}
+.mt-btn:hover:not(.on){color:var(--text);border-color:rgba(201,168,76,.4)}
+/* Ghost nodes in implícitos mode */
+.cv-ghost-lbl{font-size:9px;fill:#ffffff44;font-style:italic;pointer-events:none}
+/* Implicit axis chain section */
+.impl-chain{display:grid;gap:6px;margin:12px 0}
+.impl-row{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:11px}
+.impl-row .impl-left{min-width:120px;flex-shrink:0}
+.impl-row .impl-tech{font-weight:600;color:var(--text);font-size:12px}
+.impl-row .impl-rule{color:var(--text2);line-height:1.5;font-size:10.5px}
+.impl-row .impl-arrow{color:var(--gold);font-size:14px;flex-shrink:0;margin-top:1px}
 </style></head><body>
 <div id="help-overlay">
   <div class="help-box">
@@ -383,6 +449,12 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
         <button class="mode-btn on" id="mode-mandala" onclick="setMode('mandala')">◉ Mandala</button>
         <button class="mode-btn" id="mode-chord" onclick="setMode('chord')">◎ Corda</button>
         <button class="mode-btn" id="mode-reset" onclick="resetView()" title="Resetar viewport">⊙</button>
+        <span style="margin-left:8px;width:1px;height:16px;background:var(--border);display:inline-block;vertical-align:middle;opacity:.5"></span>
+        <div class="mandal-toggle">
+          <button class="mt-btn on" id="mt-solidos" onclick="setMandalMode('solidos')" title="Sólidos platônicos">◈ Sólidos</button>
+          <button class="mt-btn" id="mt-palavras" onclick="setMandalMode('palavras')" title="Mandala de palavras — técnicas como polígonos">◇ Palavras</button>
+          <button class="mt-btn" id="mt-implicitos" onclick="setMandalMode('implicitos')" title="Com eixos implícitos (nós fantasma)">◌ Implícitos</button>
+        </div>
       </div>
       <svg id="cv"></svg>
       <div id="tip"></div>
@@ -783,133 +855,516 @@ origin:'Funakoshi (1940s), adaptado por Oyama. Embusen I-gata. O kata que abre t
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Gedan Barai','Seiken Chudan Oi Tsuki'],
 note:'Apenas dois movimentos, repetidos. Defesa → Ataque. O primeiro gesto do Kyokushin é sempre uma varredura baixa.',
-silences:'Sem chutes, sem mão aberta. A restrição radical é a mensagem.'},
+silences:'Sem chutes, sem mão aberta. A restrição radical é a mensagem.',
+steps:[
+  'Yoi! — musubi dachi · punhos na coxa',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu dachi',
+  '  ▶ Antebraço parte do ouvido, varre até a coxa. Quadril gira na chegada.',
+  '2. Avança → Migi Seiken Chudan Oi Tsuki',
+  '  ▶ Punho estende com rotação final. Mão de puxar ao quadril.',
+  '3. Giro dir 180° → Migi Gedan Barai',
+  '4. Avança → Hidari Oi Tsuki Chudan',
+  '5. Giro esq 90° → Hidari Gedan Barai (braço esq lidera)',
+  '6. Avança → Migi Oi Tsuki',
+  '7. Avança → Migi Oi Tsuki · KIAI',
+  '8. Mawatte! → Hidari Gedan Barai (retorna eixo)',
+  '9. Avança → Migi Oi Tsuki',
+  '10. Giro dir 180° → Migi Gedan Barai',
+  '11. Avança → Hidari Oi Tsuki',
+  '12. Giro esq 90° → Hidari Gedan Barai (eixo principal)',
+  '13. Avança → Migi Oi Tsuki',
+  '14. Avança → Migi Oi Tsuki',
+  '15. Avança → Migi Oi Tsuki · KIAI',
+  '  ▶ Linha de retorno: mawatte → 3 movimentos simétricos de volta ao yoi.',
+  'Mawatte! — Yame!',
+]},
 {id:'k_tai2',name:'Taikyoku Sono Ni',belt:'branca',time:'20s',
 origin:'Mesma estrutura do Sono Ichi. Uma variação: Oi Tsuki jodan em vez de chudan.',
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Gedan Barai','Seiken Jodan Oi Tsuki'],
 note:'Jodan como modificador de altura — não técnica nova, mesma gramática. Os três Taikyoku ensinam que a posição não muda o movimento, só o vetor.',
-silences:'Sem chutes, sem mão aberta. A altura do alvo é o único modificador — gramática constante, endereço diferente.'},
+silences:'Sem chutes, sem mão aberta. A altura do alvo é o único modificador — gramática constante, endereço diferente.',
+steps:[
+  'Yoi! — musubi dachi',
+  '  ▶ Estrutura idêntica ao Sono Ichi. Única diferença: tsuki vai ao jodan (rosto).',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu dachi',
+  '2. Avança → Migi Seiken Jodan Oi Tsuki',
+  '  ▶ Punho ao nível do rosto — requer quadril mais alto e extensão completa do ombro.',
+  '3. Giro dir 180° → Migi Gedan Barai',
+  '4. Avança → Hidari Jodan Oi Tsuki',
+  '5. Giro esq 90° → Hidari Gedan Barai',
+  '6. Avança → Migi Jodan Oi Tsuki',
+  '7. Avança → Migi Jodan Oi Tsuki · KIAI',
+  '8–19. (mesma estrutura do Sono Ichi, tsuki sempre jodan)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_tai3',name:'Taikyoku Sono San',belt:'laranja',time:'22s',
 origin:'Terceiro Taikyoku. Introduz Kokutsu Dachi e Chudan Uchi Uke nas viragens laterais.',
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Gedan Barai','Chudan Uchi Uke','Seiken Jodan Oi Tsuki','Seiken Chudan Oi Tsuki'],
 note:'Primeiro kata com duas posturas (Zenkutsu + Kokutsu). Kokutsu ensina que recuar não é enfraquecer — é mudar o ângulo de força.',
-silences:'Sem chutes, sem mão aberta. Kokutsu Dachi aparece — mas apenas para recuar, nunca para contra-atacar a partir da postura baixa.'},
+silences:'Sem chutes, sem mão aberta. Kokutsu Dachi aparece — mas apenas para recuar, nunca para contra-atacar a partir da postura baixa.',
+steps:[
+  'Yoi! — musubi dachi',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu dachi',
+  '2. Avança → Migi Seiken Chudan Oi Tsuki',
+  '3. Giro dir 180° → Migi Gedan Barai · zenkutsu',
+  '4. Avança → Hidari Seiken Chudan Oi Tsuki',
+  '5. Giro esq 90° → Hidari Chudan Uchi Uke · kokutsu dachi',
+  '  ▶ Kokutsu: 70% peso atrás, antebraço bloqueia de dentro para fora.',
+  '6. Avança (muda p/ zenkutsu) → Migi Seiken Jodan Oi Tsuki',
+  '7. Avança → Migi Seiken Jodan Oi Tsuki · KIAI',
+  '8. Mawatte! → Migi Chudan Uchi Uke · kokutsu',
+  '9. Avança → Hidari Jodan Oi Tsuki',
+  '10. Giro dir 180° → Migi Chudan Uchi Uke · kokutsu',
+  '11. Avança → Hidari Jodan Oi Tsuki',
+  '12. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '13. Avança → Migi Chudan Oi Tsuki',
+  '14. Avança → Migi Chudan Oi Tsuki',
+  '15. Avança → Migi Chudan Oi Tsuki · KIAI',
+  'Mawatte! — Yame!',
+]},
 {id:'k_stai1',name:'Sokugi Taikyoku Sono Ichi',belt:'branca',time:'22s',
 origin:'Criado por Mas Oyama. Mesmo embusen dos Taikyoku, mas com chutes em vez de socos.',
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Kansetsu Geri','Mae Keage'],
 note:'Este kata separa keage (chicote) de geri (chute). A distinção é mecânica, não nominal.',
-silences:'Sem socos. Sem mão aberta. Só pernas.'},
+silences:'Sem socos. Sem mão aberta. Só pernas.',
+steps:[
+  'Yoi! — musubi dachi · mãos em guarda baixa',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '2. Kansetsu Geri migi (chute à articulação do joelho)',
+  '  ▶ Arma: hiza/sokuto lateral. Alvo: articulação do joelho do adversário.',
+  '3. Giro dir 180° → Migi Gedan Barai',
+  '4. Kansetsu Geri hidari',
+  '5. Giro esq 90° → Hidari Gedan Barai (eixo principal)',
+  '6. Mae Keage migi (chicote frontal)',
+  '  ▶ Keage ≠ Geri: o pé chicoteia para cima sem câmara, haisoku ou chusoku.',
+  '7. Mae Keage migi · KIAI',
+  '8–15. (retorno simétrico com Kansetsu Geri + Mae Keage)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_stai2',name:'Sokugi Taikyoku Sono Ni',belt:'branca',time:'22s',
 origin:'Variação do Sono Ichi.',
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Yoko Keage','Mae Keage'],
 note:'Yoko Keage substitui Kansetsu Geri — dois vocabulários laterais distintos. Geri vai ao osso; Keage vai à musculatura. Mesma direção, mecânicas opostas.',
-silences:'Sem socos, sem mão aberta, sem geri de câmara. Apenas keage — velocidade de perna sem a estrutura completa do chute.'},
+silences:'Sem socos, sem mão aberta, sem geri de câmara. Apenas keage — velocidade de perna sem a estrutura completa do chute.',
+steps:[
+  'Yoi! — musubi dachi',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '2. Yoko Keage migi (chicote lateral)',
+  '  ▶ Perna de apoio estável; pé livre chicoteia lateralmente com haisoku.',
+  '3. Giro dir 180° → Migi Gedan Barai',
+  '4. Yoko Keage hidari',
+  '5. Giro esq 90° → Hidari Gedan Barai (eixo principal)',
+  '6. Mae Keage migi',
+  '7. Mae Keage migi · KIAI',
+  '8–15. (retorno: Yoko Keage × 2 cruzamentos + Mae Keage × 3)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_stai3',name:'Sokugi Taikyoku Sono San',belt:'laranja',time:'22s',
 origin:'Criado por Mas Oyama como terceira forma da série Sokugi Taikyoku. Introduz combinações de chutes laterais e frontais em sucessão, preparando para o trabalho direcional do Pinan.',
 embusen:'M30,80 L30,10 M5,60 L55,60 M5,30 L55,30',
 techs:['Mawashi Geri','Mae Keage'],
 note:'Primeiro kata com Mawashi Geri — o quadril aprende a orbitar em vez de só estender. O circular é o ataque mais difícil de defender porque não vem de uma linha.',
-silences:'Sem socos, sem bloqueios. O circular pressupõe que o quadril já aprendeu a orbitar — nenhum ensino explícito de câmara, só o resultado.'},
+silences:'Sem socos, sem bloqueios. O circular pressupõe que o quadril já aprendeu a orbitar — nenhum ensino explícito de câmara, só o resultado.',
+steps:[
+  'Yoi! — musubi dachi',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '2. Migi Mawashi Geri chudan',
+  '  ▶ Câmara lateral; quadril orbita; impacto com haisoku na costal.',
+  '3. Giro dir 180° → Migi Gedan Barai',
+  '4. Hidari Mawashi Geri chudan',
+  '5. Giro esq 90° → Hidari Gedan Barai (eixo principal)',
+  '6. Migi Mae Keage',
+  '7. Migi Mae Keage · KIAI',
+  '8–15. (retorno: Mawashi Geri × 2 + Mae Keage × 3)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_pi1',name:'Pinan Sono Ichi',belt:'azul',time:'22s',
 origin:'Anko Itosu (1905), modificado por Oyama. Embusen I-gata. Introduz Age Uke e Gyaku Tsuki.',
 embusen:'M30,80 L30,10 M5,65 L55,65 M5,15 L55,15',
 techs:['Gedan Barai','Jodan Uke','Seiken Chudan Gyaku Tsuki','Seiken Chudan Oi Tsuki'],
 note:'Alternância Oi/Gyaku como mecânica de quadril. A base do kumite começa aqui.',
-silences:'Sem chutes.'},
+silences:'Sem chutes.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '2. Avança → Migi Seiken Chudan Oi Tsuki',
+  '3. Avança → Hidari Seiken Chudan Gyaku Tsuki',
+  '  ▶ Gyaku: punho oposto ao pé da frente. Quadril gira na direção do soco.',
+  '4. Giro dir 180° → Migi Gedan Barai',
+  '5. Avança → Hidari Oi Tsuki',
+  '6. Avança → Migi Gyaku Tsuki',
+  '7. Giro esq 90° → Hidari Jodan Age Uke · kokutsu dachi',
+  '  ▶ Age Uke: antebraço sobe em ângulo 45°, cotovelo na altura do ombro.',
+  '8. Avança (zenkutsu) → Migi Oi Tsuki',
+  '9. Migi Jodan Age Uke · kokutsu',
+  '10. Avança → Hidari Oi Tsuki',
+  '11. Migi Jodan Age Uke · kokutsu',
+  '12. Avança → Hidari Oi Tsuki · KIAI',
+  '13–20. (retorno simétrico pelo braço direito)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_pi2',name:'Pinan Sono Ni',belt:'azul',time:'30s',
 origin:'Itosu, adaptado. O kata mais rico em técnicas novas da série Pinan. Introduz Kiba Dachi.',
 embusen:'M30,80 L30,50 M30,50 L5,20 M5,20 L55,20 M30,50 L30,10',
 techs:['Tettsui Hizo Uchi','Yoko Geri','Uraken Jodan Yoko Uchi','Shuto Mawashi Uke','Mae Geri'],
 note:'Primeiro kata com Kiba Dachi e Yoko Geri. Kiba força o peso para baixo e para fora — estabilidade lateral que nenhuma outra postura treina da mesma forma.',
-silences:'Sem Uke formal. Pinan 2 usa desvio pelo ângulo: Kiba Dachi não bloqueia — muda o plano de conflito inteiro.'},
+silences:'Sem Uke formal. Pinan 2 usa desvio pelo ângulo: Kiba Dachi não bloqueia — muda o plano de conflito inteiro.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Giro esq 45° → Migi Tettsui Hizo Uchi · kiba dachi',
+  '  ▶ Punho martelo golpeia à costela. Kiba: pés paralelos, joelhos para fora, peso baixo.',
+  '2. Migi Yoko Geri chudan (chute lateral)',
+  '  ▶ Câmara levanta joelho; sokuto projeta lateralmente. Não muda postura.',
+  '3. Hidari Uraken Jodan Yoko Uchi (dorso do punho ao rosto)',
+  '4. Avança → Migi Oi Tsuki chudan',
+  '5. Giro dir 90° → Hidari Tettsui Hizo Uchi · kiba dachi',
+  '6. Hidari Yoko Geri chudan',
+  '7. Migi Uraken Jodan Yoko Uchi',
+  '8. Avança → Hidari Oi Tsuki · KIAI',
+  '9. Giro esq 90° → Hidari Shuto Mawashi Uke · kokutsu',
+  '  ▶ Shuto em arco circular — mão aberta deflecte de fora para dentro.',
+  '10. Avança → Migi Mae Geri · zenkutsu',
+  '11. Migi Shuto Mawashi Uke · kokutsu',
+  '12. Avança → Hidari Mae Geri',
+  '13. Migi Shuto Mawashi Uke · kokutsu',
+  '14. Avança → Hidari Mae Geri',
+  '15. Hidari Oi Tsuki · KIAI',
+  'Mawatte! — Yame!',
+]},
 {id:'k_pi3',name:'Pinan Sono San',belt:'azul',time:'22s',
 origin:'Kiba Dachi predomina. Introduz Hiji Uke, Ushiro Hiji Ate e Ushiro Tsuki.',
 embusen:'M5,50 L55,50 M20,50 L20,15 M40,50 L40,15',
 techs:['Hiji Uke','Ushiro Hiji Ate','Ushiro Tsuki','Uraken Sayu Ganmen Uchi','Yonhon Nukite'],
 note:'Kata de combate de curta distância. Ushiro Tsuki é exclusivo deste kata.',
-silences:'Sem geri.'},
+silences:'Sem geri.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Hidari Chudan Uchi Uke + Migi Chudan Uchi Uke (simultâneos, kiba dachi)',
+  '  ▶ Hiji Uke: cotovelos de dentro para fora, defendendo duas linhas.',
+  '2. Migi Uraken Sayu Ganmen Uchi (dorso do punho → rosto lateral)',
+  '3. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '4. Avança → Migi Oi Tsuki chudan',
+  '5. Avança → Migi Oi Tsuki chudan',
+  '6. Giro dir 180° → Migi Gedan Barai',
+  '7. Avança → Hidari Oi Tsuki',
+  '8. Avança → Hidari Oi Tsuki · KIAI',
+  '9. Giro esq 90° → Yonhon Nukite (4 dedos ao plexo) · zenkutsu · KIAI',
+  '  ▶ Nukite: 4 dedos unidos, ataque ao plexo solar. Braço estende completamente.',
+  '10. Ushiro Hiji Ate (cotovelo para trás) + Ushiro Tsuki (soco para trás)',
+  '  ▶ Combinação de combate de costas: cotovelo primário, soco secundário.',
+  '11–16. (retorno simétrico)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_sanchin',name:'Sanchin no Kata',belt:'azul',time:'2min14s',
 origin:'Kanryo Higaonna → China. O kata isométrico mais antigo. Apenas três técnicas.',
 embusen:'M30,80 L30,10',
 techs:['Seiken Chudan Tsuki','Chudan Soto Uke','Chudan Uchi Uke'],
 note:'SEM chutes. SEM uchi. A restrição técnica radical é a mensagem — tudo é sobre tensão, respiração e enraizamento.',
-silences:'Zero variação técnica. Toda a atenção vai para qualidade de execução e respiração Ibuki.'},
+silences:'Zero variação técnica. Toda a atenção vai para qualidade de execução e respiração Ibuki.',
+steps:[
+  'Yoi! — heisoku dachi · respiração inicial (3 ciclos Ibuki)',
+  '  ▶ Ibuki: inspiração pelo nariz, expiração forçada pela garganta com tensão total.',
+  '1. Avanço: Sanchin dachi hidari (pé esq na frente, pés em "V" interno)',
+  '2. Hidari + Migi Seiken Chudan Tsuki (simultâneos ou alternados lentos)',
+  '  ▶ Cada soco: expiração tensa. Tensão isométrica em todo o corpo no impacto.',
+  '3. Chudan Soto Uke hidari (antebraço de fora para dentro)',
+  '4. Chudan Uchi Uke migi (antebraço de dentro para fora)',
+  '  ▶ Cada bloqueio acompanhado de respiração Ibuki completa.',
+  '5. Avanço: 3 passos em sanchin dachi com tsuki alternados',
+  '6. Giro 180° → retorno 3 passos com tsuki alternados',
+  '7. Sequência Uke: Soto + Uchi × 3',
+  '  ▶ Senssei pode bater no corpo para testar tensão — o practicante não cede.',
+  '8. Mawatte! — expiração final longa',
+  'Yame! — musubi dachi · inclinação',
+]},
 {id:'k_pi4',name:'Pinan Sono Yon',belt:'amarela',time:'30s',
 origin:'Introduz Juji Uke, Kakiwake Uke, Kosa Dachi, Tsuru Ashi Dachi e Hiza Geri.',
 embusen:'M5,50 L55,50 M10,10 L50,10 M10,80 L50,80 M30,50 L30,10',
 techs:['Juji Uke','Kakiwake Uke','Empi/Hiji Ate','Hiza Geri','Morote Uke','Nukite'],
 note:'Pinan 4 é o kata dos bloqueios compostos: Juji, Kakiwake, Morote — dois braços respondendo juntos. Curta distância, alta complexidade de entrada.',
-silences:'Sem socos longos, sem chutes de longa distância. Pinan 4 opera inteiramente em curta distância: joelhos, cotovelos, bloqueios duplos.'},
+silences:'Sem socos longos, sem chutes de longa distância. Pinan 4 opera inteiramente em curta distância: joelhos, cotovelos, bloqueios duplos.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Giro esq 90° → Hidari Jodan Age Uke + Migi Chudan Soto Uke (Morote Uke simultâneo)',
+  '  ▶ Dois braços defendem simultaneamente: alto + médio.',
+  '2. Giro dir 180° → Migi Age Uke + Hidari Soto Uke (Morote)',
+  '3. Giro esq 90° → Juji Uke gedan (bloqueio cruzado baixo, punhos cruzados)',
+  '  ▶ Juji: os dois punhos cruzam-se em "X" para bloquear chute baixo.',
+  '4. Hiza Geri migi (joelhada)',
+  '  ▶ Agarrar ombros do adversário; joelho ao estômago/costela.',
+  '5. Kakiwake Uke (separação bilateral, mãos afastam)',
+  '6. Empi/Hiji Ate (cotovelo ao rosto ou costela)',
+  '7. Avança → Migi Oi Tsuki + Hidari Gyaku Tsuki · KIAI',
+  '8. Giro esq 90° → Hidari Kakiwake Uke · kokutsu',
+  '9. Hiza Geri hidari',
+  '10. Empi Ate migi',
+  '11. Nukite migi (mão lança ao plexo) · KIAI',
+  '12–18. (retorno simétrico)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_tsuki',name:'Tsuki no Kata',belt:'amarela',time:'36s',
 origin:'Pelo próprio nome: kata de socos. Apenas um chute em toda a forma.',
 embusen:'M5,50 L55,50 M15,20 L45,80 M45,20 L15,80',
 techs:['Seiken Chudan Tsuki','Seiken Jodan Tsuki','Seiken Gedan Tsuki','Tate Tsuki','Nukite','Mae Geri'],
 note:'Objetivo: desenvolver potência nos socos em diferentes alturas e posturas.',
-silences:'Quase sem chutes por design.'},
+silences:'Quase sem chutes por design.',
+steps:[
+  'Yoi! — heisoku dachi · mãos em guarda',
+  '1. Avança hidari → Migi Seiken Chudan Tsuki · zenkutsu',
+  '2. Avança → Hidari Seiken Chudan Tsuki',
+  '3. Avança → Migi Seiken Chudan Tsuki · KIAI',
+  '4. Mawatte! → 3 Seiken Jodan Tsuki (soco ao rosto) · 3 passos',
+  '  ▶ Jodan: punho mais alto, linha do nariz do oponente.',
+  '5. Mawatte! → 3 Seiken Gedan Tsuki (soco baixo) · 3 passos',
+  '  ▶ Gedan: punho ao plexo/abdômen. Postura mais baixa.',
+  '6. Mawatte! → 3 Tate Tsuki (soco vertical, polegar para cima) · 3 passos',
+  '7. Mawatte! → 3 Nukite (lança de dedos) · 3 passos · KIAI no último',
+  '  ▶ Nukite: 4 dedos estendidos, palma para baixo, ao plexo solar.',
+  '8. Mawatte! → Mae Geri chudan + Oi Tsuki chudan × 3',
+  '  ▶ Único chute do kata: geri prepara; soco finaliza.',
+  'Mawatte! — Yame!',
+]},
 {id:'k_pi5',name:'Pinan Sono Go',belt:'verde',time:'30s',
 origin:'Primeiro kata com salto. Dominar os 5 Pinan é suficiente para defesa real.',
 embusen:'M30,80 L30,50 M30,50 L5,20 M30,50 L55,20 M30,50 L30,10',
 techs:['Tobi (salto)','Morote Uchi Uke','Shuto Osae Uke','Hiji Chudan Ate','Age Uke + Gyaku Tsuki'],
 note:'O Tobi resolve o impasse de distância pelo ar. Morote Uchi Uke — dois braços simultâneos em vetores opostos. Encerra os cinco Pinan: quem domina todos está pronto para o kumite real.',
-silences:'Sem técnicas de longa distância antes do salto. O Tobi pressupõe que o solo já foi esgotado — só o ar resolve o impasse restante.'},
+silences:'Sem técnicas de longa distância antes do salto. O Tobi pressupõe que o solo já foi esgotado — só o ar resolve o impasse restante.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Giro esq 90° → Hidari Age Uke + Migi Gyaku Tsuki · zenkutsu',
+  '2. Giro dir 180° → Migi Age Uke + Hidari Gyaku Tsuki',
+  '3. Giro esq 90° → Hidari Morote Uchi Uke (2 antebraços simultâneos para dentro)',
+  '  ▶ Morote: dois braços defendem ao mesmo tempo, um de fora→dentro, outro ao contrário.',
+  '4. Migi Yoko Geri chudan (kiba dachi)',
+  '5. Migi Hiji Chudan Ate (cotovelo lateral ao estômago)',
+  '6. Giro 90° dir → Hidari Shuto Osae Uke (mão faca pressiona para baixo) · kokutsu',
+  '7. Avança → Migi Mae Geri + Migi Oi Tsuki',
+  '8. Hidari Shuto Osae Uke · kokutsu',
+  '9. Avança → Migi Mae Geri + Migi Oi Tsuki · KIAI',
+  '10. TOBI! — salto com Migi Yoko Geri no ar (kiai)',
+  '  ▶ Câmara, salto; pé lateral no ar com sokuto. Aterrissagem em kiba dachi.',
+  '11. Retorno: Age Uke + Gyaku Tsuki × 2 (simetria)',
+  'Mawatte! — Yame!',
+]},
 {id:'k_gekidai',name:'Gekisai Dai',belt:'verde',time:'47s',
 origin:'Chojun Miyagi (Goju-ryu). Fluidez e mobilidade. Força através do movimento, não da rigidez.',
 embusen:'M30,80 L30,55 M30,55 L5,30 M5,30 L55,30 M55,30 L30,55 M30,55 L30,10',
 techs:['Mawashi Geri Jodan','Yoko Geri Jodan','Tettsui Uchi','Age Uke + Mae Geri'],
 note:'Origem Goju-ryu: fluidez acima de rigidez. O embusen Norte→Sul inverte a expectativa — o kata que avança é o mesmo que retorna. Mobilidade como princípio fundamental.',
-silences:'Sem postura fixa prolongada. A origem Goju-ryu rejeita a ancoragem rígida do Shuri-te — mobilidade é a defesa.'},
+silences:'Sem postura fixa prolongada. A origem Goju-ryu rejeita a ancoragem rígida do Shuri-te — mobilidade é a defesa.',
+steps:[
+  'Yoi! — musubi dachi',
+  '1. Giro esq 90° → Hidari Age Uke · zenkutsu',
+  '2. Migi Seiken Jodan Tsuki (soco direto ao rosto)',
+  '3. Giro dir 180° → Migi Age Uke · zenkutsu',
+  '4. Hidari Seiken Jodan Tsuki',
+  '5. Giro esq 90° → Hidari Age Uke · zenkutsu (eixo principal)',
+  '6. Migi Mae Geri chudan',
+  '7. Avança → Migi Oi Tsuki jodan · KIAI',
+  '8. Mawashi Geri jodan migi (chute circular alto)',
+  '  ▶ Quadril orbita; haisoku à têmpora. Jodan = arriscar, alto retorno.',
+  '9. Migi Tettsui Hizo Uchi + Hidari Uraken Ganmen Uchi (simultâneos)',
+  '10. Yoko Geri jodan hidari (chute lateral ao rosto)',
+  '  ▶ Sokuto ao queixo — técnica de competição de alto nível.',
+  '11. Hidari Tettsui + Migi Uraken (simultâneos)',
+  '12. Retorno: Age Uke + Mae Geri + Oi Tsuki × 2 · KIAI final',
+  'Mawatte! — Yame!',
+]},
 {id:'k_yantsu',name:'Yantsu',belt:'marrom',time:'62s',
 origin:'Origem incerta, possivelmente Motobu Shito-ryu. Exigido no 1º Kyu marrom.',
 embusen:'M30,80 L30,45 M30,45 L5,10 M30,45 L55,10',
 techs:['Gyaku Tsuki (variações)','Uraken Shomen Uchi','Mae Geri','Shuto combinações'],
 note:'Velocidade acima de força — Yantsu ensina que a hesitação é a única derrota real. Três direções de saída, todas com contra-ataque imediato.',
-silences:'Sem câmaras lentas, sem bloqueios explícitos. Yantsu pressupõe que o timing foi internalizado — a resposta é o ataque direto, não a defesa.'},
+silences:'Sem câmaras lentas, sem bloqueios explícitos. Yantsu pressupõe que o timing foi internalizado — a resposta é o ataque direto, não a defesa.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Hidari Shuto Jodan Uke · kokutsu dachi',
+  '  ▶ Mão faca bloqueio alto — o kakiwake lateral para mão aberta.',
+  '2. Migi Mae Geri chudan',
+  '3. Migi Seiken Chudan Gyaku Tsuki · zenkutsu',
+  '4. Giro dir 45° (diag) → Migi Shuto Uke · kokutsu',
+  '5. Hidari Mae Geri + Hidari Oi Tsuki',
+  '6. Giro esq 90° → Hidari Shuto Uke · kokutsu (diagonal oposta)',
+  '7. Migi Mae Geri + Migi Oi Tsuki · KIAI',
+  '8. Retorno ao centro → Uraken Shomen Uchi migi (dorso do punho ao rosto)',
+  '  ▶ Snap do pulso na chegada — velocidade, não força.',
+  '9. Avança → Migi Gyaku Tsuki + Hidari Gyaku Tsuki (alternados rápidos)',
+  '10. Avança → Renraku: Gyaku × 3 crescendo · KIAI',
+  '11. Saída diag esq → Shuto Uke + Mae Geri + Gyaku Tsuki',
+  '12. Saída diag dir → Shuto Uke + Mae Geri + Gyaku Tsuki · KIAI',
+  'Mawatte! — Yame!',
+]},
 {id:'k_tensho',name:'Tensho',belt:'marrom',time:'2min19s',
 origin:'Goju-ryu. Contraparte suave (yin) do Sanchin (yang). Oyama: kata mais indispensável.',
 embusen:'M30,80 L30,10',
 techs:['Shotei/Teisho','Mawashi Uke circular','Age/Otoshi Shotei','Hiki (puxar)'],
 note:'Único kata inteiramente de mão aberta. Sem punho fechado. Respiração Ibuki.',
-silences:'Zero técnicas de punho fechado.'},
+silences:'Zero técnicas de punho fechado.',
+steps:[
+  'Yoi! — sanchin dachi · respiração Ibuki 3 ciclos',
+  '  ▶ Todo o kata é executado em sanchin dachi. Movimentos suaves + respiração contínua.',
+  '1. Hidari Teisho Age (calcanhar da palma sobe)',
+  '2. Migi Teisho Otoshi (calcanhar da palma desce)',
+  '  ▶ Suave mas firme — a tensão chega no impacto, não antes.',
+  '3. Mawashi Uke hidari (bloqueio circular completo): Jodan → Chudan → Gedan',
+  '  ▶ O braço traça um círculo completo vertical — o kata yin.',
+  '4. Migi Teisho Osae (pressiona para baixo)',
+  '5. Mawashi Uke migi',
+  '6. Hiki hidari + migi (puxar simulado das lapelas, dois braços)',
+  '  ▶ Hiki: técnica de agarre — puxar adversário ao contra-ataque.',
+  '7. Sequência central: Teisho Age + Otoshi × 3 (alternados)',
+  '8. Teisho Chudan Mae (palma frontal ao tronco)',
+  '9. Mawashi Uke completo × 3 (cada vez mais lento, mais respiração)',
+  '10. Retorno com mesma sequência inversa',
+  'Yame! — expiração longa · musubi dachi',
+]},
 {id:'k_gekisho',name:'Gekisai Sho',belt:'marrom',time:'48s',
 origin:'Variação do Dai com mais técnicas de mão aberta.',
 embusen:'M30,80 L30,55 M30,55 L5,30 M5,30 L55,30 M55,30 L30,55 M30,55 L30,10',
 techs:['Haito Uchi','Nukite variações','Shotei','Shuto Uke variações'],
 note:'Onde o Dai usa seiken, o Sho usa mão aberta. A mão aberta não é fraca — é precisa: Shuto corta, Haito rasga, Nukite penetra. A mesma forma, vocabulário invertido.',
-silences:'Sem socos fechados. O punho cerrado é o silêncio do Sho — o seu par Dai já o disse tudo com seiken.'},
+silences:'Sem socos fechados. O punho cerrado é o silêncio do Sho — o seu par Dai já o disse tudo com seiken.',
+steps:[
+  'Yoi! — musubi dachi',
+  '  ▶ Mesma estrutura do Gekisai Dai. Apenas as armas mudam: punho→mão aberta.',
+  '1. Giro esq 90° → Hidari Shuto Jodan Uke · kokutsu (mão faca alta)',
+  '2. Migi Mae Geri + Avança → Migi Nukite chudan',
+  '  ▶ Nukite substituiu o Oi Tsuki do Dai.',
+  '3. Giro dir 180° → Migi Shuto Jodan Uke · kokutsu',
+  '4. Hidari Mae Geri + Hidari Nukite · KIAI',
+  '5. Giro esq 90° → Haito Jodan Uchi (crista da mão ao rosto)',
+  '  ▶ Haito: borda do indicador, lado interno da mão — rasgo ao pescoço.',
+  '6. Shotei chudan (calcanhar da palma ao plexo)',
+  '7. Mawashi Geri jodan migi · KIAI',
+  '8. Retorno: Shuto Uke + Nukite + Haito × 2',
+  '9. Yoko Geri jodan + Shotei Uchi × 2',
+  'Mawatte! — Yame!',
+]},
 {id:'k_saifa',name:'Saifa',belt:'marrom',time:'43s',
 origin:'Higaonna → Miyagi → Oyama. O kata que mais introduz técnicas ausentes do kihon.',
 embusen:'M5,70 L30,30 L55,70 M30,30 L30,10',
 techs:['Ura Tsuki','Haishu Uchi','Tettsui Uchi','Otoshi Empi','Mawashi Uke','Nidan Geri'],
 note:'Saifa (破壊, "rasgar e destruir") opera no espaço mínimo. Ura Tsuki, Empi, Tettsui — todas armas de curta distância. O kata pressupõe que o adversário já está dentro.',
-silences:'Sem técnicas de longa distância. Todo o combate acontece no espaço do abraço — o Saifa não tem distância de recuo.'},
+silences:'Sem técnicas de longa distância. Todo o combate acontece no espaço do abraço — o Saifa não tem distância de recuo.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '2. Migi Ura Tsuki (soco invertido, uppercut curto)',
+  '  ▶ Ura Tsuki: punho palma para cima, cotovelo quase reto. Distância mínima.',
+  '3. Migi Haishu Uchi (dorso da mão aberta ao pescoço)',
+  '4. Giro dir → Migi Gedan Barai + Hidari Ura Tsuki + Hidari Haishu Uchi',
+  '5. Giro esq → centro: Mawashi Uke (bloqueio circular)',
+  '  ▶ Mawashi Uke: o braço traça arco horizontal para deflectir soco circular.',
+  '6. Otoshi Empi (cotovelo desce sobre ombro/crânio adversário)',
+  '  ▶ Agarrar cabeça; cotovelo desce como martelo.',
+  '7. Tettsui Hizo Uchi (punho martelo à costela)',
+  '8. Nidan Geri (chute duplo em voo: mae + yoko no ar)',
+  '  ▶ Primeira perna chuta, ainda no ar a segunda perna chuta — KIAI.',
+  '9. Aterrissa em zenkutsu → Migi Oi Tsuki · KIAI',
+  '10. Retorno: Gedan Barai + Ura Tsuki + Haishu × 2',
+  'Mawatte! — Yame!',
+]},
 {id:'k_kanku',name:'Kanku',belt:'shodan',time:'1min40s',
 origin:'Kusanku/Kushanku, séculos XVI-XVII. O kata mais longo e completo dos kata do Norte.',
 embusen:'M30,5 L55,30 L30,55 L5,30 Z M30,5 L30,55 M5,30 L55,30',
 techs:['Repertório completo: todos os socos, uchi, geri, uke. Nukite, tobi.'],
 note:'Abertura icônica: mãos formam losango apontando ao céu — 看空 "ver o vazio". O kata mais longo sintetiza todo o vocabulário; dominá-lo é dominar a linguagem. O primeiro kata do Shodan é o primeiro ato de síntese.',
-silences:'Poucas pausas — o Kanku não descansa. O kata que inclui quase tudo interroga, por contraste, tudo o que foi excluído do restante do currículo.'},
+silences:'Poucas pausas — o Kanku não descansa. O kata que inclui quase tudo interroga, por contraste, tudo o que foi excluído do restante do currículo.',
+steps:[
+  'Yoi! — musubi dachi',
+  '1. ABERTURA: mãos sobem formando losango apontando ao céu (看空)',
+  '  ▶ Olhar pelo centro do losango. Pausa de 3 segundos. Mãos descem.',
+  '2. Gedan Barai × 2 (L+R) · zenkutsu',
+  '3. Jodan Age Uke × 2 · kokutsu dachi',
+  '4. Gyaku Tsuki chudan × 2',
+  '5. Shuto Mawashi Uke × 2 · kokutsu',
+  '6. Mae Geri × 2 + Oi Tsuki × 2',
+  '7. Empi Ate × 2 (cotovelo lateral)',
+  '8. Uraken Jodan Uchi × 2',
+  '9. Mae Geri + Migi Oi Tsuki · KIAI',
+  '10. Mawashi Geri jodan × 2',
+  '11. Yoko Geri chudan × 2 (kiba dachi)',
+  '12. Nukite chudan × 2',
+  '13. Tettsui × 2 + Shuto × 2',
+  '14. TOBI! — Nidan Geri no ar · KIAI',
+  '  ▶ Salto máximo; dois chutes; aterrissagem controlada.',
+  '15. Uke variações: Soto, Uchi, Age, Gedan Barai × 2 cada',
+  '16. Fechar: losango ao céu (espelho da abertura) · pausa · Yame!',
+  'Mawatte! — Yame!',
+]},
 {id:'k_seien',name:'Seienchin',belt:'shodan',time:'1min24s',
 origin:'Naha-te. Kata longo em Shiko Dachi baixo. Desenvolve força e estabilidade nos membros inferiores.',
 embusen:'M10,50 Q30,10 50,50 Q30,90 10,50',
 techs:['Seiken Tsuki','Ura Tsuki','Hiji Ate (todas direções)','Age Uke + Gedan Barai','Mawashi Empi'],
 note:'SEM NENHUM CHUTE. Kata avançado inteiramente de te-waza. Filosofia de combate de curta distância.',
-silences:'Zero geri. Zero keage. Silêncio radical e intencional.'},
+silences:'Zero geri. Zero keage. Silêncio radical e intencional.',
+steps:[
+  'Yoi! — musubi dachi',
+  '  ▶ NENHUM chute em todo o kata. Apenas te-waza em shiko dachi baixo.',
+  '1. Abertura: mãos formam triângulo à frente · pausa',
+  '2. Giro esq → Hidari Age Uke + Migi Gedan Barai (simultâneos) · shiko dachi',
+  '  ▶ Shiko dachi: pés 45° para fora, joelhos bem dobrados, costas retas.',
+  '3. Migi Ura Tsuki (uppercut) + Hidari Gyaku Tsuki',
+  '4. Mawashi Empi migi (cotovelo circular ao rosto)',
+  '5. Avanço diagonal → Hiji Ate (cotovelo) em 4 direções: jodan, chudan, gedan, ushiro',
+  '  ▶ Cotovelo é a arma do espaço mínimo — alcance de abraço.',
+  '6. Retorno centro → Age Uke × 2 + Gedan Barai × 2 (simultâneos)',
+  '7. Avança 3 passos: Oi Tsuki chudan + Gyaku Tsuki jodan alternados',
+  '8. Giro dir → mesma sequência de cotovelos + uke',
+  '9. Centro: Morote Tsuki (dois socos simultâneos)',
+  '10. Sequência final: Age Uke + Gedan Barai + Mawashi Empi × 3 · KIAI',
+  'Mawatte! — Yame!',
+]},
 {id:'k_garyu',name:'Garyu',belt:'shodan',time:'38s',
 origin:'Criado por Mas Oyama. Garyu = dragão reclinado. Nome é pseudônimo de Oyama.',
 embusen:'M5,70 L30,30 M30,30 L55,70 M30,30 L30,10',
 techs:['Shuto combinações','Mae Geri','Yoko Geri','Seiken Tsuki','Uraken variações'],
 note:'Garyu (臥龍, "dragão reclinado") é o kata pessoal de Oyama — limpo, técnico, sem ornamento. O dragão reclinado não está derrotado: está aguardando. Transição para o vocabulário avançado com máxima eficiência.',
-silences:'Sem técnicas do Sanchin ou Tensho — sem isometria, sem contemplação. Garyu é eficiência direta: o kata do fundador não tem tempo para o que não é necessário.'},
+silences:'Sem técnicas do Sanchin ou Tensho — sem isometria, sem contemplação. Garyu é eficiência direta: o kata do fundador não tem tempo para o que não é necessário.',
+steps:[
+  'Yoi! — heisoku dachi',
+  '1. Saída diag esq → Hidari Shuto Jodan Uke · kokutsu dachi',
+  '2. Migi Mae Geri + Hidari Oi Tsuki chudan · zenkutsu',
+  '3. Saída diag dir → Migi Shuto Jodan Uke · kokutsu',
+  '4. Hidari Mae Geri + Migi Oi Tsuki · KIAI',
+  '5. Retorno ao centro (norte) → Hidari Uraken Jodan Uchi',
+  '  ▶ Uraken: dorso do punho ao rosto — velocidade de snap.',
+  '6. Avança → Migi Seiken Chudan Tsuki + Hidari Gyaku Tsuki',
+  '7. Migi Yoko Geri chudan · kiba dachi',
+  '8. Avança → Hidari Seiken + Migi Gyaku',
+  '9. Saída diag esq-frente → Hidari Shuto Uke + Migi Mae Geri + Migi Gyaku',
+  '10. Saída diag dir-frente → Migi Shuto Uke + Hidari Mae Geri + Hidari Gyaku · KIAI',
+  'Mawatte! — Yame!',
+]},
 {id:'k_seipai',name:'Seipai',belt:'shodan',time:'46s',
-origin:'Higaonna → Miyagi → Oyama. 18 mãos. Movimentos duros e suaves, longa e curta distância.',
+origin:'Higaonna → Miyagi → Oyama. 18 = 6×3 (fórmula budista). Duros e suaves, longa e curta distância.',
 embusen:'M5,50 L55,50 M30,5 L30,55 M10,10 L50,50 M50,10 L10,50',
 techs:['Empi (todas direções)','Shotei/Teisho','Shuto variações','Geri combinações'],
 note:'Seipai (十八, "dezoito") tem 18 tempos sem simetria previsível. Inclui entradas de grappling sem nome no kihon — nem toda técnica eficaz cabe no vocabulário oficial.',
-silences:'Sem padrão de simetria previsível — os 18 tempos não se repetem. Seipai ensina que o combate real não tem roteiro.'},
+silences:'Sem padrão de simetria previsível — os 18 tempos não se repetem. Seipai ensina que o combate real não tem roteiro.',
+steps:[
+  'Yoi! — heisoku dachi · respiração centrada',
+  '  ▶ 18 tempos sem simetria. Não há "retorno" — o combate real não volta atrás.',
+  '1. Giro esq 90° → Hidari Gedan Barai · zenkutsu',
+  '2. Migi Empi jodan (cotovelo alto ao rosto)',
+  '  ▶ Empi = o cotovelo. Todas as direções: mae, yoko, ushiro, age, otoshi.',
+  '3. Hidari Shotei Osae (palma pressiona para baixo)',
+  '4. Giro dir → Migi Shuto Jodan Uke · kokutsu',
+  '5. Hidari Mae Geri + Migi Oi Tsuki',
+  '6. Giro esq → Empi Chudan (cotovelo lateral ao tronco)',
+  '7. Migi Mawashi Geri chudan · KIAI',
+  '8. Entrada curta: Ura Tsuki + Empi Ushiro (cotovelo para trás)',
+  '9. Teisho/Shotei em 3 direções: age, mae, otoshi',
+  '10. Shuto Uke × 2 + Nukite (técnica de finalização)',
+  '11. Geri combinações: Mae + Mawashi + Yoko (3 pernas consecutivas)',
+  '12. Fechar: Empi otoshi (cotovelo descendo) · KIAI · pausa',
+  'Yame!',
+]},
 ];
 
 const RENRAKU=[
@@ -1376,11 +1831,12 @@ g.setAttribute('id','cv-g');
 svg.appendChild(g);
 
 // Cluster halos (background geometric shapes per semantic group)
-renderClusterHalos(g,W,H);
+if(cvMandalMode==='solidos')renderClusterHalos(g,W,H);
 
-// Edges
+// Edges (hidden in Palavras/Implícitos modes — polygons replace them)
 const eg=document.createElementNS('http://www.w3.org/2000/svg','g');
 eg.setAttribute('id','cv-edges');
+if(cvMandalMode!=='solidos')eg.setAttribute('display','none');
 g.appendChild(eg);
 edges.forEach((e,i)=>{
   const s=ni[e.source],t=ni[e.target];
@@ -1451,15 +1907,146 @@ nodes.forEach(n=>{
   grp.setAttribute('data-nid',n.id);
   grp.setAttribute('data-type',n.type);
   grp.style.cursor='pointer';
-  renderNodeWireframe(grp,n.x,n.y,r,n.type,col);
-  ng.appendChild(grp);
-  const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+13);
-  txt.setAttribute('text-anchor','middle');txt.setAttribute('font-size','9.5');
-  txt.setAttribute('fill','#99aacc');txt.setAttribute('pointer-events','none');
-  txt.textContent=n.label;
-  ng.appendChild(txt);
+  if(cvMandalMode==='solidos'){
+    renderNodeWireframe(grp,n.x,n.y,r,n.type,col);
+    ng.appendChild(grp);
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',n.x);txt.setAttribute('y',n.y+r+13);
+    txt.setAttribute('text-anchor','middle');txt.setAttribute('font-size','9.5');
+    txt.setAttribute('fill','#99aacc');txt.setAttribute('pointer-events','none');
+    txt.textContent=n.label;
+    ng.appendChild(txt);
+  } else {
+    // Palavras / Implícitos: word label node (circle + text)
+    const wr=18+Math.round(norm*8);
+    const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    bg.setAttribute('cx',n.x);bg.setAttribute('cy',n.y);bg.setAttribute('r',wr);
+    bg.setAttribute('fill',col+'18');bg.setAttribute('stroke',col);
+    bg.setAttribute('stroke-width','1.2');bg.setAttribute('opacity','.85');
+    grp.appendChild(bg);
+    const wt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    wt.setAttribute('x',n.x);wt.setAttribute('y',n.y);
+    wt.setAttribute('text-anchor','middle');wt.setAttribute('dominant-baseline','middle');
+    wt.setAttribute('font-size','10');wt.setAttribute('font-weight','600');
+    wt.setAttribute('fill',col);wt.setAttribute('pointer-events','none');
+    wt.textContent=n.label;
+    grp.appendChild(wt);
+    ng.appendChild(grp);
+    // PT label below
+    const pt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    pt.setAttribute('x',n.x);pt.setAttribute('y',n.y+wr+10);
+    pt.setAttribute('text-anchor','middle');pt.setAttribute('font-size','7.5');
+    pt.setAttribute('fill',col+'88');pt.setAttribute('pointer-events','none');
+    pt.textContent=n.pt;ng.appendChild(pt);
+  }
 });
+// ── Palavras / Implícitos: technique polygon layer ──
+if(cvMandalMode!=='solidos'){
+  const pg=document.createElementNS('http://www.w3.org/2000/svg','g');
+  pg.setAttribute('id','cv-polys');
+  // Insert before nodes group
+  g.insertBefore(pg,ng);
+  TECHS.forEach((tech,ti)=>{
+    const pts=tech.nodes.map(nid=>ni[nid]).filter(Boolean);
+    if(!pts.length)return;
+    const beltCol=BS[tech.belt]||'#888';
+    if(pts.length===1){
+      // Single node: dot
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',pts[0].x);c.setAttribute('cy',pts[0].y);c.setAttribute('r',6);
+      c.setAttribute('fill',beltCol);c.setAttribute('opacity','.06');
+      c.setAttribute('data-ti',ti);pg.appendChild(c);
+    } else if(pts.length===2){
+      // Two nodes: line (like Jodan Uke)
+      const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+      ln.setAttribute('x1',pts[0].x);ln.setAttribute('y1',pts[0].y);
+      ln.setAttribute('x2',pts[1].x);ln.setAttribute('y2',pts[1].y);
+      ln.setAttribute('stroke',beltCol);ln.setAttribute('stroke-width','1.5');
+      ln.setAttribute('opacity','.18');ln.setAttribute('data-ti',ti);
+      // Fat hit area
+      const hit=ln.cloneNode();hit.setAttribute('stroke-width','12');hit.setAttribute('opacity','0');
+      hit.setAttribute('data-ti',ti);hit.style.cursor='pointer';
+      pg.appendChild(ln);pg.appendChild(hit);
+    } else {
+      // Polygon
+      const ptsStr=pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+      const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points',ptsStr);
+      poly.setAttribute('fill',beltCol);poly.setAttribute('fill-opacity','.04');
+      poly.setAttribute('stroke',beltCol);poly.setAttribute('stroke-width','1.2');
+      poly.setAttribute('opacity','.2');poly.setAttribute('data-ti',ti);
+      const hit=poly.cloneNode();hit.setAttribute('fill-opacity','0');
+      hit.setAttribute('stroke-width','12');hit.setAttribute('opacity','0');
+      hit.setAttribute('data-ti',ti);hit.style.cursor='pointer';
+      pg.appendChild(poly);pg.appendChild(hit);
+    }
+  });
+  // Implícitos: add ghost edges + ghost nodes for implied axes
+  if(cvMandalMode==='implicitos'){
+    const ghostG=document.createElementNS('http://www.w3.org/2000/svg','g');
+    ghostG.setAttribute('id','cv-ghosts');g.insertBefore(ghostG,ng);
+    // Ghost node: ude (antebraço) — implied buki_mao for uke/barai
+    // Position it near centroid of uke/barai nodes
+    const ukeNodes=TECHS.filter(t=>t.action==='uke'||t.action==='barai')
+      .flatMap(t=>t.nodes.map(id=>ni[id]).filter(Boolean));
+    if(ukeNodes.length){
+      const gx=ukeNodes.reduce((s,n)=>s+n.x,0)/ukeNodes.length;
+      const gy=ukeNodes.reduce((s,n)=>s+n.y,0)/ukeNodes.length-45;
+      const gc=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      gc.setAttribute('cx',gx.toFixed(1));gc.setAttribute('cy',gy.toFixed(1));gc.setAttribute('r',20);
+      gc.setAttribute('fill','none');gc.setAttribute('stroke',NT.buki_mao);
+      gc.setAttribute('stroke-width','1');gc.setAttribute('stroke-dasharray','5,4');gc.setAttribute('opacity','.3');
+      ghostG.appendChild(gc);
+      const gt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      gt.setAttribute('x',gx.toFixed(1));gt.setAttribute('y',gy.toFixed(1));
+      gt.setAttribute('text-anchor','middle');gt.setAttribute('dominant-baseline','middle');
+      gt.setAttribute('font-size','9');gt.setAttribute('font-style','italic');
+      gt.setAttribute('fill',NT.buki_mao);gt.setAttribute('opacity','.35');gt.setAttribute('pointer-events','none');
+      gt.textContent='Ude*';ghostG.appendChild(gt);
+      // Dashed edges from uke techs to ghost ude
+      TECHS.filter(t=>(t.action==='uke'||t.action==='barai')&&!t.nodes.some(id=>NMAP[id]?.type==='buki_mao')).forEach(t=>{
+        const techPts=t.nodes.map(id=>ni[id]).filter(Boolean);
+        if(!techPts.length)return;
+        const tx=techPts.reduce((s,n)=>s+n.x,0)/techPts.length;
+        const ty=techPts.reduce((s,n)=>s+n.y,0)/techPts.length;
+        const el=document.createElementNS('http://www.w3.org/2000/svg','line');
+        el.setAttribute('x1',tx.toFixed(1));el.setAttribute('y1',ty.toFixed(1));
+        el.setAttribute('x2',gx.toFixed(1));el.setAttribute('y2',gy.toFixed(1));
+        el.setAttribute('stroke',NT.buki_mao);el.setAttribute('stroke-width','1');
+        el.setAttribute('stroke-dasharray','4,4');el.setAttribute('opacity','.15');
+        ghostG.appendChild(el);
+      });
+    }
+    // Dashed edges: tsuki → mae (already in graph)
+    TECHS.filter(t=>t.action==='tsuki'&&!t.nodes.includes('mae')&&!t.nodes.includes('gyaku')&&!t.nodes.includes('yoko')).forEach(t=>{
+      const maeN=ni['mae'];if(!maeN)return;
+      const techPts=t.nodes.map(id=>ni[id]).filter(Boolean);if(!techPts.length)return;
+      const tx=techPts.reduce((s,n)=>s+n.x,0)/techPts.length;
+      const ty=techPts.reduce((s,n)=>s+n.y,0)/techPts.length;
+      const el=document.createElementNS('http://www.w3.org/2000/svg','line');
+      el.setAttribute('x1',tx.toFixed(1));el.setAttribute('y1',ty.toFixed(1));
+      el.setAttribute('x2',maeN.x.toFixed(1));el.setAttribute('y2',maeN.y.toFixed(1));
+      el.setAttribute('stroke',NT.direcao);el.setAttribute('stroke-width','1');
+      el.setAttribute('stroke-dasharray','4,4');el.setAttribute('opacity','.12');
+      ghostG.appendChild(el);
+    });
+    // Dashed edges: geri (no buki_pe) → chusoku/sokuto/kakato
+    TECHS.filter(t=>t.action==='geri'&&!t.nodes.some(id=>NMAP[id]?.type==='buki_pe')).forEach(t=>{
+      const dir=t.nodes.find(id=>NMAP[id]?.type==='direcao');
+      const implied=dir==='yoko'?'sokuto':dir==='ushiro'?'kakato':'chusoku';
+      const impN=ni[implied];if(!impN)return;
+      const techPts=t.nodes.map(id=>ni[id]).filter(Boolean);if(!techPts.length)return;
+      const tx=techPts.reduce((s,n)=>s+n.x,0)/techPts.length;
+      const ty=techPts.reduce((s,n)=>s+n.y,0)/techPts.length;
+      const el=document.createElementNS('http://www.w3.org/2000/svg','line');
+      el.setAttribute('x1',tx.toFixed(1));el.setAttribute('y1',ty.toFixed(1));
+      el.setAttribute('x2',impN.x.toFixed(1));el.setAttribute('y2',impN.y.toFixed(1));
+      el.setAttribute('stroke',NT.buki_pe);el.setAttribute('stroke-width','1');
+      el.setAttribute('stroke-dasharray','4,4');el.setAttribute('opacity','.12');
+      ghostG.appendChild(el);
+    });
+  }
+}
 }
 
 function setupCvEvents(svg,W,H){
@@ -1590,7 +2177,8 @@ const det=document.getElementById('detail');
 det.classList.remove('bodymap');
 const kw=document.getElementById('karateka-wrap');if(kw)kw.remove();
 document.getElementById('det-name').textContent=tech.name;
-document.getElementById('det-type').textContent=tech.pt;
+document.getElementById('det-type').innerHTML=tech.pt+
+  ('speechSynthesis'in window?` <button class="speak-btn" title="Pronunciar em japonês" onclick="speak('${tech.name.replace(/'/g,'\\\'')}')" style="margin-left:8px">🔊 ouvir</button>`:'');
 document.getElementById('det-tags').innerHTML=
   '<span class="tag" style="color:'+BS[tech.belt]+';border-color:'+BS[tech.belt]+'">'+tech.belt+'</span>'+
   '<span class="tag" style="color:var(--text2);border-color:var(--border)">'+tech.action+'</span>'+
@@ -2014,10 +2602,19 @@ KATA.filter(k=>{
     '</svg></div>'+
     '<div class="kc-note">'+k.note+'</div>'+
     (k.silences?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:.06em">SILÊNCIOS CANÔNICOS</div><div style="font-size:11px;color:var(--text2)">'+k.silences+'</div></div>':'')+
-    (k.techs&&k.techs.length?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">TÉCNICAS INTRODUZIDAS</div>'+k.techs.map(tc=>'<div class="kc-tl" data-tc="'+tc+'">'+tc+' <span style="opacity:.4;font-size:9px">→ constelação</span></div>').join('')+'</div>':'');
+    (k.techs&&k.techs.length?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">TÉCNICAS INTRODUZIDAS</div>'+k.techs.map(tc=>'<div class="kc-tl" data-tc="'+tc+'">'+tc+' <span style="opacity:.4;font-size:9px">→ constelação</span></div>').join('')+'</div>':'')+
+    (k.steps&&k.steps.length?'<div class="kc-detail kc-steps-wrap"><div class="kc-steps-hdr">ROTEIRO DE PRÁTICA <span style="opacity:.5;font-weight:400">('+k.steps.filter(s=>!s.startsWith('  ▶')).length+' seq.)</span></div>'+k.steps.map(s=>{
+      if(s.startsWith('  ▶'))return'<div class="kc-step-item sub">'+s.slice(3)+'</div>';
+      const m=s.match(/^(\d+)\.\s+(.*)/);
+      if(m){const kiai=m[2].includes('KIAI');return'<div class="kc-step-item"><span class="step-n">'+m[1]+'.</span> <span class="step-cmd">'+m[2].replace(/\s*·?\s*KIAI/g,'')+'</span>'+(kiai?'<span class="kiai">KIAI</span>':'')+'</div>';}
+      return'<div class="kc-step-item" style="color:var(--gold);font-size:10px;letter-spacing:.05em">'+s+'</div>';
+    }).join('')+'</div>':'');
   div.querySelectorAll('.kc-tl').forEach(el=>el.addEventListener('click',e=>{
     e.stopPropagation();findAndShowTech(el.dataset.tc);
   }));
+  // Speak kata name on header click
+  const nameEl=div.querySelector('.kc-name');
+  if(nameEl)nameEl.addEventListener('click',e=>{e.stopPropagation();speak(k.name);});
   div.onclick=()=>div.classList.toggle('open');
   grid.appendChild(div);
 });
@@ -3074,6 +3671,132 @@ linkBtn.textContent='→ Explorar no Construtor';
 linkBtn.onclick=()=>switchTab('construtor');
 s7.appendChild(linkBtn);
 div.appendChild(s7);
+
+// ---- Section 8: Elementos Implícitos e suas Cadeias ----
+const s8=document.createElement('div');s8.className='gram-s';
+s8.innerHTML=`<h3>VIII. O que o Nome Não Diz — Eixos Implícitos</h3>
+<p>O nome canônico é um diferencial mínimo: menciona apenas o que distingue a técnica dentro de sua família. O restante é <strong style="color:var(--text)">pressuposição linguística</strong> — o falante nativo sabe; o iniciante não. Esta seção torna explícito o que o nome cala.</p>`;
+
+const chainData=[
+  {tech:'Seiken Chudan Tsuki',nodes:['seiken','chudan','tsuki'],implicit:{id:'mae',type:'direcao',label:'Mae'},
+   rule:'Tsuki é por definição linear-frontal. A direção <em>mae</em> nunca aparece no nome porque é o vetor padrão absoluto — não há soco "Seiken Chudan Mae Tsuki" porque seria redundante.',
+   consequence:'Todos os socos são frontais a não ser que um modificador explícito apareça (Gyaku, Ushiro, Yoko).'},
+  {tech:'Mae Geri',nodes:['mae','geri'],implicit:{id:'chusoku',type:'buki_pe',label:'Chusoku'},
+   rule:'Geri frontal usa naturalmente a meia-pata (chusoku). A trajetória linear expõe a frente do pé.',
+   consequence:'Quando a arma muda, ela aparece: Kakato Geri, Hiza Geri. A ausência de nome de arma ≡ chusoku.'},
+  {tech:'Jodan Uke',nodes:['jodan','uke'],implicit:{id:'age',type:'direcao',label:'Age'},
+   rule:'Defender contra ataque alto exige movimento ascendente. O vetor <em>age</em> (subida) é ditado pela física — o braço precisa subir para interceptar o ataque ao rosto.',
+   consequence:'Jodan Uke <em>como linha</em> vs <em>como triângulo</em> — veja o diagrama abaixo.'},
+  {tech:'Chudan Soto Uke',nodes:['chudan','uke'],implicit:{id:'ude',type:'buki_mao',label:'Ude (antebraço)'},
+   rule:'Bloqueios usam o antebraço por convenção defensiva. Quando Shuto ou Koken são usados, o nome os menciona explicitamente.',
+   consequence:'Shuto Jodan Uke nomeia a arma porque ela é excepcional. Uke sem arma = antebraço.'},
+];
+const chainDiv=document.createElement('div');chainDiv.className='impl-chain';
+chainData.forEach(({tech,nodes,implicit,rule,consequence})=>{
+  const row=document.createElement('div');row.className='impl-row';
+  const nc=NT[NMAP[implicit.id]?.type]||'#888';
+  row.innerHTML=`<div class="impl-left">
+    <div class="impl-tech">${tech}</div>
+    <div style="font-size:10px;margin-top:3px;display:flex;flex-wrap:wrap;gap:3px">
+      ${nodes.map(nid=>{const n=NMAP[nid];return n?`<span style="color:${NT[n.type]};font-size:10px;background:${NT[n.type]}15;padding:1px 6px;border-radius:3px">${n.label}</span>`:''}).join('')}
+    </div>
+  </div>
+  <div class="impl-arrow">→</div>
+  <div style="flex:1">
+    <div style="font-size:10px;margin-bottom:4px"><span style="color:${nc};background:${nc}18;padding:1px 8px;border-radius:4px;border:1px dashed ${nc}55">+ ${implicit.label} <span style="opacity:.6;font-size:9px">(implícito)</span></span></div>
+    <div class="impl-rule">${rule}</div>
+    ${consequence?`<div style="font-size:10px;color:var(--gold);margin-top:3px;font-style:italic">${consequence}</div>`:''}
+  </div>`;
+  chainDiv.appendChild(row);
+});
+s8.appendChild(chainDiv);
+
+// Jodan Uke: line vs triangle diagram
+const diagTitle=document.createElement('p');
+diagTitle.style.cssText='margin-top:18px;margin-bottom:8px;font-size:12px;font-weight:600;color:var(--text)';
+diagTitle.textContent='Jodan Uke — linha vs triângulo';
+s8.appendChild(diagTitle);
+
+const diagP=document.createElement('p');
+diagP.style.cssText='font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:10px';
+diagP.innerHTML='No <strong style="color:var(--text)">corpus</strong> (esquerda), Jodan Uke tem 2 nós → linha reta. Com o eixo <em>implícito Age</em> (direita), a técnica se completa em triângulo. O mesmo nome, duas geometrias — a segunda é mais honesta semanticamente.';
+s8.appendChild(diagP);
+
+const NS8='http://www.w3.org/2000/svg';
+const diagSvg=document.createElementNS(NS8,'svg');
+diagSvg.setAttribute('viewBox','0 0 360 140');diagSvg.setAttribute('width','100%');
+diagSvg.setAttribute('height','140');diagSvg.style.cssText='max-width:420px;display:block;margin:0 auto 16px';
+
+function mkN8(tag,attrs){const e=document.createElementNS(NS8,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e;}
+function wordNode8(x,y,label,col,ghost){
+  const g=document.createElementNS(NS8,'g');
+  const circ=mkN8('circle',{cx:x,cy:y,r:22,fill:col+'18',stroke:col,
+    'stroke-width':ghost?'1':'1.5','stroke-dasharray':ghost?'4,3':'none',opacity:ghost?'.5':'1'});
+  const txt=mkN8('text',{x:x,y:y,'text-anchor':'middle','dominant-baseline':'middle',
+    'font-size':10,'font-weight':ghost?'400':'600',fill:col,opacity:ghost?.4:.9,'pointer-events':'none'});
+  txt.textContent=label;
+  g.appendChild(circ);g.appendChild(txt);return g;
+}
+
+// Left panel: corpus (line)
+const Lx=85,Ly=70;
+const leftG=document.createElementNS(NS8,'g');
+// Title
+const lt=mkN8('text',{x:Lx,y:15,'text-anchor':'middle','font-size':9,fill:'#99aacc','letter-spacing':'.06em'});
+lt.textContent='CORPUS (2 nós)';leftG.appendChild(lt);
+// Jodan node (alvo, green, top)
+const jX=Lx,jY=38;const uX=Lx,uY=105;
+const line1=mkN8('line',{x1:jX,y1:jY,x2:uX,y2:uY,stroke:'#44aa66',
+  'stroke-width':1.5,opacity:.45});
+leftG.appendChild(line1);
+leftG.appendChild(wordNode8(jX,jY,'Jodan',NT.alvo,false));
+leftG.appendChild(wordNode8(uX,uY,'Uke',NT.acao,false));
+diagSvg.appendChild(leftG);
+
+// Arrow between panels
+const midX=178;
+const arrowG=document.createElementNS(NS8,'g');
+const aLine=mkN8('line',{x1:midX-12,y1:70,x2:midX+12,y2:70,
+  stroke:'#c9a84c','stroke-width':1.5,opacity:.6});
+const aHead=mkN8('polygon',{points:`${midX+12},67 ${midX+20},70 ${midX+12},73`,
+  fill:'#c9a84c',opacity:.6});
+arrowG.appendChild(aLine);arrowG.appendChild(aHead);
+const plusT=mkN8('text',{x:midX,y:90,'text-anchor':'middle','font-size':8,fill:'#c9a84c',opacity:.5});
+plusT.textContent='+ implícito';arrowG.appendChild(plusT);
+diagSvg.appendChild(arrowG);
+
+// Right panel: with implicit Age
+const Rx=280,Ry=70;
+const rightG=document.createElementNS(NS8,'g');
+const rt=mkN8('text',{x:Rx,y:15,'text-anchor':'middle','font-size':9,fill:'#99aacc','letter-spacing':'.06em'});
+rt.textContent='COM IMPLÍCITO (3 nós)';rightG.appendChild(rt);
+const rjX=Rx,rjY=38,ruX=Rx-35,ruY=110,raX=Rx+35,raY=110;
+// Filled triangle
+const tri=mkN8('polygon',{
+  points:`${rjX},${rjY} ${ruX},${ruY} ${raX},${raY}`,
+  fill:NT.alvo+'10',stroke:NT.alvo,'stroke-width':1,opacity:.35});
+rightG.appendChild(tri);
+// Edges
+[[rjX,rjY,ruX,ruY,NT.alvo],[rjX,rjY,raX,raY,NT.direcao+'88'],[ruX,ruY,raX,raY,NT.direcao+'55']].forEach(([x1,y1,x2,y2,col])=>{
+  rightG.appendChild(mkN8('line',{x1,y1,x2,y2,stroke:col,'stroke-width':1.5,opacity:.4}));
+});
+rightG.appendChild(wordNode8(rjX,rjY,'Jodan',NT.alvo,false));
+rightG.appendChild(wordNode8(ruX,ruY,'Uke',NT.acao,false));
+rightG.appendChild(wordNode8(raX,raY,'Age*',NT.direcao,true));
+diagSvg.appendChild(rightG);
+
+s8.appendChild(diagSvg);
+
+const s8Note=document.createElement('div');s8Note.className='gram-silence';
+s8Note.innerHTML='<strong>Consequência para o Construtor:</strong> no modo <em>Implícitos</em> da Constelação, cada técnica exibe tanto os nós explícitos (sólidos) quanto os implícitos (fantasma/tracejado). Jodan Uke passa de linha a triângulo — a geometria revela a gramática completa.';
+s8.appendChild(s8Note);
+
+const consBtn=document.createElement('button');
+consBtn.className='gen-btn';consBtn.style.cssText='margin-top:12px;font-size:12px;padding:7px 16px';
+consBtn.innerHTML='→ Ver na Constelação (modo Implícitos)';
+consBtn.onclick=()=>{switchTab('constelacao');setMandalMode('implicitos');};
+s8.appendChild(consBtn);
+div.appendChild(s8);
 }
 
 // ===== HELP OVERLAY =====
@@ -3109,6 +3832,77 @@ document.addEventListener('click',e=>{if(!inp.contains(e.target)&&!drop.contains
 }
 
 // ===== INIT =====
+// ===== ÁUDIO / WEB SPEECH =====
+function speak(text,lang='ja-JP'){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=0.78; u.pitch=1.05;
+  speechSynthesis.speak(u);
+}
+
+// ===== CONSTRUTOR AUTO-DEMO =====
+let _demoTimer=null,_demoIdx=0,_demoRunning=false;
+
+function initAutoDemo(){
+  const container=document.getElementById('const-matches');
+  if(!container||document.getElementById('demo-bar'))return;
+  const bar=document.createElement('div');bar.className='demo-bar';bar.id='demo-bar';
+  bar.innerHTML=
+    '<button class="demo-btn" id="demo-play" onclick="toggleDemo()">▶ Apresentação</button>'+
+    '<select class="demo-speed" id="demo-speed"><option value="3000">Lento 3s</option><option value="2000" selected>Médio 2s</option><option value="1000">Rápido 1s</option></select>'+
+    '<span class="demo-prog" id="demo-prog">—</span>';
+  document.getElementById('const-form').after(bar);
+}
+
+function toggleDemo(){
+  if(_demoRunning)stopDemo();else startDemo();
+}
+
+function startDemo(){
+  _demoRunning=true;
+  document.getElementById('demo-play').textContent='⏸ Pausar';
+  document.getElementById('demo-play').classList.add('active');
+  const speed=+(document.getElementById('demo-speed')?.value||2000);
+  _demoTimer=setInterval(advanceDemo,speed);
+  advanceDemo();
+}
+
+function stopDemo(){
+  _demoRunning=false;
+  clearInterval(_demoTimer);_demoTimer=null;
+  document.getElementById('demo-play').textContent='▶ Apresentação';
+  document.getElementById('demo-play').classList.remove('active');
+}
+
+function advanceDemo(){
+  const t=TECHS[_demoIdx%TECHS.length];_demoIdx++;
+  const prog=document.getElementById('demo-prog');
+  if(prog)prog.textContent=(_demoIdx%TECHS.length||TECHS.length)+'/'+TECHS.length;
+  // Populate selectors
+  const setVal=(id,val)=>{const el=document.getElementById(id);if(el){el.value=val||'';el.disabled=false;}};
+  setVal('cs-acao',t.action);
+  const bm=t.nodes.find(n=>NMAP[n]?.type==='buki_mao');
+  const bp=t.nodes.find(n=>NMAP[n]?.type==='buki_pe');
+  const dir=t.nodes.find(n=>NMAP[n]?.type==='direcao');
+  const alvo=t.nodes.find(n=>NMAP[n]?.type==='alvo');
+  setVal('cs-bukim',bm||''); setVal('cs-bukipe',bp||'');
+  setVal('cs-dir',dir||''); setVal('cs-alvo',alvo||'');
+  updateConstrutor();
+  speak(t.name);
+}
+
+// ===== MANDALA DE PALAVRAS — MODE =====
+let cvMandalMode='solidos';
+
+function setMandalMode(mode){
+  cvMandalMode=mode;
+  ['solidos','palavras','implicitos'].forEach(m=>{
+    document.getElementById('mt-'+m)?.classList.toggle('on',m===mode);
+  });
+  initConstellation();
+}
+
 function init(){
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
   initConstellation();
@@ -3122,6 +3916,7 @@ renderMath();
 renderFontes();
 renderGramatica();
 initConstrutor();
+initAutoDemo();
 initSearch();
 }
 init();
