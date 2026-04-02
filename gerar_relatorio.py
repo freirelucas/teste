@@ -423,8 +423,33 @@ try:
     _extratores = (_raw['extrator'].value_counts().to_dict()
                    if 'extrator' in _raw.columns else {})
 
+    # ── Orgs "noise-only": têm rows mas pct_ok == 0 → ainda no Stage 0 ──
+    _zero_or_noise = list(_zero_sig) + [
+        o['sigla'] for o in _por_orgao
+        if o['n_entregas'] > 0 and o['pct_ok'] == 0
+    ]
+
+    # ── Top frases não-identificadas (sinal para S1 vocab fix) ─────────
+    _top_unmatched: list = []
+    if 'parse_flag' in _raw.columns and 'servico' in _raw.columns:
+        _sem_prod_rows = _raw[_raw['parse_flag'] == 'sem_produto']['servico'].dropna()
+        if len(_sem_prod_rows):
+            # Extrair bigramas/trigramas capitalizados mais frequentes
+            import re as _re
+            _phrase_count: dict = {}
+            for _txt in _sem_prod_rows.str[:120]:
+                for _m in _re.finditer(r'[A-ZÁÀÃÂÉÊÍÓÔÕÚÜÇ][a-záàãâéêíóôõúüç]+(?:\s+[A-ZÁÀÃÂÉÊÍÓÔÕÚÜÇa-záàãâéêíóôõúüç]+){1,4}', str(_txt)):
+                    _p = _m.group(0).strip()
+                    if len(_p) > 15:
+                        _phrase_count[_p] = _phrase_count.get(_p, 0) + 1
+            _top_unmatched = [
+                {'phrase': p, 'count': c}
+                for p, c in sorted(_phrase_count.items(), key=lambda x: -x[1])[:20]
+                if c >= 5
+            ]
+
     # Detectar estágio atual da iteração de qualidade
-    _n_zero = len(_zero_sig)
+    _n_zero = len(_zero_or_noise)
     _sem_prod_global = round(
         sum(o['sem_produto_n'] for o in _por_orgao) / max(len(_raw), 1) * 100, 1)
     _col_ok_global   = round(
@@ -432,9 +457,15 @@ try:
                           if o['col_map_ok_rate'] is not None])), 1
     ) if any(o['col_map_ok_rate'] is not None for o in _por_orgao) else None
 
+    # Orgs com pct_ok < 50% e pelo menos 30 rows — bloqueiam Stage 1
+    _orgs_below_50 = [
+        {'sigla': o['sigla'], 'pct_ok': o['pct_ok'], 'n': o['n_entregas']}
+        for o in _por_orgao if o['n_entregas'] >= 30 and o['pct_ok'] < 50
+    ]
+
     if _n_zero > 0:
         _stage = 0   # cobertura
-    elif pct_ok < 80:
+    elif pct_ok < 90 or _orgs_below_50:
         _stage = 1   # parse quality / sem_produto
     elif _col_ok_global is not None and _col_ok_global < 70:
         _stage = 2   # reconhecimento de colunas
@@ -457,7 +488,12 @@ try:
         'sem_produto_pct':      _sem_prod_global,
         'col_map_ok_rate':      _col_ok_global,
         'extratores':           {str(k): int(v) for k, v in _extratores.items()},
+        # Stage 0: zero ou noise-only
         'orgaos_zero_entregas': _zero_sig,
+        'orgaos_zero_ou_noise': _zero_or_noise,
+        # Stage 1: parse quality signals
+        'orgs_below_50pct':     _orgs_below_50,
+        'top_unmatched_phrases': _top_unmatched,
         'por_orgao':            _por_orgao,
     }
     _summary_path = DIR_DB / 'ptd_run_summary.json'

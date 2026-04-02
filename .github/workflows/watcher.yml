@@ -42,7 +42,8 @@ jobs:
             exit 0
           fi
 
-          N_ZERO=$(jq '.orgaos_zero_entregas | length' ptd_run_summary.json)
+          # Usar orgaos_zero_ou_noise: inclui orgs com rows mas 0% pct_ok (MD, MEC)
+          N_ZERO=$(jq '(.orgaos_zero_ou_noise // .orgaos_zero_entregas) | length' ptd_run_summary.json)
           STAGE=$(jq -r '.stage // 0' ptd_run_summary.json)
           STAGE_LABEL=$(jq -r '.stage_label // "cobertura"' ptd_run_summary.json)
           PCT_OK=$(jq -r '.pct_ok // 0' ptd_run_summary.json)
@@ -105,11 +106,13 @@ jobs:
               print("ptd_run_summary.json não encontrado"); exit(0)
           summary = json.loads(summary_path.read_text())
 
-          zero_orgs = summary.get('orgaos_zero_entregas', [])
+          # Incluir orgs noise-only (rows > 0 mas pct_ok == 0) como ainda não resolvidas
+          zero_orgs = summary.get('orgaos_zero_ou_noise',
+                                  summary.get('orgaos_zero_entregas', []))
           por_orgao = {o['sigla']: o for o in summary.get('por_orgao', [])}
 
           if not zero_orgs:
-              print("Nenhum órgão zerado — nada a fazer."); exit(0)
+              print("Nenhum órgão zerado ou noise-only — Stage 0 concluído."); exit(0)
 
           # ── State machine de parâmetros ──────────────────────────────
           # Para PDFs-imagem (OCR): variações de DPI e rotação

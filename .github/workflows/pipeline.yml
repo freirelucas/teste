@@ -33,11 +33,11 @@ on:
     # Primeira segunda-feira de cada mês às 03:00 UTC
     - cron: "0 3 1-7 * 1"
 
-# Siglas dos 10 órgãos com extração problemática (modo debug)
-# 7 image PDFs (OCR fallback): AGU, FUNAI, ITI, SGPR, INCRA, FUNDACENTRO, MCOM
-# 3 texto/tabela (Docling fix): MD, MEC, FIOCRUZ
+# Stage 0 — órgãos com extração zero (image PDFs + text PDFs com 0 rows)
+# MD e MEC têm rows mas 0% pct_ok → Stage 1, não Stage 0 (não precisam de OCR fix)
+# FIOCRUZ: texto=True, inclusa para diagnóstico
 env:
-  DEBUG_SIGLAS: "AGU,FUNAI,ITI,SGPR,INCRA,FUNDACENTRO,MCOM,MD,MEC,FIOCRUZ"
+  DEBUG_SIGLAS: "AGU,FUNAI,ITI,SGPR,INCRA,FUNDACENTRO,MCOM,FIOCRUZ"
 
 jobs:
   pipeline:
