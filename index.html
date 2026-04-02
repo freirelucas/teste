@@ -302,6 +302,7 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
       <div id="mode-bar">
         <button class="mode-btn on" id="mode-mandala" onclick="setMode('mandala')">◉ Mandala</button>
         <button class="mode-btn" id="mode-chord" onclick="setMode('chord')">◎ Corda</button>
+        <button class="mode-btn" id="mode-reset" onclick="resetView()" title="Resetar viewport">⊙</button>
       </div>
       <svg id="cv"></svg>
       <div id="tip"></div>
@@ -1848,6 +1849,7 @@ KATA.filter(k=>{
   div.onclick=()=>div.classList.toggle('open');
   grid.appendChild(div);
 });
+if(!grid.children.length)grid.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px 0">Nenhum kata nesta seleção.</div>';
 }
 
 // ===== IDO-GEIKO =====
@@ -1917,6 +1919,17 @@ const badge=minGoals>0?'&nbsp;<span style="display:inline-block;padding:2px 8px;
 const tot=document.createElement('div');tot.className='s-total';
 tot.innerHTML='Total: <strong>'+rendered+'</strong> golpes'+(minGoals>0?' de mín. <strong>'+minGoals+'</strong>':'')+badge;
 out.appendChild(tot);
+const copyBtn=document.createElement('button');
+copyBtn.style.cssText='margin-top:10px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;border-radius:6px;padding:5px 14px;font-size:11px;letter-spacing:.04em;transition:all .2s';
+copyBtn.textContent='⎘ Copiar sequência';
+copyBtn.onclick=()=>{
+  const txt=[...out.querySelectorAll('.s-block,.s-kiai')].map(el=>el.innerText).join('\n\n');
+  navigator.clipboard.writeText(txt).then(()=>{
+    copyBtn.textContent='✓ Copiado!';copyBtn.style.color='#33aa66';
+    setTimeout(()=>{copyBtn.textContent='⎘ Copiar sequência';copyBtn.style.color='';},2000);
+  });
+};
+out.appendChild(copyBtn);
 }
 
 // ===== MATH / ENTROPY =====
@@ -2161,7 +2174,11 @@ bar.innerHTML='';
   const btn=document.createElement('button');
   btn.className='bb-btn'+(b===activeBelt?' on':'');
   btn.textContent=b==='all'?'OSU':b;
-  if(b!=='all')btn.style.color=BS[b];
+  if(b!=='all'){
+    btn.style.color=BS[b];
+    const n=TECHS.filter(t=>t.belt===b).length;
+    btn.title=n+' técnica'+(n!==1?'s':'');
+  }
   if(b===activeBelt&&b!=='all')btn.style.background=BS[b]+'33';
   btn.onclick=()=>{activeBelt=b;initBeltBar();filterBelt(b);};
   bar.appendChild(btn);
@@ -2193,6 +2210,12 @@ document.getElementById('mode-chord').classList.toggle('on',mode==='chord');
 initConstellation();
 initBeltBar();
 renderKaratekaPanel();
+}
+
+function resetView(){
+cvPan={x:0,y:0};cvScale=1;
+const g=document.getElementById('cv-g');
+if(g)g.setAttribute('transform','translate(0,0) scale(1)');
 }
 
 // ===== PLATONIC LEGEND =====
