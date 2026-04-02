@@ -148,7 +148,18 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .fonte{border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:10px;background:var(--bg3)}
 .fonte h4{font-size:13px;font-weight:600;margin-bottom:3px}
 .fonte .url{font-size:11px;color:var(--text2);margin-bottom:7px}
+.fonte a.url{color:var(--text2);text-decoration:none;transition:color .15s}
+.fonte a.url:hover{color:var(--gold)}
 .fonte p{font-size:12px;color:var(--text2);line-height:1.6}
+/* DICT EXPAND HINT + CONST BUTTON */
+.dc-hint{font-size:10px;color:var(--text2);margin-top:6px;opacity:.5;transition:opacity .18s;
+  display:flex;align-items:center;gap:3px}
+.dc:hover .dc-hint{opacity:1}
+.dc.exp .dc-hint{display:none}
+.dc-const-btn{margin-top:10px;background:var(--gold2);border:1px solid rgba(201,168,76,.3);
+  color:var(--gold);cursor:pointer;border-radius:6px;padding:5px 12px;font-size:11px;
+  letter-spacing:.03em;transition:background .18s}
+.dc-const-btn:hover{background:rgba(201,168,76,.2)}
 [data-nid]{transition:opacity .15s;transform-box:fill-box;transform-origin:center}
 @keyframes breathe{
   0%,100%{transform:scale(1)}
@@ -1702,7 +1713,9 @@ const grid=document.getElementById('dict-grid');grid.innerHTML='';
 TECHS.filter(t=>{
   if(dictFilters.belt!=='all'&&t.belt!==dictFilters.belt)return false;
   if(dictFilters.action!=='all'&&t.action!==dictFilters.action)return false;
-  if(q&&!t.name.toLowerCase().includes(q)&&!t.pt.toLowerCase().includes(q))return false;
+  if(q&&!t.name.toLowerCase().includes(q)&&!t.pt.toLowerCase().includes(q)
+    &&!(t.desc||'').toLowerCase().includes(q)
+    &&!t.nodes.some(nid=>NMAP[nid]&&(NMAP[nid].label.toLowerCase().includes(q)||NMAP[nid].pt.toLowerCase().includes(q))))return false;
   return true;
 }).forEach(t=>{
   const div=document.createElement('div');
@@ -1715,11 +1728,16 @@ TECHS.filter(t=>{
       t.nodes.slice(0,3).map(nid=>{const n=NMAP[nid];return n?'<span class="dc-tag" style="color:'+NT[n.type]+'">'+n.label+'</span>':''}).join('')+
       (t.kataOnly?'<span class="dc-tag" style="color:var(--kata)">kata only</span>':'')+
     '</div>'+
+    '<div class="dc-hint">▸ detalhes</div>'+
     '<div class="dc-exp">'+
       '<div class="dc-desc">'+(t.desc||'')+'</div>'+
       (t.exec?'<div class="dc-exec">'+t.exec+'</div>':'')+
     '</div>';
   div.onclick=()=>div.classList.toggle('exp');
+  const btn=document.createElement('button');
+  btn.className='dc-const-btn';btn.textContent='✦ Ver na Constelação';
+  btn.onclick=(e)=>{e.stopPropagation();switchTab('constelacao');requestAnimationFrame(()=>showTechDetail(t));};
+  div.querySelector('.dc-exp').appendChild(btn);
   grid.appendChild(div);
 });
 if(grid.children.length===0)grid.innerHTML='<div style="color:var(--text2);font-size:13px">Nenhuma técnica encontrada.</div>';
@@ -1801,6 +1819,13 @@ out.appendChild(totDiv);
 // ===== MATH / ENTROPY =====
 function renderMath(){
 const div=document.getElementById('math-content');
+const _nBmao=NODES.filter(n=>n.type==='buki_mao').length;
+const _nBpe=NODES.filter(n=>n.type==='buki_pe').length;
+const _nAcao=NODES.filter(n=>n.type==='acao').length;
+const _nDir=NODES.filter(n=>n.type==='direcao').length;
+const _nAlvo=NODES.filter(n=>n.type==='alvo').length;
+const _theoretical=(_nBmao+_nBpe)*_nAcao*_nDir*_nAlvo;
+const _canonPct=(54/_theoretical*100).toFixed(1);
 // Helper: SVG donut segment (cx,cy,r,startAngle,endAngle,color)
 function donutArc(cx,cy,r,a1,a2,col,sw){
   const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
@@ -1819,15 +1844,15 @@ function sparkline(pts,col,fill){
 div.innerHTML=`
 <div class="math-s">
 <h3>1. Funil de Complexidade</h3>
-<p>O kihon seleciona 54 técnicas de um espaço teórico de ~1.440 combinações (5 eixos semânticos). 96% são silêncios canônicos — escolhas deliberadas de Mas Oyama.</p>
+<p>O kihon seleciona 54 técnicas de um espaço teórico de ~${_theoretical.toLocaleString('pt-BR')} combinações (6 eixos semânticos: ${_nBmao}+${_nBpe} armas × ${_nAcao} ações × ${_nDir} direções × ${_nAlvo} alvos). Mais de ${(100-_canonPct).toFixed(1)}% são silêncios canônicos — escolhas deliberadas de Mas Oyama.</p>
 <svg viewBox="0 0 420 130" style="width:100%;max-width:420px;display:block;margin:12px 0">
 ${(()=>{
-  const rows=[['Espaço teórico (5 eixos)',1440,'#334'],[' Corpus canônico IKO',54,'#c9a84c'],['  Kihon branca→amarela',42,'#8899bb'],['   Kihon faixa branca',31,'#33aa66']];
+  const rows=[['Espaço teórico (6 eixos)',_theoretical,'#334'],[' Corpus canônico IKO',54,'#c9a84c'],['  Kihon branca→amarela',42,'#8899bb'],['   Kihon faixa branca',31,'#33aa66']];
   const maxW=340;const H=24;const gap=6;
   return rows.map(([l,v,col],i)=>{
-    const w=Math.round(Math.sqrt(v/1440)*maxW);
+    const w=Math.max(4,Math.round(Math.sqrt(v/_theoretical)*maxW));
     const y=i*(H+gap);const x=(maxW-w)/2+40;
-    const pct=i===0?'100%':(v/1440*100).toFixed(1)+'%';
+    const pct=i===0?'100%':(v/_theoretical*100).toFixed(1)+'%';
     return `<rect x="${x}" y="${y}" width="${w}" height="${H}" fill="${col}" rx="3"/>
 <text x="38" y="${y+16}" text-anchor="end" font-size="10" fill="#7788aa">${v.toLocaleString('pt-BR')}</text>
 <text x="${x+w+6}" y="${y+16}" font-size="10" fill="${col}">${pct}</text>`;
@@ -1835,7 +1860,7 @@ ${(()=>{
 })()}
 <text x="210" y="126" text-anchor="middle" font-size="9" fill="#556677">escala √ — proporcional à "área" de possibilidades</text>
 </svg>
-<div class="insight"><strong>3,75% canonizado.</strong> Cada técnica do kihon representa ~27 possibilidades não canonizadas. O silêncio é tão informativo quanto a escolha.</div>
+<div class="insight"><strong>${_canonPct}% canonizado.</strong> Cada técnica do kihon representa ~${Math.round(_theoretical/54)} possibilidades não canonizadas. O silêncio é tão informativo quanto a escolha.</div>
 </div>
 
 <div class="math-s">
@@ -1997,7 +2022,7 @@ desc:'Filiada IKO-Matsushima/WKK. Requisito documentado: para faixa preta, escre
 const div=document.getElementById('fontes-content');div.innerHTML='';
 fontes.forEach(f=>{
   const el=document.createElement('div');el.className='fonte';
-  el.innerHTML='<h4>'+f.name+'</h4><div class="url">'+f.url+'</div><p>'+f.desc+'</p>';
+  el.innerHTML='<h4>'+f.name+'</h4><a class="url" href="https://'+f.url+'" target="_blank" rel="noopener">↗ '+f.url+'</a><p>'+f.desc+'</p>';
   div.appendChild(el);
 });
 }
