@@ -41,8 +41,7 @@ logger = logging.getLogger('ptd')
 
 # ── Configuração por sigla: rotação necessária (graus anti-horário) ───────────
 # INCRA e FUNDACENTRO têm PDFs digitalizados em modo paisagem (90° ou 270°)
-OCR_CONFIG: dict[str, dict] = {
-    'AGU':         {'rot': 0},
+OCR_CONFIG: dict[str, dict] = {},
     'FUNAI':       {'rot': 0},
     'ITI':         {'rot': 0},
     'SGPR':        {'rot': 0},
@@ -201,7 +200,9 @@ def extrair_ocr(path: Path, sigla: str, sha256: str,
     """
     if not _OCR_DEPS_OK:
         return []
-    rot = OCR_CONFIG.get(sigla.upper(), {}).get('rot', 0)
+    cfg = OCR_CONFIG.get(sigla.upper(), {})
+    rot = cfg.get('rot', 0)
+    dpi = cfg.get('dpi', dpi)
     doc = fitz.open(str(path))
     n_pages = len(doc)
     doc.close()

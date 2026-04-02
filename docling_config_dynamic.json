@@ -1,0 +1,26 @@
+{
+  "AGU": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "FIOCRUZ": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "FUNAI": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "INCRA": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "ITI": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "SGPR": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  }
+}
