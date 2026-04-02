@@ -400,6 +400,31 @@ td{padding:6px 10px;border-bottom:1px solid rgba(30,30,48,.6);color:var(--text)}
 .impl-row .impl-tech{font-weight:600;color:var(--text);font-size:12px}
 .impl-row .impl-rule{color:var(--text2);line-height:1.5;font-size:10.5px}
 .impl-row .impl-arrow{color:var(--gold);font-size:14px;flex-shrink:0;margin-top:1px}
+/* ===== KATA TIMER ===== */
+.kt-timer{display:inline-flex;align-items:center;gap:7px;margin-left:auto}
+.kt-timer-btn{background:none;border:1px solid var(--border);border-radius:6px;
+  color:var(--text2);font-size:10px;padding:2px 8px;cursor:pointer;
+  transition:color .15s,border-color .15s}
+.kt-timer-btn:hover{color:var(--gold);border-color:var(--gold)}
+.kt-timer-display{font-size:12px;font-variant-numeric:tabular-nums;
+  color:var(--gold);min-width:34px;font-weight:600;letter-spacing:.03em}
+/* ===== @PRINT — kata roteiro ===== */
+@media print{
+  body{background:#fff;color:#111}
+  #sidebar,#mode-bar,#belt-bar,#tip,#detail,#help-overlay,
+  .demo-bar,.mandal-toggle,.mt-btn,.speak-btn{display:none!important}
+  #main{display:block!important}
+  .panel{display:none!important}
+  #p-kata{display:block!important;padding:0}
+  .kc{break-inside:avoid;border:1px solid #ccc;margin-bottom:12pt;
+    page-break-inside:avoid;background:#fff!important}
+  .kc.open .kc-detail,.kc.open .kc-steps-wrap{display:block!important}
+  .kc-steps-wrap{display:block!important}
+  .kc-step-item{color:#222;border-bottom:1px solid #eee}
+  .kc-step-item.sub{color:#555}
+  .kc-emb svg{display:none}
+  #kata-filters{display:none!important}
+}
 </style></head><body>
 <div id="help-overlay">
   <div class="help-box">
@@ -2109,6 +2134,43 @@ svg.addEventListener('wheel',ev=>{
   const g=document.getElementById('cv-g');
   if(g)g.setAttribute('transform','translate('+cvPan.x+','+cvPan.y+') scale('+cvScale+')');
 },{passive:false});
+
+// ── Touch pan/zoom for mobile ──
+let _touch1=null,_touch2=null,_touchScaleBase=1;
+svg.addEventListener('touchstart',ev=>{
+  ev.preventDefault();
+  if(ev.touches.length===1){
+    const t=ev.touches[0];
+    drag={x:t.clientX-cvPan.x,y:t.clientY-cvPan.y};
+    _touch1={x:t.clientX,y:t.clientY};_touch2=null;
+  } else if(ev.touches.length===2){
+    drag=null;
+    const a=ev.touches[0],b=ev.touches[1];
+    _touch1={x:a.clientX,y:a.clientY};
+    _touch2={x:b.clientX,y:b.clientY};
+    _touchScaleBase=cvScale;
+  }
+},{passive:false});
+svg.addEventListener('touchmove',ev=>{
+  ev.preventDefault();
+  const g=document.getElementById('cv-g');if(!g)return;
+  if(ev.touches.length===1&&drag){
+    const t=ev.touches[0];
+    cvPan.x=t.clientX-drag.x;cvPan.y=t.clientY-drag.y;
+    g.setAttribute('transform','translate('+cvPan.x+','+cvPan.y+') scale('+cvScale+')');
+  } else if(ev.touches.length===2&&_touch1&&_touch2){
+    const a=ev.touches[0],b=ev.touches[1];
+    const prevDist=Math.hypot(_touch2.x-_touch1.x,_touch2.y-_touch1.y);
+    const newDist=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+    if(prevDist>0){
+      cvScale=Math.max(.25,Math.min(4,_touchScaleBase*(newDist/prevDist)));
+      g.setAttribute('transform','translate('+cvPan.x+','+cvPan.y+') scale('+cvScale+')');
+    }
+  }
+},{passive:false});
+svg.addEventListener('touchend',ev=>{
+  if(ev.touches.length===0){drag=null;_touch1=null;_touch2=null;}
+},{passive:false});
 }
 
 // ===== NAVIGATION STATE =====
@@ -2184,7 +2246,8 @@ document.getElementById('det-tags').innerHTML=
   '<span class="tag" style="color:var(--text2);border-color:var(--border)">'+tech.action+'</span>'+
   (tech.kataOnly?'<span class="tag" style="color:var(--kata);border-color:var(--kata)">kata only</span>':'');
 document.getElementById('det-desc').innerHTML=
-  (tech.desc?'<p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px">'+tech.desc+'</p>':'')
+  (tech.img?'<div style="margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+tech.img+'" alt="'+tech.name+'" loading="lazy" style="width:100%;max-height:160px;object-fit:cover;display:block"/><div style="font-size:9px;color:var(--text2);padding:4px 8px">Wikimedia Commons · CC-BY</div></div>':'')
+  +(tech.desc?'<p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px">'+tech.desc+'</p>':'')
   +(tech.exec?'<div class="dc-exec" style="font-size:12px;padding:8px 12px;background:var(--bg2);border-radius:6px;border-left:3px solid var(--gold);line-height:1.5">'+tech.exec+'</div>':'');
 // Visual grammar formula
 const ul=document.getElementById('det-techs');
@@ -2603,7 +2666,7 @@ KATA.filter(k=>{
     '<div class="kc-note">'+k.note+'</div>'+
     (k.silences?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:.06em">SILÊNCIOS CANÔNICOS</div><div style="font-size:11px;color:var(--text2)">'+k.silences+'</div></div>':'')+
     (k.techs&&k.techs.length?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">TÉCNICAS INTRODUZIDAS</div>'+k.techs.map(tc=>'<div class="kc-tl" data-tc="'+tc+'">'+tc+' <span style="opacity:.4;font-size:9px">→ constelação</span></div>').join('')+'</div>':'')+
-    (k.steps&&k.steps.length?'<div class="kc-detail kc-steps-wrap"><div class="kc-steps-hdr">ROTEIRO DE PRÁTICA <span style="opacity:.5;font-weight:400">('+k.steps.filter(s=>!s.startsWith('  ▶')).length+' seq.)</span></div>'+k.steps.map(s=>{
+    (k.steps&&k.steps.length?'<div class="kc-detail kc-steps-wrap"><div class="kc-steps-hdr">ROTEIRO DE PRÁTICA <span style="opacity:.5;font-weight:400">('+k.steps.filter(s=>!s.startsWith('  ▶')).length+' seq.)</span>'+(k.time?'<span class="kt-timer"><button class="kt-timer-btn" data-ktime="'+k.time+'" data-kname="'+k.id+'" onclick="kataTimerToggle(this)">⏱ timer</button><span class="kt-timer-display" data-ktdisp>'+k.time+'</span></span>':'')+'</div>'+k.steps.map(s=>{
       if(s.startsWith('  ▶'))return'<div class="kc-step-item sub">'+s.slice(3)+'</div>';
       const m=s.match(/^(\d+)\.\s+(.*)/);
       if(m){const kiai=m[2].includes('KIAI');return'<div class="kc-step-item"><span class="step-n">'+m[1]+'.</span> <span class="step-cmd">'+m[2].replace(/\s*·?\s*KIAI/g,'')+'</span>'+(kiai?'<span class="kiai">KIAI</span>':'')+'</div>';}
@@ -3811,18 +3874,27 @@ inp.addEventListener('input',()=>{
   const q=inp.value.trim().toLowerCase();
   drop.innerHTML='';
   if(q.length<2){drop.style.display='none';return;}
-  const matches=TECHS.filter(t=>t.name.toLowerCase().includes(q)||t.pt.toLowerCase().includes(q)).slice(0,8);
-  if(!matches.length){drop.style.display='none';return;}
-  matches.forEach(t=>{
-    const div=document.createElement('div');
-    div.className='sdrop-item';
-    div.innerHTML=`<b>${t.name}</b><span>${t.pt} · <span style="color:${BS[t.belt]}">${t.belt}</span></span>`;
-    div.onclick=()=>{
-      inp.value='';drop.style.display='none';
-      switchTab('constelacao');
-      // Wait for tab to be active before showing detail
-      requestAnimationFrame(()=>showTechDetail(t));
-    };
+  const results=[];
+  // 1. Technique name / pt match
+  TECHS.filter(t=>t.name.toLowerCase().includes(q)||t.pt.toLowerCase().includes(q)||
+    (t.desc&&t.desc.toLowerCase().includes(q))).slice(0,6).forEach(t=>
+    results.push({type:'tech',label:t.name,sub:t.pt+' · '+t.belt,
+      col:BS[t.belt],action:()=>{switchTab('constelacao');requestAnimationFrame(()=>showTechDetail(t));}}));
+  // 2. Node label / pt match (e.g. "jodan", "punch", "front kick")
+  if(results.length<8)NODES.filter(n=>n.label.toLowerCase().includes(q)||n.pt.toLowerCase().includes(q)||
+    (n.note&&n.note.toLowerCase().includes(q))).slice(0,4).forEach(n=>
+    results.push({type:'node',label:n.label,sub:n.pt+' · '+n.type,
+      col:NT[n.type],action:()=>{switchTab('constelacao');requestAnimationFrame(()=>showNodeDetail(n.id));}}));
+  // 3. Kata name match
+  if(results.length<8)KATA.filter(k=>k.name.toLowerCase().includes(q)||(k.note&&k.note.toLowerCase().includes(q)))
+    .slice(0,3).forEach(k=>results.push({type:'kata',label:k.name,sub:k.belt+' · '+k.time,
+      col:BS[k.belt],action:()=>switchTab('kata')}));
+  if(!results.length){drop.style.display='none';return;}
+  results.slice(0,9).forEach(r=>{
+    const div=document.createElement('div');div.className='sdrop-item';
+    div.innerHTML=`<b>${r.label}</b><span><span style="font-size:9px;opacity:.5;margin-right:4px">[${r.type}]</span> ${r.sub}</span>`;
+    div.style.borderLeft=`3px solid ${r.col}44`;
+    div.onclick=()=>{inp.value='';drop.style.display='none';r.action();};
     drop.appendChild(div);
   });
   drop.style.display='block';
@@ -3890,6 +3962,43 @@ function advanceDemo(){
   setVal('cs-dir',dir||''); setVal('cs-alvo',alvo||'');
   updateConstrutor();
   speak(t.name);
+}
+
+// ===== KATA TIMER =====
+const _kataTimers={};
+function _parseKataTime(s){
+  // e.g. "1min40s", "22s", "2min14s"
+  const m=s.match(/(?:(\d+)min)?(?:(\d+)s)?/);
+  return (+(m&&m[1]||0))*60+(+(m&&m[2]||0));
+}
+function kataTimerToggle(btn){
+  const wrap=btn.closest('.kc');
+  const disp=btn.closest('.kt-timer').querySelector('[data-ktdisp]');
+  const key=btn.dataset.kname||btn.dataset.ktime;
+  if(_kataTimers[key]){
+    clearInterval(_kataTimers[key].iv);
+    delete _kataTimers[key];
+    btn.textContent='⏱ timer';
+    if(disp)disp.textContent=btn.dataset.ktime;
+    btn.style.color='';btn.style.borderColor='';
+    return;
+  }
+  let remaining=_parseKataTime(btn.dataset.ktime);
+  btn.textContent='⏹ parar';
+  btn.style.color='var(--gold)';btn.style.borderColor='var(--gold)';
+  function fmt(s){const m=Math.floor(s/60),r=s%60;return m?m+'m'+(r<10?'0':'')+r+'s':r+'s';}
+  if(disp)disp.textContent=fmt(remaining);
+  const iv=setInterval(()=>{
+    remaining--;
+    if(disp)disp.textContent=fmt(remaining);
+    if(remaining<=0){
+      clearInterval(iv);delete _kataTimers[key];
+      btn.textContent='⏱ timer';btn.style.color='';btn.style.borderColor='';
+      if(disp)disp.textContent='✓ pronto';
+      speak('Yame',undefined);
+    }
+  },1000);
+  _kataTimers[key]={iv};
 }
 
 // ===== MANDALA DE PALAVRAS — MODE =====
