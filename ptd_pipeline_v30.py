@@ -36,10 +36,14 @@ _parser.add_argument('--max-pdfs', type=int, default=0,
                      help='Limitar a N PDFs no loop de extração (0 = sem limite)')
 _parser.add_argument('--siglas', type=str, default='',
                      help='Siglas separadas por vírgula para modo debug (ex: AGU,FUNAI,MD)')
+_parser.add_argument('--skip-download', action='store_true', default=False,
+                     help='Pula scraping e download; usa PDFs já presentes em DIR_RAW '
+                          '(Estágios 1-4: só re-extrai, não re-baixa)')
 _args, _       = _parser.parse_known_args()  # parse_known_args: ignora args do pytest/outros
 FORCE_DOWNLOAD = _args.force_download
 MAX_PDFS       = _args.max_pdfs
 SIGLAS_DEBUG   = {s.strip().upper() for s in _args.siglas.split(',') if s.strip()}
+SKIP_DOWNLOAD  = _args.skip_download
 PDF_TIMEOUT    = int(os.getenv('PTD_PDF_TIMEOUT', '3600'))  # 1h default, override via env
 
 ROOT    = Path('ptd_corpus')
@@ -171,8 +175,18 @@ def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
                 f'entregas: {(df.tipo=="entregas").sum()} | diretivos: {(df.tipo=="diretivo").sum()}')
     return df
 
-df_catalogo_raw = scrape_catalogo()
-df_catalogo_raw.to_csv(DIR_LOG / 'catalogo_scraped.csv', index=False)
+if SKIP_DOWNLOAD:
+    # Reusar catálogo do run anterior (se existir) ou criar vazio
+    _cat_prev = DIR_LOG / 'catalogo_scraped.csv'
+    if _cat_prev.exists():
+        df_catalogo_raw = pd.read_csv(_cat_prev)
+        logger.info(f'--skip-download: reutilizando catálogo com {len(df_catalogo_raw)} entradas')
+    else:
+        df_catalogo_raw = pd.DataFrame(columns=['filename','url','tipo','sigla'])
+        logger.info('--skip-download: sem catálogo anterior, usando PDFs em DIR_RAW diretamente')
+else:
+    df_catalogo_raw = scrape_catalogo()
+    df_catalogo_raw.to_csv(DIR_LOG / 'catalogo_scraped.csv', index=False)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -216,28 +230,36 @@ def baixar_um(url: str, dest: Path, max_retry: int = 3) -> dict:
             time.sleep(DELAY*(t+1))
     return log
 
-urls_para_baixar = {
-    row['filename']: row['url']
-    for _, row in df_catalogo_raw.iterrows()
-    if row['url']
-}
+if SKIP_DOWNLOAD:
+    # Usar PDFs já presentes em DIR_RAW — iteração de qualidade sem re-download
+    _pdfs_presentes = sorted(DIR_RAW.glob('*.pdf'))
+    logs_dl = [{'url': '', 'arquivo': p.name, 'cache': True, 'ok': True,
+                'kb': round(p.stat().st_size / 1024, 1)} for p in _pdfs_presentes]
+    df_dl = pd.DataFrame(logs_dl)
+    logger.info(f'--skip-download: {len(_pdfs_presentes)} PDFs em DIR_RAW (sem scraping/download)')
+else:
+    urls_para_baixar = {
+        row['filename']: row['url']
+        for _, row in df_catalogo_raw.iterrows()
+        if row['url']
+    }
 
-logger.info(f'Baixando {len(urls_para_baixar)} PDFs únicos...')
-logs_dl = []
-for i, (fn, url) in enumerate(urls_para_baixar.items(), 1):
-    dest = DIR_RAW / fn
-    log  = baixar_um(url, dest)
-    icon = '📦' if log['cache'] else ('✓' if log['ok'] else '✗')
-    lvl  = logging.INFO if log['ok'] else logging.WARNING
-    logger.log(lvl, f'{icon} [{i:>3}/{len(urls_para_baixar)}] {fn[:50]:50s}  {str(log["kb"])+"KB":>8}')
-    logs_dl.append(log)
-    if not log['cache'] and log['ok']:
-        time.sleep(DELAY)
+    logger.info(f'Baixando {len(urls_para_baixar)} PDFs únicos...')
+    logs_dl = []
+    for i, (fn, url) in enumerate(urls_para_baixar.items(), 1):
+        dest = DIR_RAW / fn
+        log  = baixar_um(url, dest)
+        icon = '📦' if log['cache'] else ('✓' if log['ok'] else '✗')
+        lvl  = logging.INFO if log['ok'] else logging.WARNING
+        logger.log(lvl, f'{icon} [{i:>3}/{len(urls_para_baixar)}] {fn[:50]:50s}  {str(log["kb"])+"KB":>8}')
+        logs_dl.append(log)
+        if not log['cache'] and log['ok']:
+            time.sleep(DELAY)
 
-df_dl = pd.DataFrame(logs_dl)
-df_dl.to_csv(DIR_LOG / 'download_log.csv', index=False)
-logger.info(f'{df_dl.ok.sum()} OK | {(~df_dl.ok).sum()} erros | '
-            f'{df_dl[df_dl.ok]["kb"].sum()/1024:.1f} MB total')
+    df_dl = pd.DataFrame(logs_dl)
+    df_dl.to_csv(DIR_LOG / 'download_log.csv', index=False)
+    logger.info(f'{df_dl.ok.sum()} OK | {(~df_dl.ok).sum()} erros | '
+                f'{df_dl[df_dl.ok]["kb"].sum()/1024:.1f} MB total')
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -499,6 +521,28 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
                 'nome_pdf':     nome_pdf,
                 'url_fonte':    url_fonte,
             })
+
+    # ── Orçamento de pixels (Docling) ──────────────────────────────────
+    # Estima cobertura comparando área total das tabelas extraídas com
+    # a área total das páginas do documento (proxy sem re-renderizar).
+    try:
+        _total_area = sum(
+            (p.size.width * p.size.height)
+            for p in result.document.pages.values()
+            if p.size
+        )
+        _covered_area = 0.0
+        for tbl in result.document.tables:
+            for prov in (tbl.prov or []):
+                b = prov.bbox
+                _covered_area += abs((b.r - b.l) * (b.t - b.b))
+        if _total_area > 0:
+            _px_cov = round(_covered_area / _total_area * 100, 1)
+            logger.info(f'  pixel_budget (Docling) {nome_pdf}: {_px_cov:.1f}% '
+                        f'(área tabelas/{_total_area:.0f} px²)')
+    except Exception:
+        pass   # pixel_budget é informativo, não bloqueia
+
     return rows
 
 
