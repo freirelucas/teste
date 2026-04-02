@@ -402,7 +402,9 @@ if os.environ.get('GITHUB_RUN_ID') and os.environ.get('GITHUB_REPOSITORY'):
 
 # ── ptd_run_summary.json — lido pelo assistente IA via MCP após cada run ─────
 try:
-    _raw_path = DIR_DB / 'ptd_corpus_raw.csv'
+    _raw_path = DIR_DB / 'ptd_corpus_v21.csv'   # usar corpus classificado (v21) para métricas corretas
+    if not _raw_path.exists():
+        _raw_path = DIR_DB / 'ptd_corpus_raw.csv'  # fallback: raw tem parse_flag='raw' para todos
     _raw = pd.read_csv(_raw_path) if _raw_path.exists() else corpus
 
     _por_orgao = []
