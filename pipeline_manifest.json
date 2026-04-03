@@ -1,9 +1,9 @@
 {
   "versao_pipeline": "3.0-melhorado",
-  "data_execucao": "2026-04-03T06:13:57.885629",
+  "data_execucao": "2026-04-03T06:18:52.080716",
   "total_pdfs_baixados": 132,
-  "total_registros_extraidos": 200,
-  "total_riscos": 67,
+  "total_registros_extraidos": 5957,
+  "total_riscos": 545,
   "outputs": {
     "ptd_corpus_raw.csv": "corpus bruto de entregas com sha256",
     "ptd_pivot_eixos.csv": "pivot sigla × eixo — input ptd_corpus_v21",
@@ -159,9 +159,9 @@
     ],
     "unidade": "COGIT/DIEST/IPEA",
     "versao": "3.0-melhorado",
-    "n_entregas": 200,
-    "n_orgaos": 6,
-    "n_riscos": 67,
+    "n_entregas": 5957,
+    "n_orgaos": 65,
+    "n_riscos": 545,
     "versao_pipeline": "3.0-melhorado"
   }
 }
