@@ -1,26 +1,21 @@
 {
-  "run_id": "23950857201",
-  "timestamp": "2026-04-03T15:30:14",
+  "run_id": "23952164235",
+  "timestamp": "2026-04-03T16:14:15",
   "branch": "claude/setup-docling-pipeline-g11gg",
   "stage": 1,
   "stage_label": "parse_quality",
-  "n_orgaos": 6,
-  "n_registros_raw": 200,
-  "n_registros_v21": 200,
-  "pct_ok": 36.0,
-  "sem_produto_pct": 61.0,
-  "col_map_ok_rate": 70.9,
+  "n_orgaos": 7,
+  "n_registros_raw": 255,
+  "n_registros_v21": 255,
+  "pct_ok": 68.2,
+  "sem_produto_pct": 29.4,
+  "col_map_ok_rate": 75.1,
   "extratores": {
-    "docling": 200
+    "docling": 255
   },
   "orgaos_zero_entregas": [],
   "orgaos_zero_ou_noise": [],
   "orgs_below_50pct": [
-    {
-      "sigla": "FIOCRUZ",
-      "pct_ok": 13.1,
-      "n": 61
-    },
     {
       "sigla": "ITI",
       "pct_ok": 45.9,
@@ -29,16 +24,8 @@
   ],
   "top_unmatched_phrases": [
     {
-      "phrase": "Disponibilização emAcessoDigital",
-      "count": 23
-    },
-    {
       "phrase": "Segurança e Privacidade",
       "count": 10
-    },
-    {
-      "phrase": "Serviços Digitais",
-      "count": 5
     }
   ],
   "por_orgao": [
@@ -57,9 +44,9 @@
       "n_entregas": 61,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 13.1,
-      "sem_produto_n": 53,
-      "sem_produto_pct": 86.9,
+      "pct_ok": 95.1,
+      "sem_produto_n": 3,
+      "sem_produto_pct": 4.9,
       "col_map_ok_rate": 100.0
     },
     {
@@ -93,13 +80,23 @@
       "col_map_ok_rate": 83.8
     },
     {
+      "sigla": "MCOM",
+      "n_entregas": 55,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 96.4,
+      "sem_produto_n": 2,
+      "sem_produto_pct": 3.6,
+      "col_map_ok_rate": 100.0
+    },
+    {
       "sigla": "SGPR",
       "n_entregas": 15,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 80.0,
-      "sem_produto_n": 3,
-      "sem_produto_pct": 20.0,
+      "pct_ok": 73.3,
+      "sem_produto_n": 4,
+      "sem_produto_pct": 26.7,
       "col_map_ok_rate": 100.0
     }
   ]
