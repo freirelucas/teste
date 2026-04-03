@@ -919,12 +919,12 @@ note:'Padrão de yakusoku kumite do Shodan: Tenshin + Barai + finalização. Req
 ];
 
 const BELT_REQ={
-branca:{exam:'Técnica única em Zenkutsu. Gedan Barai + Oi Tsuki. Kata: Taikyoku I, II e Sokugi I, II.',ido:'6–8 golpes, técnica única repetida',min:0},
-laranja:{exam:'Taikyoku I-III, Sokugi I-III. Renraku básico (2 técnicas). Kihon geiko em Zenkutsu.',ido:'8–10 golpes, renraku simples',min:0},
-azul:{exam:'Pinan I, II, III. Sanchin no Kata. Ido-Geiko com Kiba Dachi e Kokutsu.',ido:'10–15 golpes, 3 renraku distintos',min:0},
-amarela:{exam:'Pinan I-IV. Tsuki no Kata. Kaiten Ido (360°). Renraku de 3 técnicas.',ido:'15–20 golpes, alternância mão/pé',min:0},
-verde:{exam:'Pinan I-V. Gekisai Dai. Footwork de kumite: okuri-ashi, fumi-dashi, kosa-ashi. Renraku de 3–4 técnicas com deslocamento.',ido:'20–25 golpes · footwork: okuri, fumi, kosa · variação de altura e distância',min:0},
-marrom:{exam:'Yantsu, Tensho, Gekisai Sho, Saifa. Yakusoku Kumite. Tenshin, oi-ashi, nidan geri. Tameshiwari 1-2 tábuas.',ido:'25–30 golpes · tai sabaki · renraku de 4+ técnicas com movimentação',min:0},
+branca:{exam:'Técnica única em Zenkutsu. Gedan Barai + Oi Tsuki. Kata: Taikyoku I, II e Sokugi I, II.',ido:'6–8 golpes, técnica única repetida',min:6},
+laranja:{exam:'Taikyoku I-III, Sokugi I-III. Renraku básico (2 técnicas). Kihon geiko em Zenkutsu.',ido:'8–10 golpes, renraku simples',min:8},
+azul:{exam:'Pinan I, II, III. Sanchin no Kata. Ido-Geiko com Kiba Dachi e Kokutsu.',ido:'10–15 golpes, 3 renraku distintos',min:10},
+amarela:{exam:'Pinan I-IV. Tsuki no Kata. Kaiten Ido (360°). Renraku de 3 técnicas.',ido:'15–20 golpes, alternância mão/pé',min:15},
+verde:{exam:'Pinan I-V. Gekisai Dai. Footwork de kumite: okuri-ashi, fumi-dashi, kosa-ashi. Renraku de 3–4 técnicas com deslocamento.',ido:'20–25 golpes · footwork: okuri, fumi, kosa · variação de altura e distância',min:20},
+marrom:{exam:'Yantsu, Tensho, Gekisai Sho, Saifa. Yakusoku Kumite. Tenshin, oi-ashi, nidan geri. Tameshiwari 1-2 tábuas.',ido:'25–30 golpes · tai sabaki · renraku de 4+ técnicas com movimentação',min:25},
 shodan:{exam:'Kanku, Seienchin, Garyu, Seipai. 10 lutas de 3min. Tameshiwari 3 tábuas. Teoria: nota mínima 7. Ido-Geiko: mínimo 30 golpes.',ido:'Mínimo 30 golpes (requisito CBKKO/IKO1)',min:30},
 };
 

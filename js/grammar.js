@@ -506,5 +506,165 @@ consBtn.innerHTML='→ Ver na Constelação (modo Implícitos)';
 consBtn.onclick=()=>{switchTab('constelacao');setMandalMode('implicitos');};
 s8.appendChild(consBtn);
 div.appendChild(s8);
+
+// ---- Section 9: Progressão Pedagógica ----
+const s9=document.createElement('div');s9.className='gram-s';
+s9.innerHTML=`<h3>IX. Progressão Pedagógica — do Axioma ao Teorema</h3>
+<p>Cada faixa introduce um conceito gramatical específico. A progressão não é aleatória: há uma sequência de <strong style="color:var(--text)">complexidade semântica crescente</strong> — da fórmula atômica à fenomenologia do sistema como um todo. Clicar num conceito vai à secção correspondente.</p>`;
+
+const progData=[
+  {belt:'branca',beltKey:'branca',sectionNum:'I',concept:'A Fórmula',
+   desc:'Gedan Barai = Barai + Gedan. Cada técnica é um ponto num espaço de 5 eixos.',
+   kata:'Taikyoku Sono Ichi',example:'Gedan Barai — dois nós: Barai + Gedan.'},
+  {belt:'laranja',beltKey:'laranja',sectionNum:'III',concept:'Posicionalidade',
+   desc:'Kokutsu Dachi muda o vector defensivo sem mudar a técnica. O espaço 3D do karateca.',
+   kata:'Taikyoku Sono San',example:'Chudan Uchi Uke em Kokutsu — mesma arma, ângulo diferente.'},
+  {belt:'azul',beltKey:'azul',sectionNum:'II',concept:'Os Sólidos Platônicos',
+   desc:'Cada tipo de arma corresponde a uma geometria. O kihon diversifica os sólidos.',
+   kata:'Pinan Sono Ni',example:'Empi = cotovelada = Octaedro/Ar. Tettsui = Cubo/Terra.'},
+  {belt:'amarela',beltKey:'amarela',sectionNum:'IV',concept:'O Silêncio Canônico',
+   desc:'Tsuki no Kata é um kata de socos. O que não está presente é a mensagem pedagógica.',
+   kata:'Tsuki no Kata',example:'Nenhum chute — o silêncio de Tsuki no Kata é o seu conteúdo.'},
+  {belt:'verde',beltKey:'verde',sectionNum:'VI',concept:'A Gramática do Silêncio',
+   desc:'"Gyaku" implica "oposto". As elisions ocultam eixos que o praticante já internalizou.',
+   kata:'Gekisai Dai',example:'Gyaku Tsuki — Gyaku (implica lado oposto) está explícito; mae está oculto.'},
+  {belt:'marrom',beltKey:'marrom',sectionNum:'VIII',concept:'Eixos Implícitos',
+   desc:'Tensho: todos os uke são com antebraço (ude), nunca mencionado. O silêncio ativo.',
+   kata:'Tensho',example:'Teisho Uke nomeia a arma (raro) porque é excepção à regra implícita.'},
+  {belt:'shodan',beltKey:'shodan',sectionNum:'VII',concept:'Fenomenologia',
+   desc:'Kanku sintetiza o vocabulário inteiro. Dominá-lo é dominar a linguagem — não as palavras.',
+   kata:'Kanku',example:'Abertura: losango ao céu — 看空 "ver o vazio". O kata como ato filosófico.'},
+];
+
+const progGrid=document.createElement('div');progGrid.className='prog-grid';
+progData.forEach(({belt,beltKey,sectionNum,concept,desc,kata,example})=>{
+  const col=BS[beltKey];
+  const card=document.createElement('div');card.className='prog-card';
+  card.innerHTML=`
+    <div class="prog-belt" style="color:${col};border:1px solid ${col}44;background:${col}15">${belt.toUpperCase()}</div>
+    <div class="prog-concept">${concept}</div>
+    <div class="prog-section-link" data-sec="${sectionNum}">→ Secção ${sectionNum}</div>
+    <div style="font-size:11px;color:var(--text2);margin-top:6px;line-height:1.6">${desc}</div>
+    <div class="prog-kata" style="margin-top:5px"><span style="opacity:.5;font-size:9px">KATA·</span> ${kata}</div>
+    <div class="prog-example">${example}</div>`;
+  card.querySelector('.prog-section-link').addEventListener('click',()=>{
+    const sMap={I:'s1',II:'s2',III:'s3',IV:'s4',V:'s5',VI:'s6',VII:'s7',VIII:'s8',IX:'s9'};
+    const targetId=sMap[sectionNum];
+    const target=document.querySelector('#p-gramatica .gram-s:nth-child('+sectionNum+')');
+    if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  progGrid.appendChild(card);
+});
+s9.appendChild(progGrid);
+
+const s9Note=document.createElement('div');s9Note.className='gram-silence';
+s9Note.innerHTML='<strong>Nota curricular:</strong> a progressão acima mapeia o currículo IKO1/CBKKO. O praticante não precisa de conhecer a gramática para a executar — mas compreendê-la acelera a aquisição e aprofunda a leitura de cada kata.';
+s9.appendChild(s9Note);
+div.appendChild(s9);
+
+// ---- Section 10: Analisador de Silêncios ----
+const s10=document.createElement('div');s10.className='gram-s';
+s10.innerHTML=`<h3>X. Analisador de Silêncios</h3>
+<p>Selecione os eixos de uma combinação e descubra se ela é <strong style="color:#44aa66">canônica</strong> (existe no currículo), <strong style="color:var(--gold)">silenciosa</strong> (possível mas não ensinada), <strong style="color:#e85050">inválida</strong> (contradição anatômica) ou <strong style="color:#aa66ff">kata-only</strong> (aparece apenas em forma).</p>`;
+
+// Build selects
+const silForm=document.createElement('div');silForm.className='silence-form';
+
+function _silSel(id,label,opts){
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`<div style="font-size:9px;color:var(--text2);letter-spacing:.07em;margin-bottom:4px">${label}</div>`;
+  const sel=document.createElement('select');sel.id='sil-'+id;sel.className='silence-select';
+  sel.innerHTML='<option value="">— qualquer —</option>'+opts.map(o=>`<option value="${o.id}">${o.label} · ${o.pt}</option>`).join('');
+  wrap.appendChild(sel);silForm.appendChild(wrap);return sel;
+}
+
+_silSel('acao','AÇÃO',NODES.filter(n=>n.type==='acao'));
+_silSel('buki','ARMA (mão ou pé)',NODES.filter(n=>n.type==='buki_mao'||n.type==='buki_pe'));
+_silSel('dir','DIREÇÃO',NODES.filter(n=>n.type==='direcao'));
+_silSel('alvo','ALVO',NODES.filter(n=>n.type==='alvo'));
+
+const analyzeBtn=document.createElement('button');analyzeBtn.className='silence-btn';
+analyzeBtn.textContent='Analisar combinação';
+silForm.appendChild(analyzeBtn);
+s10.appendChild(silForm);
+
+const silResult=document.createElement('div');silResult.className='silence-result';s10.appendChild(silResult);
+
+// Anatomical invalidity rules
+const _INVALID_PAIRS=[
+  {buki_types:['buki_pe'],acao:['tsuki'],reason:'Pé não pode socar — buki_pe + ação tsuki é anatomicamente impossível.'},
+  {buki_types:['buki_mao'],acao:['geri','keage'],reason:'Mão não pode dar chute — buki_mao + ação geri/keage é anatomicamente impossível.'},
+];
+
+function _checkInvalid(acaoId,bukiId){
+  if(!acaoId||!bukiId)return null;
+  const bukiNode=NMAP[bukiId];if(!bukiNode)return null;
+  for(const rule of _INVALID_PAIRS){
+    if(rule.buki_types.includes(bukiNode.type)&&rule.acao.includes(acaoId))return rule.reason;
+  }
+  return null;
+}
+
+analyzeBtn.addEventListener('click',()=>{
+  const acaoId=document.getElementById('sil-acao').value;
+  const bukiId=document.getElementById('sil-buki').value;
+  const dirId=document.getElementById('sil-dir').value;
+  const alvoId=document.getElementById('sil-alvo').value;
+
+  if(!acaoId&&!bukiId&&!dirId&&!alvoId){
+    silResult.className='silence-result show';
+    silResult.innerHTML='<em style="color:var(--text2)">Selecione pelo menos um eixo para analisar.</em>';
+    return;
+  }
+
+  // 1. Check anatomical invalidity
+  const invalidReason=_checkInvalid(acaoId,bukiId);
+  if(invalidReason){
+    silResult.className='silence-result show';
+    silResult.innerHTML=`<span class="sil-badge sil-invalid">INVÁLIDA</span><br><strong>${_label(acaoId,bukiId,dirId,alvoId)}</strong><br><br>${invalidReason}`;
+    return;
+  }
+
+  // Build set of selected node IDs
+  const selected=[acaoId,bukiId,dirId,alvoId].filter(Boolean);
+
+  // 2. Check canonical (exact superset match — all selected nodes present in tech)
+  const canonical=TECHS.filter(t=>!t.kataOnly&&selected.every(id=>t.nodes.includes(id)||t.dachi===id));
+  if(canonical.length){
+    const t=canonical[0];
+    silResult.className='silence-result show';
+    silResult.innerHTML=`<span class="sil-badge sil-canon">CANÔNICA</span><br>
+      <strong style="font-size:13px">${t.name}</strong> <span style="color:var(--text2);font-size:11px">· ${t.pt} · ${t.belt}</span><br><br>
+      <span style="font-size:11px;color:var(--text2)">${t.desc||''}</span><br>
+      <button class="gen-btn" style="margin-top:8px;font-size:11px;padding:5px 12px" onclick="switchTab('constelacao');requestAnimationFrame(()=>showTechDetail(TECHS.find(t=>t.name==='${t.name.replace(/'/g,"\\'")}')??TECHS[0]))">→ Ver na Constelação</button>`;
+    return;
+  }
+
+  // 3. Check kata-only
+  const kataOnly=TECHS.filter(t=>t.kataOnly&&selected.every(id=>t.nodes.includes(id)||t.dachi===id));
+  if(kataOnly.length){
+    const t=kataOnly[0];
+    silResult.className='silence-result show';
+    silResult.innerHTML=`<span class="sil-badge sil-kataonly">KATA-ONLY</span><br>
+      <strong style="font-size:13px">${t.name}</strong> <span style="color:var(--text2);font-size:11px">· ${t.pt}</span><br><br>
+      <span style="font-size:11px;color:var(--text2)">Esta combinação existe mas aparece exclusivamente em kata. Kata fonte: ${t.kataSrc?.join(', ')||'—'}.</span><br>
+      <span style="font-size:11px;color:var(--text2);margin-top:4px;display:block">${t.desc||''}</span>`;
+    return;
+  }
+
+  // 4. Valid but silent
+  silResult.className='silence-result show';
+  const names=[acaoId,bukiId,dirId,alvoId].filter(Boolean).map(id=>NMAP[id]?.label||id).join(' + ');
+  silResult.innerHTML=`<span class="sil-badge sil-silent">SILÊNCIO CANÔNICO</span><br>
+    <strong>${_label(acaoId,bukiId,dirId,alvoId)}</strong><br><br>
+    <span style="font-size:11px;color:var(--text2)">Esta combinação é anatomicamente válida mas não está canonizada no currículo IKO1/CBKKO. Ela pertence ao <em>espaço silencioso</em> — os ~99.5% do espaço teórico que Oyama deliberadamente não incluiu.</span><br>
+    <span style="font-size:11px;color:var(--text2);margin-top:6px;display:block">Possíveis razões: redundância pedagógica, raridade de uso em combate real, ou excesso de especificidade para kihon.</span>`;
+});
+
+function _label(a,b,d,l){
+  return [a,b,d,l].filter(Boolean).map(id=>NMAP[id]?.label||id).join(' · ')||'combinação vaga';
+}
+
+div.appendChild(s10);
 }
 

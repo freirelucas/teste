@@ -540,6 +540,28 @@ if(cvMandalMode!=='solidos'){
     });
   }
 }
+
+// ── Belt-context filter: dim techniques outside selected belt ──
+if(cvBeltFilter){
+  const beltTechIndices=new Set(TECHS.map((t,i)=>t.belt===cvBeltFilter?i:-1).filter(i=>i>=0));
+  // Dim edges not belonging to selected belt
+  svg.querySelectorAll('[data-ti]').forEach(el=>{
+    const ti=el.dataset.ti;if(ti===undefined||ti==='')return;
+    el.style.opacity=beltTechIndices.has(+ti)?'1':'0.05';
+  });
+  // Dim polygon tech shapes in palavras/implicitos
+  const pg=document.getElementById('cv-polys');
+  if(pg)pg.querySelectorAll('[data-ti]').forEach(el=>{
+    const ti=el.dataset.ti;if(ti===undefined)return;
+    const isActive=beltTechIndices.has(+ti);
+    el.style.opacity=isActive?(el.getAttribute('opacity')||'1'):'0.03';
+  });
+  // Dim nodes that have no techniques in selected belt
+  const beltNodeIds=new Set(TECHS.filter(t=>t.belt===cvBeltFilter).flatMap(t=>t.nodes));
+  svg.querySelectorAll('[data-nid]').forEach(el=>{
+    el.style.opacity=beltNodeIds.has(el.dataset.nid)?'1':'0.1';
+  });
+}
 }
 
 function setupCvEvents(svg,W,H){
