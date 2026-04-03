@@ -1,0 +1,119 @@
+[
+  {
+    "sigla":"ANA",
+    "acao_id":"ANA__A1",
+    "codigo":"A1",
+    "texto":"- Governança bem definida, com alinhamento estratégico, tático e operacional; A2 - Sensibilização das áreas de negócio para a importância do plano dig",
+    "tipo":"alfa",
+    "n_riscos":1.0,
+    "n_orgaos":1.0
+  },
+  {
+    "sigla":"MIDR",
+    "acao_id":"MIDR__N4",
+    "codigo":"N4",
+    "texto":" Prospecção de formas alternativas para a composição da força de trabalho. 5) Utilizar melhores práticas de gerenciamento de projetos registrando as e",
+    "tipo":"numerico",
+    "n_riscos":2.0,
+    "n_orgaos":1.0
+  },
+  {
+    "sigla":"MIDR",
+    "acao_id":"MIDR__N1",
+    "codigo":"N1",
+    "texto":" Governança bem definida, com alinhamento estratégico, tático e operacional. 3) Reuniões periódicas de acompanhamento e reportar continuamente a alta ",
+    "tipo":"numerico",
+    "n_riscos":6.0,
+    "n_orgaos":1.0
+  },
+  {
+    "sigla":"MIDR",
+    "acao_id":"MIDR__N15",
+    "codigo":"N15",
+    "texto":" Participação de especialistas em processos de negócios e em experiência do usuário no desenho de serviços digitais. 16) Planejamento e digitalização ",
+    "tipo":"numerico",
+    "n_riscos":1.0,
+    "n_orgaos":1.0
+  },
+  {
+    "sigla":"ANA",
+    "acao_id":"ANA__N5",
+    "codigo":"N5",
+    "texto":"15 Falta de atualização tecnológica, levando à obsolescência ou incompatibilidade com novas plataformas",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANA",
+    "acao_id":"ANA__A4",
+    "codigo":"A4",
+    "texto":"- Prospecção de formas alternativas para a composição da força de trabalho; A5 - Utilizar melhores práticas de gerenciamento de projetos registrando a",
+    "tipo":"alfa",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N1",
+    "codigo":"N1",
+    "texto":" Despriorização do projeto pela alta direção",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N2",
+    "codigo":"N2",
+    "texto":" Serviços contratados para suporte e de solução tecnológica não entregues (atrasos, descontinuidade)",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N3",
+    "codigo":"N3",
+    "texto":" Concorrência de recursos humanos entre carteira estratégica, plano digital e rotinas ou demandas externas que necessitam de desenvolvimento com urgên",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N4",
+    "codigo":"N4",
+    "texto":" Alterações legais com efeitos na competência ou autonomia da agência",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N5",
+    "codigo":"N5",
+    "texto":" Vazamento de informações pessoais ou sensíveis, em desacordo com a LGPD",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N6",
+    "codigo":"N6",
+    "texto":"Sistemas dissonantes ou que não conversam entre si",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  },
+  {
+    "sigla":"ANVISA",
+    "acao_id":"ANVISA__N7",
+    "codigo":"N7",
+    "texto":"Vulnerabilidade cibernéticas e segurança dos dados",
+    "tipo":"numerico",
+    "n_riscos":null,
+    "n_orgaos":null
+  }
+]

@@ -1,0 +1,14 @@
+sigla,acao_id,codigo,texto,tipo,n_riscos,n_orgaos
+ANA,ANA__A1,A1,"- Governança bem definida, com alinhamento estratégico, tático e operacional; A2 - Sensibilização das áreas de negócio para a importância do plano dig",alfa,1.0,1.0
+MIDR,MIDR__N4,N4, Prospecção de formas alternativas para a composição da força de trabalho. 5) Utilizar melhores práticas de gerenciamento de projetos registrando as e,numerico,2.0,1.0
+MIDR,MIDR__N1,N1," Governança bem definida, com alinhamento estratégico, tático e operacional. 3) Reuniões periódicas de acompanhamento e reportar continuamente a alta ",numerico,6.0,1.0
+MIDR,MIDR__N15,N15, Participação de especialistas em processos de negócios e em experiência do usuário no desenho de serviços digitais. 16) Planejamento e digitalização ,numerico,1.0,1.0
+ANA,ANA__N5,N5,"15 Falta de atualização tecnológica, levando à obsolescência ou incompatibilidade com novas plataformas",numerico,,
+ANA,ANA__A4,A4,- Prospecção de formas alternativas para a composição da força de trabalho; A5 - Utilizar melhores práticas de gerenciamento de projetos registrando a,alfa,,
+ANVISA,ANVISA__N1,N1, Despriorização do projeto pela alta direção,numerico,,
+ANVISA,ANVISA__N2,N2," Serviços contratados para suporte e de solução tecnológica não entregues (atrasos, descontinuidade)",numerico,,
+ANVISA,ANVISA__N3,N3," Concorrência de recursos humanos entre carteira estratégica, plano digital e rotinas ou demandas externas que necessitam de desenvolvimento com urgên",numerico,,
+ANVISA,ANVISA__N4,N4, Alterações legais com efeitos na competência ou autonomia da agência,numerico,,
+ANVISA,ANVISA__N5,N5," Vazamento de informações pessoais ou sensíveis, em desacordo com a LGPD",numerico,,
+ANVISA,ANVISA__N6,N6,Sistemas dissonantes ou que não conversam entre si,numerico,,
+ANVISA,ANVISA__N7,N7,Vulnerabilidade cibernéticas e segurança dos dados,numerico,,
