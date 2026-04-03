@@ -60,8 +60,32 @@ bar.innerHTML='';
   }
   if(b===activeBelt&&b!=='all')btn.style.background=BS[b]+'33';
   btn.onclick=()=>{activeBelt=b;initBeltBar();filterBelt(b);};
+  // Long-press or ctrl+click → constellation belt filter
+  btn.addEventListener('contextmenu',e=>{e.preventDefault();if(b!=='all')setCvBeltFilter(b);});
+  btn.title=(b!=='all'?'Clique: filtrar técnicas   Clique-dir: focar na constelação':'Mostrar tudo');
   bar.appendChild(btn);
 });
+// Constellation filter toggle row
+const filterRow=document.createElement('div');
+filterRow.style.cssText='display:flex;gap:3px;padding:3px 6px 3px;align-items:center;border-top:1px solid var(--border);flex-wrap:wrap';
+filterRow.innerHTML='<span style="font-size:8px;color:var(--text2);letter-spacing:.07em;opacity:.6;margin-right:3px">FOCO·</span>';
+['all',...BELT_ORDER].forEach(b=>{
+  if(b==='all'){
+    const clr=document.createElement('button');
+    clr.className='bb-btn';clr.textContent='✕';clr.title='Remover foco';
+    clr.style.cssText='font-size:9px;padding:1px 5px;opacity:.5';
+    clr.onclick=()=>{cvBeltFilter=null;initConstellation();document.querySelectorAll('#belt-bar .bb-btn').forEach(el=>el.classList.remove('belt-filtering'));};
+    filterRow.appendChild(clr);return;
+  }
+  const fb=document.createElement('button');
+  fb.className='bb-btn'+(b===cvBeltFilter?' belt-filtering':'');
+  fb.textContent=b.slice(0,3);fb.title='Focar constelação em '+b;
+  fb.style.cssText='font-size:8px;padding:1px 5px;color:'+BS[b];
+  if(b===cvBeltFilter)fb.style.cssText+='background:'+BS[b]+'25;box-shadow:0 0 0 1.5px '+BS[b];
+  fb.onclick=()=>setCvBeltFilter(b);
+  filterRow.appendChild(fb);
+});
+bar.appendChild(filterRow);
 }
 
 // ===== CHORD DIAGRAM =====
@@ -240,6 +264,53 @@ function advanceDemo(){
   setVal('cs-dir',dir||''); setVal('cs-alvo',alvo||'');
   updateConstrutor();
   speak(t.name);
+}
+
+// ===== KATA TIMER =====
+const _kataTimers={};
+function _parseKataTime(s){
+  // e.g. "1min40s", "22s", "2min14s"
+  const m=s.match(/(?:(\d+)min)?(?:(\d+)s)?/);
+  return (+(m&&m[1]||0))*60+(+(m&&m[2]||0));
+}
+function kataTimerToggle(btn){
+  const wrap=btn.closest('.kc');
+  const disp=btn.closest('.kt-timer').querySelector('[data-ktdisp]');
+  const key=btn.dataset.kname||btn.dataset.ktime;
+  if(_kataTimers[key]){
+    clearInterval(_kataTimers[key].iv);
+    delete _kataTimers[key];
+    btn.textContent='⏱ timer';
+    if(disp)disp.textContent=btn.dataset.ktime;
+    btn.style.color='';btn.style.borderColor='';
+    return;
+  }
+  let remaining=_parseKataTime(btn.dataset.ktime);
+  btn.textContent='⏹ parar';
+  btn.style.color='var(--gold)';btn.style.borderColor='var(--gold)';
+  function fmt(s){const m=Math.floor(s/60),r=s%60;return m?m+'m'+(r<10?'0':'')+r+'s':r+'s';}
+  if(disp)disp.textContent=fmt(remaining);
+  const iv=setInterval(()=>{
+    remaining--;
+    if(disp)disp.textContent=fmt(remaining);
+    if(remaining<=0){
+      clearInterval(iv);delete _kataTimers[key];
+      btn.textContent='⏱ timer';btn.style.color='';btn.style.borderColor='';
+      if(disp)disp.textContent='✓ pronto';
+      speak('Yame',undefined);
+    }
+  },1000);
+  _kataTimers[key]={iv};
+}
+
+function setCvBeltFilter(belt){
+  cvBeltFilter=(cvBeltFilter===belt)?null:belt; // toggle off if same
+  initConstellation();
+  // Sync belt-bar visual
+  document.querySelectorAll('#belt-bar .bb-btn').forEach(btn=>{
+    const b=btn.textContent==='OSU'?'all':btn.textContent;
+    btn.classList.toggle('belt-filtering',b===cvBeltFilter);
+  });
 }
 
 // ===== MANDALA DE PALAVRAS — MODE =====

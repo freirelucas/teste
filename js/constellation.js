@@ -124,6 +124,7 @@ for(let it=0;it<iters;it++){
 // ===== CONSTELLATION RENDER =====
 let cvPan={x:0,y:0},cvScale=1,cvDrag=null;
 let activeNodeId=null;
+let cvBeltFilter=null; // null = no filter; belt name = filter active
 
 function initConstellation(){
 const wrap=document.getElementById('cv-wrap');

@@ -6,6 +6,21 @@ if(t){switchTab('constelacao');requestAnimationFrame(()=>showTechDetail(t));}
 
 // ===== KATA =====
 let kataFilter='all';
+
+// Sorted tech names (longest first) for step linkification
+const _TECH_NAMES_SORTED=TECHS.map(t=>t.name).sort((a,b)=>b.length-a.length);
+
+function linkifyStep(text){
+  // Avoid double-wrapping: replace only plain-text occurrences
+  let out=text;
+  _TECH_NAMES_SORTED.forEach(name=>{
+    if(!out.includes(name))return;
+    const safe=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    out=out.replace(new RegExp('(?<![">])'+safe,'g'),
+      `<span class="step-tech-link" data-tc="${name.replace(/"/g,'&quot;')}">${name}</span>`);
+  });
+  return out;
+}
 function initKata(){
 const fs=document.getElementById('kata-filters');if(!fs)return;
 fs.innerHTML='';
@@ -56,13 +71,16 @@ KATA.filter(k=>{
     '<div class="kc-note">'+k.note+'</div>'+
     (k.silences?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:.06em">SILÊNCIOS CANÔNICOS</div><div style="font-size:11px;color:var(--text2)">'+k.silences+'</div></div>':'')+
     (k.techs&&k.techs.length?'<div class="kc-detail"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">TÉCNICAS INTRODUZIDAS</div>'+k.techs.map(tc=>'<div class="kc-tl" data-tc="'+tc+'">'+tc+' <span style="opacity:.4;font-size:9px">→ constelação</span></div>').join('')+'</div>':'')+
-    (k.steps&&k.steps.length?'<div class="kc-detail kc-steps-wrap"><div class="kc-steps-hdr">ROTEIRO DE PRÁTICA <span style="opacity:.5;font-weight:400">('+k.steps.filter(s=>!s.startsWith('  ▶')).length+' seq.)</span></div>'+k.steps.map(s=>{
-      if(s.startsWith('  ▶'))return'<div class="kc-step-item sub">'+s.slice(3)+'</div>';
+    (k.steps&&k.steps.length?'<div class="kc-detail kc-steps-wrap"><div class="kc-steps-hdr">ROTEIRO DE PRÁTICA <span style="opacity:.5;font-weight:400">('+k.steps.filter(s=>!s.startsWith('  ▶')).length+' seq.)</span>'+(k.time?'<span class="kt-timer"><button class="kt-timer-btn" data-ktime="'+k.time+'" data-kname="'+k.id+'" onclick="kataTimerToggle(this)">⏱ timer</button><span class="kt-timer-display" data-ktdisp>'+k.time+'</span></span>':'')+'</div>'+k.steps.map(s=>{
+      if(s.startsWith('  ▶'))return'<div class="kc-step-item sub">'+linkifyStep(s.slice(3))+'</div>';
       const m=s.match(/^(\d+)\.\s+(.*)/);
-      if(m){const kiai=m[2].includes('KIAI');return'<div class="kc-step-item"><span class="step-n">'+m[1]+'.</span> <span class="step-cmd">'+m[2].replace(/\s*·?\s*KIAI/g,'')+'</span>'+(kiai?'<span class="kiai">KIAI</span>':'')+'</div>';}
+      if(m){const kiai=m[2].includes('KIAI');const body=linkifyStep(m[2].replace(/\s*·?\s*KIAI/g,''));return'<div class="kc-step-item"><span class="step-n">'+m[1]+'.</span> <span class="step-cmd">'+body+'</span>'+(kiai?'<span class="kiai">KIAI</span>':'')+'</div>';}
       return'<div class="kc-step-item" style="color:var(--gold);font-size:10px;letter-spacing:.05em">'+s+'</div>';
     }).join('')+'</div>':'');
   div.querySelectorAll('.kc-tl').forEach(el=>el.addEventListener('click',e=>{
+    e.stopPropagation();findAndShowTech(el.dataset.tc);
+  }));
+  div.querySelectorAll('.step-tech-link').forEach(el=>el.addEventListener('click',e=>{
     e.stopPropagation();findAndShowTech(el.dataset.tc);
   }));
   // Speak kata name on header click
