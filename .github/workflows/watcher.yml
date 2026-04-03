@@ -47,13 +47,26 @@ jobs:
           STAGE=$(jq -r '.stage // 0' ptd_run_summary.json)
           STAGE_LABEL=$(jq -r '.stage_label // "cobertura"' ptd_run_summary.json)
           PCT_OK=$(jq -r '.pct_ok // 0' ptd_run_summary.json)
-          echo "run_id=$RUN_ID"       >> $GITHUB_OUTPUT
-          echo "n_zero=$N_ZERO"       >> $GITHUB_OUTPUT
-          echo "stage=$STAGE"         >> $GITHUB_OUTPUT
-          echo "stage_label=$STAGE_LABEL" >> $GITHUB_OUTPUT
-          echo "pct_ok=$PCT_OK"       >> $GITHUB_OUTPUT
+          SEM_PROD_PCT=$(jq -r '.sem_produto_pct // 0' ptd_run_summary.json)
+          echo "run_id=$RUN_ID"             >> $GITHUB_OUTPUT
+          echo "n_zero=$N_ZERO"             >> $GITHUB_OUTPUT
+          echo "stage=$STAGE"               >> $GITHUB_OUTPUT
+          echo "stage_label=$STAGE_LABEL"   >> $GITHUB_OUTPUT
+          echo "pct_ok=$PCT_OK"             >> $GITHUB_OUTPUT
+          echo "sem_prod_pct=$SEM_PROD_PCT" >> $GITHUB_OUTPUT
 
-          if [ "$STAGE" = "3" ] && [ "$N_ZERO" = "0" ]; then
+          # Classificar tipo de problema dominante ANTES de decidir tratamento
+          if [ "$N_ZERO" -gt 0 ]; then
+            PROBLEM_TYPE="cobertura"      # Stage 0: sem extração → OCR/Docling params
+          elif python3 -c "import sys; sys.exit(0 if float('$SEM_PROD_PCT') > 20 else 1)" 2>/dev/null; then
+            PROBLEM_TYPE="vocabulario"    # Stage 1: sem_produto alto → expandir vocab
+          else
+            PROBLEM_TYPE="qualidade"      # Stage 1b/2+: pct_ok baixo → revisar pipeline
+          fi
+          echo "problem_type=$PROBLEM_TYPE" >> $GITHUB_OUTPUT
+
+          if [ "$STAGE" = "3" ] && [ "$N_ZERO" = "0" ] && \
+             python3 -c "import sys; sys.exit(0 if float('$PCT_OK') >= 90 else 1)" 2>/dev/null; then
             echo "status=done" >> $GITHUB_OUTPUT
             echo "✅ Pipeline convergiu — todos os estágios completos!"
           elif [ "$STAGE" != "0" ] && [ "$N_ZERO" = "0" ] && \
@@ -63,7 +76,7 @@ jobs:
             echo "⚠ Estágio $STAGE ($STAGE_LABEL) requer revisão humana antes de continuar."
           else
             echo "status=needs_fix" >> $GITHUB_OUTPUT
-            echo "⚠ Estágio $STAGE ($STAGE_LABEL) — $N_ZERO zerados, pct_ok=$PCT_OK% — aplicando fix..."
+            echo "⚠ Estágio $STAGE ($STAGE_LABEL) — $N_ZERO zerados, pct_ok=$PCT_OK%, problema=$PROBLEM_TYPE — aplicando fix..."
           fi
 
       - name: Checkout branch de trabalho
@@ -80,8 +93,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Aplicar próximo fix da state machine
-        if: steps.check.outputs.status == 'needs_fix'
+      - name: Aplicar próximo fix da state machine (cobertura)
+        if: steps.check.outputs.status == 'needs_fix' && steps.check.outputs.problem_type == 'cobertura'
         env:
           RUN_SUMMARY: ${{ steps.check.outputs.run_id }}
         run: |
@@ -125,51 +138,64 @@ jobs:
               {'dpi': 300, 'rot': 90},
               {'dpi': 300, 'rot': 270},
           ]
-          # Para PDFs-texto (Docling): variações de threshold e OCR forçado
+          # Para PDFs-texto (Docling): variações de threshold de linhas mínimas
           DOCLING_STATES = [
-              {'table_min_rows': 2, 'force_ocr': False},
-              {'table_min_rows': 1, 'force_ocr': False},
-              {'table_min_rows': 2, 'force_ocr': True},
-              {'table_min_rows': 1, 'force_ocr': True},
+              {'table_min_rows': 2},
+              {'table_min_rows': 1},
           ]
+          MAX_OCR = len(OCR_STATES)
+          MAX_DOCLING = len(DOCLING_STATES)
 
           # ── Avanço de estado para cada órgão zerado ──────────────────
-          changed = False
+          escalados = []
           for sig in zero_orgs:
               org = por_orgao.get(sig, {})
               extrator = org.get('extrator', '')
               is_ocr = extrator == 'pytesseract_ocr' or org.get('is_img', False)
 
               cur = states.get(sig, {'state': 0, 'type': 'ocr' if is_ocr else 'docling'})
+              max_state = MAX_OCR if cur['type'] == 'ocr' else MAX_DOCLING
+
+              if cur['state'] >= max_state:
+                  escalados.append(sig)
+                  states[sig] = {**cur, 'escalado': True}
+                  print(f"  {sig}: ESCALADO — todos os {max_state} estados tentados sem progresso")
+                  continue
+
               next_state = cur['state'] + 1
               states[sig] = {'state': next_state, 'type': cur['type']}
-              changed = True
               print(f"  {sig}: state {cur['state']} → {next_state} ({cur['type']})")
 
-          # ── Gerar ocr_config.json atualizado ─────────────────────────
+          if escalados:
+              Path('ocr_escalados.json').write_text(
+                  json.dumps({'escalados': escalados}, indent=2, ensure_ascii=False))
+              print(f"Órgãos escalados (sem progresso após todos estados): {escalados}")
+
+          # ── Gerar ocr_config.json atualizado (apenas orgs não-escalados) ──
           ocr_config = {}
-          docling_config = {}
+          docling_min_rows = 2
           for sig, st in states.items():
+              if st.get('escalado'):
+                  continue
               if st['type'] == 'ocr':
-                  idx = min(st['state'], len(OCR_STATES) - 1)
+                  idx = min(st['state'], MAX_OCR - 1)
                   ocr_config[sig] = OCR_STATES[idx]
               else:
-                  idx = min(st['state'], len(DOCLING_STATES) - 1)
-                  docling_config[sig] = DOCLING_STATES[idx]
+                  idx = min(st['state'], MAX_DOCLING - 1)
+                  docling_min_rows = min(docling_min_rows, DOCLING_STATES[idx]['table_min_rows'])
 
-          # Salvar
+          # Salvar states e ocr_config
           states_path.write_text(json.dumps(states, indent=2, ensure_ascii=False))
           Path('ocr_config_dynamic.json').write_text(
               json.dumps(ocr_config, indent=2, ensure_ascii=False))
-          Path('docling_config_dynamic.json').write_text(
-              json.dumps(docling_config, indent=2, ensure_ascii=False))
+          Path('docling_min_rows.txt').write_text(str(docling_min_rows))
 
           print(f"OCR config: {ocr_config}")
-          print(f"Docling config: {docling_config}")
+          print(f"Docling min_rows: {docling_min_rows}")
           PYEOF
 
-      - name: Atualizar ptd_ocr_fallback.py com config dinâmico
-        if: steps.check.outputs.status == 'needs_fix'
+      - name: Atualizar ptd_ocr_fallback.py e pipeline com config dinâmico
+        if: steps.check.outputs.status == 'needs_fix' && steps.check.outputs.problem_type == 'cobertura'
         run: |
           if [ ! -f ocr_config_dynamic.json ]; then exit 0; fi
 
@@ -178,7 +204,6 @@ jobs:
           from pathlib import Path
 
           ocr = json.loads(Path('ocr_config_dynamic.json').read_text())
-          docling = json.loads(Path('docling_config_dynamic.json').read_text())
 
           # Atualizar OCR_CONFIG em ptd_ocr_fallback.py
           fb = Path('ptd_ocr_fallback.py').read_text()
@@ -186,37 +211,96 @@ jobs:
               {k: {'rot': v['rot'], 'dpi': v['dpi']} for k, v in ocr.items()},
               indent=4).replace('true','True').replace('false','False') + '\n'
 
-          # Substituir bloco OCR_CONFIG
-          # Regex com suporte a dicts aninhados: \{(?:[^{}]|\{[^{}]*\})*\}
+          # Substituir bloco OCR_CONFIG (regex suporta dicts aninhados)
           fb = re.sub(
               r'OCR_CONFIG: dict\[str, dict\] = \{(?:[^{}]|\{[^{}]*\})*\}',
               new_cfg.rstrip(),
               fb, flags=re.DOTALL)
           Path('ptd_ocr_fallback.py').write_text(fb)
-
-          # Atualizar DPI padrão em extrair_ocr
-          # (o DPI vem agora do config dinâmico, não fixo em 200)
-          fb = Path('ptd_ocr_fallback.py').read_text()
-          fb = re.sub(
-              r"rot = OCR_CONFIG\.get\(sigla\.upper\(\), \{\}\)\.get\('rot', 0\)",
-              "cfg = OCR_CONFIG.get(sigla.upper(), {})\n"
-              "    rot = cfg.get('rot', 0)\n"
-              "    dpi = cfg.get('dpi', dpi)",
-              fb)
-          Path('ptd_ocr_fallback.py').write_text(fb)
           print("ptd_ocr_fallback.py atualizado com config dinâmico")
 
-          # Atualizar threshold Docling em ptd_pipeline_v30.py
-          if docling:
+          # Atualizar table_min_rows em ptd_pipeline_v30.py se necessário
+          min_rows_file = Path('docling_min_rows.txt')
+          if min_rows_file.exists():
+              min_rows = int(min_rows_file.read_text().strip())
               pl = Path('ptd_pipeline_v30.py').read_text()
-              # Ajustar o threshold mínimo de linhas para o mais permissivo dos estados ativos
-              min_rows = min(v['table_min_rows'] for v in docling.values())
               pl = re.sub(
-                  r'if len\(df\.columns\) < 2 or len\(df\) < \d',
+                  r'if len\(df\.columns\) < 2 or len\(df\) < \d+',
                   f'if len(df.columns) < 2 or len(df) < {min_rows}',
                   pl)
               Path('ptd_pipeline_v30.py').write_text(pl)
               print(f"ptd_pipeline_v30.py: table_min_rows → {min_rows}")
+          PYEOF
+
+      - name: Expandir vocabulário via top_unmatched_phrases
+        if: steps.check.outputs.status == 'needs_fix' && steps.check.outputs.problem_type == 'vocabulario'
+        run: |
+          git fetch origin pipeline-outputs
+          git checkout origin/pipeline-outputs -- ptd_run_summary.json 2>/dev/null || true
+
+          python3 << 'PYEOF'
+          import json
+          from pathlib import Path
+
+          summary_path = Path('ptd_run_summary.json')
+          if not summary_path.exists():
+              print("ptd_run_summary.json não encontrado"); exit(0)
+          summary = json.loads(summary_path.read_text())
+
+          unmatched = summary.get('top_unmatched_phrases', [])
+          if not unmatched:
+              print("Sem top_unmatched_phrases — vocabulário parece completo."); exit(0)
+
+          produtos_path = Path('config/produtos_sgd_v23.json')
+          config = json.loads(produtos_path.read_text())
+          produtos = config.get('produtos', [])
+          produtos_lower = {p.lower() for p in produtos}
+
+          auto_added = []
+          para_revisao = []
+
+          for entry in unmatched:
+              # entry pode ser string ou dict {'frase': ..., 'count': ...}
+              if isinstance(entry, dict):
+                  frase = entry.get('frase', '')
+                  count = entry.get('count', 0)
+              else:
+                  frase = str(entry)
+                  count = 0
+
+              frase = frase.strip()
+              if not frase or frase.lower() in produtos_lower:
+                  continue
+              # Ignorar subeixos/eixos genéricos
+              if any(x in frase.lower() for x in ('eixo', 'diretriz', 'segurança', 'privacidade')):
+                  continue
+
+              if count >= 10:
+                  # Auto-adicionar (alta frequência, baixo risco)
+                  produtos.insert(0, frase)
+                  produtos_lower.add(frase.lower())
+                  auto_added.append({'frase': frase, 'count': count})
+                  print(f"  AUTO: '{frase}' (count={count})")
+              elif count >= 5:
+                  # Reportar para revisão humana
+                  para_revisao.append({'frase': frase, 'count': count})
+                  print(f"  REVISÃO: '{frase}' (count={count})")
+
+          if auto_added:
+              config['produtos'] = produtos
+              produtos_path.write_text(json.dumps(config, indent=2, ensure_ascii=False))
+              print(f"{len(auto_added)} produtos auto-adicionados a config/produtos_sgd_v23.json")
+
+          # Registrar pendências de revisão
+          pending_path = Path('vocab_pending_review.json')
+          existing = json.loads(pending_path.read_text()) if pending_path.exists() else []
+          existing_phrases = {e['frase'] for e in existing}
+          for item in para_revisao:
+              if item['frase'] not in existing_phrases:
+                  existing.append(item)
+          if para_revisao:
+              pending_path.write_text(json.dumps(existing, indent=2, ensure_ascii=False))
+              print(f"{len(para_revisao)} frases registradas em vocab_pending_review.json")
           PYEOF
 
       - name: Gravar stage_status.json e checkpoint humano
@@ -284,26 +368,42 @@ jobs:
         if: steps.check.outputs.status == 'needs_fix'
         env:
           WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
+          PROBLEM_TYPE: ${{ steps.check.outputs.problem_type }}
+          N_ZERO: ${{ steps.check.outputs.n_zero }}
         run: |
           git config user.name  "ptd-watcher[bot]"
           git config user.email "ptd-watcher[bot]@users.noreply.github.com"
 
-          # Ler iteration atual
+          # Atualizar .trigger_debug atomicamente via Python
           ITER=$(grep 'iteration:' .trigger_debug | awk '{print $2}')
           NEXT_ITER=$((ITER + 1))
+          python3 -c "
+          from datetime import datetime
+          from pathlib import Path
+          Path('.trigger_debug').write_text(
+              '# Atualizado pelo ptd-watcher[bot]\n'
+              '# Não editar manualmente\n'
+              f'last_trigger: {datetime.utcnow().strftime(\"%Y-%m-%dT%H:%M:%SZ\")}\n'
+              f'iteration: $NEXT_ITER\n'
+          )"
 
-          # Atualizar .trigger_debug
-          sed -i "s/last_trigger:.*/last_trigger: $(date -u +%Y-%m-%dT%H:%M:%SZ)/" .trigger_debug
-          sed -i "s/iteration:.*/iteration: $NEXT_ITER/" .trigger_debug
+          # Adicionar arquivos conforme tipo de problema
+          if [ "$PROBLEM_TYPE" = "cobertura" ]; then
+            git add ptd_ocr_fallback.py ptd_pipeline_v30.py \
+                    ocr_states.json ocr_config_dynamic.json .trigger_debug
+            [ -f ocr_escalados.json ] && git add ocr_escalados.json || true
+            COMMIT_DETAIL="OCR state machine: $N_ZERO órgãos zerados"
+          elif [ "$PROBLEM_TYPE" = "vocabulario" ]; then
+            git add config/produtos_sgd_v23.json .trigger_debug
+            [ -f vocab_pending_review.json ] && git add vocab_pending_review.json || true
+            COMMIT_DETAIL="vocabulário expandido via top_unmatched_phrases"
+          else
+            git add .trigger_debug
+            COMMIT_DETAIL="qualidade — aguardando revisão humana"
+          fi
 
-          git add ptd_ocr_fallback.py ptd_pipeline_v30.py \
-                  ocr_states.json ocr_config_dynamic.json docling_config_dynamic.json \
-                  .trigger_debug
-
-          N_ZERO="${{ steps.check.outputs.n_zero }}"
-          git commit -m "watcher: iteration $NEXT_ITER — fix para $N_ZERO órgãos zerados
-
-          State machine avançada para: $(jq -r '.orgaos_zero_entregas | join(\", \")' ptd_run_summary.json)
+          NEXT_ITER_VAL=$(grep 'iteration:' .trigger_debug | awk '{print $2}')
+          git commit -m "watcher: iteration ${NEXT_ITER_VAL} — ${COMMIT_DETAIL}
 
           https://claude.ai/code/session_01VMgXMT3uZP2cLZPxUjvR8C"
 
@@ -329,4 +429,7 @@ jobs:
         run: |
           echo "## PTD Watcher — $(date -u +%Y-%m-%dT%H:%M)" >> $GITHUB_STEP_SUMMARY
           echo "| Status | ${{ steps.check.outputs.status || 'waiting' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Problema | ${{ steps.check.outputs.problem_type || '—' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Órgãos zerados | ${{ steps.check.outputs.n_zero || '—' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| pct_ok | ${{ steps.check.outputs.pct_ok || '—' }}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| sem_produto | ${{ steps.check.outputs.sem_prod_pct || '—' }}% |" >> $GITHUB_STEP_SUMMARY

@@ -336,7 +336,8 @@ def _is_img_pdf(path: Path) -> bool:
 # Padrões de palavras-chave para identificar colunas pelo header
 # (mesmo padrão já usado em _parse_risk_df para tabelas de risco)
 _COL_KEYS: dict[str, tuple] = {
-    'servico': ('serviço', 'servi', 'nome do servi', 'descri'),
+    'servico': ('serviço', 'servi', 'nome do servi', 'descri', 'ação', 'acao',
+                'atividade', 'meta', 'iniciativa', 'objeto'),
     'produto': ('produto', 'entrega', 'item'),
     'subeixo': ('subeixo', 'sub-eixo', 'diretriz'),
     'area':    ('área', 'area', 'setor', 'unidade'),
@@ -375,10 +376,30 @@ def _sigla_de_fn(fn: str) -> str:
     - Pula prefixo 'ptd_'  →  ptd_aneel_... → ANEEL
     - Corta sufixo após '-' →  midr-docdiretivo → MIDR
     - Extrai [A-Z0-9] inicial → MF(RFB) → MF
+    - Padrão prefixo-SIGLA: anexo-de-entregas-mcom_ptd-... → MCOM
     """
     from urllib.parse import unquote as _uq
+    # palavras genéricas que não são siglas de órgão
+    _NON_SIGLA = frozenset({'PTD', 'ANEXO', 'DOC', 'PLANO', 'COPIA', 'TARJADA',
+                             'PLANOS', 'DOCS', 'ARQUIVO', 'FILE', 'FORM', 'VERSAO'})
     parts = _uq(fn).split('_')
-    raw   = parts[1] if parts[0].lower() == 'ptd' and len(parts) > 1 else parts[0]
+    # Padrão ptd_SIGLA_... (mais comum)
+    if parts[0].lower() == 'ptd' and len(parts) > 1:
+        raw   = parts[1]
+        clean = re.sub(r'[-].*', '', raw).upper()
+        m = re.match(r'^[A-Z0-9]+', clean)
+        return (m.group(0) if m else clean)[:10]
+    # Padrão prefixo-SIGLA_ptd-... (ex: anexo-de-entregas-mcom_ptd-25_27-...)
+    # Varrer até 4 parts procurando candidato a sigla válido
+    for part in parts[:4]:
+        # cada part pode ter sub-partes separadas por '-'; testar de trás pra frente
+        subparts = part.split('-')
+        for sub in reversed(subparts):
+            candidate = sub.upper()
+            if re.match(r'^[A-Z]{2,12}$', candidate) and candidate not in _NON_SIGLA:
+                return candidate[:10]
+    # Fallback original
+    raw   = parts[0]
     clean = re.sub(r'[-].*', '', raw).upper()
     m = re.match(r'^[A-Z0-9]+', clean)
     return (m.group(0) if m else clean)[:10]

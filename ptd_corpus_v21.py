@@ -194,6 +194,10 @@ def parse_linha(txt) -> Tuple[Optional[str], Optional[str], Optional[str], Optio
     if PAT_RUIDO.match(t) or len(t) < 10:
         return None, None, None, None, None, 'ruido'
 
+    # Reinserir espaços removidos pelo Docling em textos fusionados
+    # Ex: "DisponibilizaçãoemAcessoDigital" → "Disponibilização em Acesso Digital"
+    t = re.sub(r'(?<=[a-záéíóúâêîôûãõçà])(?=[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ])', ' ', t)
+
     # M8: Aho-Corasick O(n) — fallback linear se lib indisponível
     prod_found, prod_start, prod_end = _first_match_ac(_AC_PRODUTOS, t, PRODUTOS)
 
