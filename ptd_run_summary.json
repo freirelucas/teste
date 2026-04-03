@@ -1,6 +1,6 @@
 {
-  "run_id": "23932500153",
-  "timestamp": "2026-04-03T03:56:59",
+  "run_id": "23933761297",
+  "timestamp": "2026-04-03T04:50:27",
   "branch": "claude/setup-docling-pipeline-g11gg",
   "stage": 1,
   "stage_label": "parse_quality",
