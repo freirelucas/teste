@@ -1,21 +1,26 @@
 {
-  "run_id": "23972920775",
-  "timestamp": "2026-04-04T06:39:13",
+  "run_id": "23973378494",
+  "timestamp": "2026-04-04T07:03:39",
   "branch": "claude/setup-docling-pipeline-g11gg",
   "stage": 1,
   "stage_label": "parse_quality",
   "n_orgaos": 7,
-  "n_registros_raw": 255,
-  "n_registros_v21": 255,
-  "pct_ok": 68.2,
-  "sem_produto_pct": 29.4,
-  "col_map_ok_rate": 75.1,
+  "n_registros_raw": 261,
+  "n_registros_v21": 261,
+  "pct_ok": 67.4,
+  "sem_produto_pct": 29.9,
+  "col_map_ok_rate": 73.0,
   "extratores": {
-    "docling": 255
+    "docling": 261
   },
   "orgaos_zero_entregas": [],
   "orgaos_zero_ou_noise": [],
   "orgs_below_50pct": [
+    {
+      "sigla": "FUNAI",
+      "pct_ok": 33.3,
+      "n": 30
+    },
     {
       "sigla": "ITI",
       "pct_ok": 45.9,
@@ -41,33 +46,33 @@
     },
     {
       "sigla": "FIOCRUZ",
-      "n_entregas": 61,
+      "n_entregas": 62,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 95.1,
+      "pct_ok": 95.2,
       "sem_produto_n": 3,
-      "sem_produto_pct": 4.9,
+      "sem_produto_pct": 4.8,
       "col_map_ok_rate": 100.0
     },
     {
       "sigla": "FUNAI",
-      "n_entregas": 29,
+      "n_entregas": 30,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 34.5,
-      "sem_produto_n": 19,
-      "sem_produto_pct": 65.5,
-      "col_map_ok_rate": 72.4
+      "pct_ok": 33.3,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 66.7,
+      "col_map_ok_rate": 70.0
     },
     {
       "sigla": "INCRA",
-      "n_entregas": 19,
+      "n_entregas": 20,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 5.3,
+      "pct_ok": 5.0,
       "sem_produto_n": 12,
-      "sem_produto_pct": 63.2,
-      "col_map_ok_rate": 0.0
+      "sem_produto_pct": 60.0,
+      "col_map_ok_rate": 5.0
     },
     {
       "sigla": "ITI",
@@ -91,13 +96,13 @@
     },
     {
       "sigla": "SGPR",
-      "n_entregas": 15,
+      "n_entregas": 18,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 73.3,
-      "sem_produto_n": 4,
-      "sem_produto_pct": 26.7,
-      "col_map_ok_rate": 100.0
+      "pct_ok": 66.7,
+      "sem_produto_n": 6,
+      "sem_produto_pct": 33.3,
+      "col_map_ok_rate": 83.3
     }
   ]
 }
