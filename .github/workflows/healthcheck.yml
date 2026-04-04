@@ -1,0 +1,55 @@
+name: Healthcheck
+
+on:
+  push:
+    branches: ["claude/setup-docling-pipeline-g11gg", "main"]
+    paths:
+      - "**.py"
+      - "requirements.txt"
+      - "config/**"
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Tesseract
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run unit tests
+        run: python -m pytest tests/ -v
+
+      - name: Run healthcheck
+        run: python ptd_healthcheck.py
+
+      - name: Upload healthcheck log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: healthcheck-log
+          path: "*.log"
+          if-no-files-found: ignore
+          retention-days: 7

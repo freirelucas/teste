@@ -1,0 +1,43 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Denise do Carmo Direito, Lucas Freire Silva
+Instituto de Pesquisa Econômica Aplicada (IPEA) — COGIT/DIEST
+
+Os dados produzidos por este pipeline (arquivos .csv, .json, .parquet)
+estão licenciados sob Creative Commons Attribution 4.0 International.
+
+Você é livre para:
+  Compartilhar — copiar e redistribuir o material em qualquer meio ou formato
+  Adaptar      — remixar, transformar e criar a partir do material
+                 para qualquer fim, mesmo que comercial
+
+Sob as seguintes condições:
+  Atribuição — Você deve dar o crédito apropriado, prover um link para a
+               licença e indicar se mudanças foram feitas. Você pode fazê-lo
+               de qualquer forma razoável, mas não de forma a sugerir que o
+               licenciante o apoia ou aprova você ou o seu uso.
+
+Texto completo: https://creativecommons.org/licenses/by/4.0/legalcode
+
+──────────────────────────────────────────────────────────
+COMO CITAR (ABNT):
+DIREITO, Denise do Carmo; SILVA, Lucas Freire.
+PTD-BR: Corpus de Planos de Transformação Digital do Governo Federal
+Brasileiro. Brasília: IPEA/COGIT/DIEST, 2026.
+Disponível em: https://github.com/freirelucas/teste.
+
+COMO CITAR (BibTeX):
+@misc{ptdbr2026,
+  author       = {Direito, Denise do Carmo and Silva, Lucas Freire},
+  title        = {{PTD-BR}: Corpus de Planos de Transformação Digital
+                  do Governo Federal Brasileiro},
+  year         = {2026},
+  publisher    = {IPEA/COGIT/DIEST},
+  url          = {https://github.com/freirelucas/teste},
+  note         = {Versão 3.0. Documento de trabalho.}
+}
+──────────────────────────────────────────────────────────
+
+NOTA: Os PDFs fonte são documentos públicos da Administração Pública Federal,
+publicados pelo Portal do Governo Digital (gov.br/governodigital).
+Esta licença se aplica ao corpus estruturado derivado, não aos documentos originais.

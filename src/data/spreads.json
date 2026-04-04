@@ -1,0 +1,86 @@
+[
+  {
+    "id": "pessoal",
+    "name_pt": "Diagnóstico Pessoal",
+    "name_en": "Personal Diagnosis",
+    "description_pt": "Três cartas: situação, obstáculo, caminho.",
+    "deck": "full",
+    "card_count": 3,
+    "positions": [
+      { "label": "Situação", "description": "O estado atual do sistema-eu" },
+      { "label": "Obstáculo", "description": "A variedade que não está sendo absorvida" },
+      { "label": "Caminho", "description": "O ajuste cibernético necessário" }
+    ]
+  },
+  {
+    "id": "vsm",
+    "name_pt": "Modelo de Sistema Viável",
+    "name_en": "Viable System Model",
+    "description_pt": "Cinco cartas mapeadas aos cinco sistemas de Beer (S1–S5).",
+    "deck": "major",
+    "card_count": 5,
+    "positions": [
+      { "label": "S1 — Operação", "description": "As unidades que fazem o trabalho real" },
+      { "label": "S2 — Coordenação", "description": "Mecanismo anti-oscilatório entre as partes" },
+      { "label": "S3 — Controle", "description": "Gestão interna e auditoria" },
+      { "label": "S4 — Inteligência", "description": "Olhar para fora e para o futuro" },
+      { "label": "S5 — Identidade", "description": "Ética, propósito e clausura" }
+    ]
+  },
+  {
+    "id": "sintegracao",
+    "name_pt": "Sintegridade",
+    "name_en": "Syntegrity",
+    "description_pt": "Doze cartas em estrutura icosaédrica — inteligência coletiva não-hierárquica.",
+    "deck": "full",
+    "card_count": 12,
+    "positions": [
+      { "label": "Vértice 1", "description": "Primeiro tema da reverberação" },
+      { "label": "Vértice 2", "description": "Segundo tema da reverberação" },
+      { "label": "Vértice 3", "description": "Terceiro tema da reverberação" },
+      { "label": "Vértice 4", "description": "Quarto tema da reverberação" },
+      { "label": "Vértice 5", "description": "Quinto tema da reverberação" },
+      { "label": "Vértice 6", "description": "Sexto tema da reverberação" },
+      { "label": "Vértice 7", "description": "Sétimo tema da reverberação" },
+      { "label": "Vértice 8", "description": "Oitavo tema da reverberação" },
+      { "label": "Vértice 9", "description": "Nono tema da reverberação" },
+      { "label": "Vértice 10", "description": "Décimo tema da reverberação" },
+      { "label": "Vértice 11", "description": "Décimo primeiro tema" },
+      { "label": "Vértice 12", "description": "Décimo segundo tema" }
+    ]
+  },
+  {
+    "id": "platform",
+    "name_pt": "Plataforma para Mudança",
+    "name_en": "Platform for Change",
+    "description_pt": "Treze cartas — diagnóstico completo de uma organização ou projeto.",
+    "deck": "full",
+    "card_count": 13,
+    "positions": [
+      { "label": "Identidade", "description": "Quem é este sistema?" },
+      { "label": "Ambiente", "description": "Onde este sistema vive?" },
+      { "label": "S1-a", "description": "Primeira unidade operacional" },
+      { "label": "S1-b", "description": "Segunda unidade operacional" },
+      { "label": "S1-c", "description": "Terceira unidade operacional" },
+      { "label": "S2", "description": "Como as partes se coordenam?" },
+      { "label": "S3", "description": "Quem controla o interno?" },
+      { "label": "S3*", "description": "Auditoria — o que o controle não vê?" },
+      { "label": "S4", "description": "Quem olha para fora e para frente?" },
+      { "label": "S5", "description": "Qual é a identidade ética?" },
+      { "label": "Atenuador", "description": "O que está sendo filtrado?" },
+      { "label": "Amplificador", "description": "O que precisa ser amplificado?" },
+      { "label": "Algedônico", "description": "Onde dói? Onde há prazer?" }
+    ]
+  },
+  {
+    "id": "algedonico",
+    "name_pt": "Sinal Algedônico",
+    "name_en": "Algedonic Signal",
+    "description_pt": "Uma carta. Dor ou prazer? O diagnóstico mais direto possível.",
+    "deck": "full",
+    "card_count": 1,
+    "positions": [
+      { "label": "Sinal", "description": "O que o sistema está gritando agora?" }
+    ]
+  }
+]
