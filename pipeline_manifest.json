@@ -1,6 +1,6 @@
 {
   "versao_pipeline": "3.0-melhorado",
-  "data_execucao": "2026-04-04T00:04:40.956570",
+  "data_execucao": "2026-04-04T01:16:24.253828",
   "total_pdfs_baixados": 132,
   "total_registros_extraidos": 255,
   "total_riscos": 81,
@@ -151,7 +151,7 @@
   "proveniencia": {
     "fonte": "Portal do Governo Digital / MGI",
     "url_portal": "https://www.gov.br/governodigital/pt-br/estrategias-e-governanca-digital/planos-de-transformacao-digital",
-    "data_coleta": "2026-04-03",
+    "data_coleta": "2026-04-04",
     "base_legal": "Decreto 12.198/2024 · Portaria SGD/MGI 6.618/2024",
     "autores": [
       "Denise do Carmo Direito",
