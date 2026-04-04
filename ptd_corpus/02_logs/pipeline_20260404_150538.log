@@ -1,0 +1,657 @@
+15:05:43 INFO     Docling disponível
+15:05:43 WARNING  OCR fallback indisponível (IndentationError: unexpected indent (ptd_ocr_fallback.py, line 45))
+15:05:44 INFO     Ignorado (guia/template/norma): ABNT-NBR-17225-Acessibilidade-Digital.pdf
+15:05:44 INFO     Ignorado (guia/template/norma): cgrep-guia10passos-ptd-orgao.pdf
+15:05:44 INFO     Ignorado (guia/template/norma): ABNT-NBR-17225-Acessibilidade-Digital.pdf
+15:05:44 INFO     Scraping: 132 PDFs únicos | entregas: 68 | diretivos: 61
+15:05:44 INFO     Baixando 132 PDFs únicos...
+15:05:45 INFO     ✓ [  1/132] abin_ptd_anexo_de_entregas_assinado_pelo_orgao_ass   293.3KB
+15:05:48 INFO     ✓ [  2/132] aeb_ptd_2025_2027_docdiretivo_aprovado_assinado-1_  1033.7KB
+15:05:50 INFO     ✓ [  3/132] aeb_ptd_2025_2027_anexo_de_entregas_aprovado_assin   154.5KB
+15:05:56 INFO     ✓ [  4/132] agu_ptd_2025_2027_docdiretivo_assinado_assinado_as  2860.3KB
+15:05:58 INFO     ✓ [  5/132] agu_ptd_2025_2027_anexo_de_entregas_assinado_assin   525.5KB
+15:06:01 INFO     ✓ [  6/132] ana_ptd_2025_2027_docdiretivo_assinado_assinado_as   477.2KB
+15:06:03 INFO     ✓ [  7/132] ana_ptd_2025_2027_anexoentregas_assinado_assinado_   170.9KB
+15:06:06 INFO     ✓ [  8/132] anac_ptd_2025_2026_docdiretivo_se_assinado_tarjado  1036.3KB
+15:06:08 INFO     ✓ [  9/132] anac_ptd_2025_2026_anexo_de_entregas_se_assinado.p   215.2KB
+15:06:12 INFO     ✓ [ 10/132] anatel_ptd_docdiretivo_assinado_2025_2026_assinado  1006.0KB
+15:06:14 INFO     ✓ [ 11/132] anatel_ptd_2025_2026_anexo_de_entregas_do_ptd_publ    71.9KB
+15:06:17 INFO     ✓ [ 12/132] ancine_ptd_2024_2026_docdiretivo_assinado-2_assina   961.8KB
+15:06:19 INFO     ✓ [ 13/132] ancine_ptd_2024_2026_-_anexo_de_entregas_aprovado_   613.2KB
+15:06:22 INFO     ✓ [ 14/132] ptd_aneel_2025-2027_docdiretivo_assinado_tarjado.p   779.6KB
+15:06:24 INFO     ✓ [ 15/132] ptd_aneel_2025-2027_anexo_de_entregas_assinado.pdf   111.9KB
+15:06:28 INFO     ✓ [ 16/132] anm_ptd_2025_2027_docdiretivo_assinadopeloorgao_ta  1092.5KB
+15:06:31 INFO     ✓ [ 17/132] anm_ptd_2025_2027_anexo_entregas_assinadopeloorgao  1140.4KB
+15:06:34 INFO     ✓ [ 18/132] anpd_ptd_2025_2027_docdiretivo_assinado_assinado_a  1044.3KB
+15:06:36 INFO     ✓ [ 19/132] anpd_ptd_2025_2027_anexo_de_entregas_assinado_assi   166.5KB
+15:06:39 INFO     ✓ [ 20/132] ans-plano_de_transformacao_digital_assinado-copia_  1023.4KB
+15:06:41 INFO     ✓ [ 21/132] ans_ptd_2025_2026_anexo_de_entregas_assinado_assin   124.1KB
+15:06:45 INFO     ✓ [ 22/132] antaq_ptd_2025_2027_docdiretivo_assinado_assinado_  1039.8KB
+15:06:47 INFO     ✓ [ 23/132] antaq_ptd_2025_2027_anexoentregas_assinado_assinad   145.1KB
+15:06:49 INFO     ✓ [ 24/132] mt_anexo_de_entregas_-_assinado_assinado_assinado_   143.6KB
+15:06:57 INFO     ✓ [ 25/132] anvisa_ptd_docdiretivo_2025-2026_assinado_assinado  5771.2KB
+15:06:59 INFO     ✓ [ 26/132] anvisa_ptd_anexo_de_entregas_2025_2026_assinado_as   239.0KB
+15:07:02 INFO     ✓ [ 27/132] bcb_documento_diretivo_assinado_assinado_assinado-   713.7KB
+15:07:04 INFO     ✓ [ 28/132] bcb_anexo_de_entregas_ptd_25_26-1_assinado_assinad   134.8KB
+15:07:07 INFO     ✓ [ 29/132] cade_ptd_docdiretivo_2025_2026_assinado-2_assinado   810.4KB
+15:07:09 INFO     ✓ [ 30/132] cade_ptd_anexo_de_entregas_2025_2026_assinado_copi   504.0KB
+15:07:12 INFO     ✓ [ 31/132] mec_ptd_docdiretivo_2025-2026_sei_mec-5566673_copi   863.1KB
+15:07:15 INFO     ✓ [ 32/132] mec_ptd_anexo-de-entregas_sei_mec-5576401_copia_ta   495.7KB
+15:07:19 INFO     ✓ [ 33/132] mec_ptd_docdiretivo-versao-comunicacao_copia_tarja  1616.5KB
+15:07:21 INFO     ✓ [ 34/132] md_ptd_2026_2027_anexo_de_entregas_assinado_assina   579.4KB
+15:07:23 INFO     ✓ [ 35/132] md_ptd_2026_2027_anexo_de_entregas_assinado_assina   186.8KB
+15:07:26 INFO     ✓ [ 36/132] md_ptd_temp_copia_tarjada.pdf                        741.9KB
+15:07:30 INFO     ✓ [ 37/132] cgu_ptd_docdiretivo_assinado_assinado_assinado-cop  1085.4KB
+15:07:32 INFO     ✓ [ 38/132] cgu_ptd_anexo_de_entregas_pactuadas_assinado_assin   514.1KB
+15:07:35 INFO     ✓ [ 39/132] cnpq_ptd_2025_2027_docdiretivo_assinado_assinado_a   342.9KB
+15:07:37 INFO     ✓ [ 40/132] cnpq_ptd_2025_2027_anexo_de_entregas_assinado_assi   136.1KB
+15:07:40 INFO     ✓ [ 41/132] coaf_ptd_2025_2026_documento_diretivo_assinado_ass  1068.0KB
+15:07:45 INFO     ✓ [ 42/132] coaf_ptd_2025_2026_anexo_de_entregas-2_assinado_as  3184.5KB
+15:07:51 INFO     ✓ [ 43/132] ptd_midr-docdiretivo_aprovado_assinado_tarjado.pdf  3864.1KB
+15:07:55 INFO     ✓ [ 44/132] ptd_midr_-_anexo_de_entregas_-_aprovado_assinado.p  1122.0KB
+15:07:58 INFO     ✓ [ 45/132] mda-documento-diretivo-assinado_ptd-2025-207-copia   955.8KB
+15:08:00 INFO     ✓ [ 46/132] cvm_ptd_2025_2027_docdiretivo_assinado_assinado_as   270.5KB
+15:08:02 INFO     ✓ [ 47/132] cvm_ptd_2025_2027_anexoentregas_assinado_assinado_   409.0KB
+15:08:05 INFO     ✓ [ 48/132] dnocs_ptd_doc_diretivo_2025_2026_assinado_orgao-2_   891.1KB
+15:08:08 INFO     ✓ [ 49/132] dnocs_anexo_de_entregas_repactuado_2025_2026_assin   272.3KB
+15:08:13 INFO     ✓ [ 50/132] fbn_ptd_2025_2027_docdiretivo_assinado-1_tarjado.p  2921.6KB
+15:08:15 INFO     ✓ [ 51/132] fbn_ptd_2025_2027_anexo_de_entregas_assinado-1.pdf   162.3KB
+15:08:19 INFO     ✓ [ 52/132] fcp_ptd_2025_2027_docdiretivo_assinado-1_tarjado.p  1612.0KB
+15:08:21 INFO     ✓ [ 53/132] fcp_ptd_2025_2027_anexo_de_entregas_assinado-1.pdf   118.8KB
+15:08:24 INFO     ✓ [ 54/132] fcrb_ptd_2025_2026_docdiretivo_aprovado_assinado-1   998.2KB
+15:08:26 INFO     ✓ [ 55/132] fcrb_ptd_2025_2026_anexo_de_entregas_aprovado_assi   313.5KB
+15:08:30 INFO     ✓ [ 56/132] fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-  1318.1KB
+15:08:32 INFO     ✓ [ 57/132] fiocruz_ptd_anexo_de_entregas_assinado_v1_assinado   257.1KB
+15:08:36 INFO     ✓ [ 58/132] fiocruz-ptd-06_2024-copia_tarjada.pdf               1693.8KB
+15:08:40 INFO     ✓ [ 59/132] funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado  1842.1KB
+15:08:43 INFO     ✓ [ 60/132] funai_anexo_de_entregas_repactuado_2026_2027_assin   435.7KB
+15:08:46 INFO     ✓ [ 61/132] funarte_ptd_docdiretivo_assinado_21_01_2025_assina   965.7KB
+15:08:48 INFO     ✓ [ 62/132] funarte_ptd_anexo_de_entregas_assinado_v1_assinado   683.6KB
+15:08:51 INFO     ✓ [ 63/132] fundacentro_ptd_2025_2027_docdiretivo_assinado_ass   826.6KB
+15:08:54 INFO     ✓ [ 64/132] fundacentro_ptd_2025_2027_anexo_de_entregas_assina   635.5KB
+15:08:57 INFO     ✓ [ 65/132] mma_ptd_docdiretivo_assinado_2025_2026-1_assinado_   949.3KB
+15:08:59 INFO     ✓ [ 66/132] mma_ptd_anexo_de_entregas_aprovado_final_assinado_   174.8KB
+15:09:02 INFO     ✓ [ 67/132] ibge_docdiretivo_2025_assinado_assinado_assinado-c  1167.3KB
+15:09:04 INFO     ✓ [ 68/132] ibge_ptd_25_26_anexo_de_entregas_modelo_v2-1_assin   143.7KB
+15:09:14 INFO     ✓ [ 69/132] incra_ptd_docdiretivo__assinado-1_assinado_assinad  7182.0KB
+15:09:18 INFO     ✓ [ 70/132] incra_anexo_de_entregas_assinado-1_assinado_assina  1818.6KB
+15:09:23 INFO     ✓ [ 71/132] inpi_ptd_docdiretivo_assinado_2025_2026_assinado_a  3322.4KB
+15:09:29 INFO     ✓ [ 72/132] inpi_ptd_anexo_de_entregas_assinado_v1_assinado_as  3078.1KB
+15:09:32 INFO     ✓ [ 73/132] inss_ptd_2025_2027_docdiretivo-assinado-copia_tarj  1173.3KB
+15:09:34 INFO     ✓ [ 74/132] inss_ptd_2025_2027_anexo_de_entregas-assinado-copi   110.8KB
+15:09:37 INFO     ✓ [ 75/132] iphan_ptd_docdiretivo_assinado_2025_2026_assinado_   885.7KB
+15:09:39 INFO     ✓ [ 76/132] iphan_ptd_anexo_de_entregas_assinado_v1_assinado_a   310.9KB
+15:09:47 INFO     ✓ [ 77/132] iti_doc_diretivo_assinado-1_tarjado.pdf             4905.1KB
+15:09:49 INFO     ✓ [ 78/132] iti_anexo_de_entregas_assinado.pdf                   556.4KB
+15:09:53 INFO     ✓ [ 79/132] mapa_ptd_2025_2027_docdiretivo_assinado-1_tarjado.  1740.9KB
+15:09:55 INFO     ✓ [ 80/132] mapa_ptd_2025_2027_anexo_de_entregas_assinado-1.pd   261.9KB
+15:10:02 INFO     ✓ [ 81/132] documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.  4451.9KB
+15:10:05 INFO     ✓ [ 82/132] anexo-de-entregas-mcom_ptd-25_27-copia_tarjada.pdf  1213.8KB
+15:10:11 INFO     ✓ [ 83/132] ptd_21_24_mcom-copia_tarjada.pdf                    3040.7KB
+15:10:14 INFO     ✓ [ 84/132] mcti_ptd_2025-2027_docdiretivo_assinado-copia_tarj  1030.7KB
+15:10:16 INFO     ✓ [ 85/132] mcti_ptd_2025-2027_anexo-de-entregas_assinado-copi   145.8KB
+15:10:18 INFO     ✓ [ 86/132] mda-anexo-entregas-assinado_ptd-2025-2027-copia-ta   284.6KB
+15:10:21 INFO     ✓ [ 87/132] mdhc_ptd_2025_2027_docdiretivo_assinado_assinado_a   753.4KB
+15:10:23 INFO     ✓ [ 88/132] mdhc_ptd_2025_2027_anexoentregas_assinado_assinado   186.8KB
+15:10:25 INFO     ✓ [ 89/132] mdic_ptd_anexo_de_entregas_assinado_v1_assinado_as   176.6KB
+15:10:28 INFO     ✓ [ 90/132] memp_ptd_2025_2026_docdiretivo_assinado_assinado_a  1030.1KB
+15:10:31 INFO     ✓ [ 91/132] memp_ptd_2025_2026_anexo_de_entregas_assinado_assi   161.5KB
+15:10:34 INFO     ✓ [ 92/132] mesp_ptd_2025_2027_docdiretivo_assinado_assinado_2  1147.7KB
+15:10:36 INFO     ✓ [ 93/132] mesp_ptd_2025_2027_anexo_de_entregas_assinado_assi   226.6KB
+15:10:39 INFO     ✓ [ 94/132] mf_ptd_2026_2027_documentodiretivo_assinado_assina   955.1KB
+15:10:42 INFO     ✓ [ 95/132] mf_ptd_2026_2027_anexo_de_entregas_1_mf_se_assinad   241.2KB
+15:10:44 INFO     ✓ [ 96/132] mgi_ptd_2025_2027_docdiretivo_assinado_assinado_as   375.2KB
+15:10:47 INFO     ✓ [ 97/132] mgi_ptd_2025_2027_anexo_de_entregas_assinado_assin   256.1KB
+15:10:50 INFO     ✓ [ 98/132] minc_ptd_2025_2027_docdiretivo_assinado-1_assinado   863.6KB
+15:10:52 INFO     ✓ [ 99/132] minc_ptd_2025_2027_anexo_de_entregas_assinado-1_as   276.7KB
+15:10:55 INFO     ✓ [100/132] mjsp_ptd_docdiretivo_assinado_2025_2026_assinado_a   954.0KB
+15:10:58 INFO     ✓ [101/132] mjsp_ptd_anexo_de_entregas_assinado_v1_assinado_as   253.9KB
+15:11:00 INFO     ✓ [102/132] mme_ptd_2025_2027_docdiretivo_assinado-copia_tarja   664.5KB
+15:11:02 INFO     ✓ [103/132] mme_ptd_2025_2027_anexo_de_entregas_assinado__1_-c   111.1KB
+15:11:06 INFO     ✓ [104/132] mmulheres_ptd_2025_2027_docdiretivo_assinado_assin  1078.3KB
+15:11:08 INFO     ✓ [105/132] mmulheres_ptd_2025_2027_anexo_de_entregas_assinado   216.9KB
+15:11:11 INFO     ✓ [106/132] mpi_ptd_2025_2027_docdiretivo_ministerio_dos_povos   947.9KB
+15:11:13 INFO     ✓ [107/132] mpi_ptd_anexo_de_entregas_do_plano_de_tranformacao   191.9KB
+15:11:16 INFO     ✓ [108/132] mpo_ptd_docdiretivo_assinado_2025_2026_assinado_as   806.3KB
+15:11:18 INFO     ✓ [109/132] mpo_ptd_anexo_de_entregas_assinado_v1_assinado_ass   323.2KB
+15:11:21 INFO     ✓ [110/132] mpor_ptd_2025_2027_docdiretivo_assinado_assinado_a   876.5KB
+15:11:23 INFO     ✓ [111/132] mpor_ptd_2025_2027_anexo_de_entregas_assinado_assi   175.1KB
+15:11:27 INFO     ✓ [112/132] mps_ptd_2025-2026_docdiretivo_final_assinado-1_ass  1024.4KB
+15:11:29 INFO     ✓ [113/132] mps_ptd_2025-2026_anexo_de_entregas_final_assinado   165.0KB
+15:11:32 INFO     ✓ [114/132] mre_ptd_docdiretivo_assinado_2025_2026_assinado_as   760.9KB
+15:11:34 INFO     ✓ [115/132] mre_ptd_anexo_de_entregas_assinado_v1_assinado_ass   233.2KB
+15:11:37 INFO     ✓ [116/132] mte_ptd_2025_2026_docdiretivo_assinado_assinado_as   729.6KB
+15:11:39 INFO     ✓ [117/132] mte_ptd_anexo_de_entregas_assinado_v1__281_29_assi   459.5KB
+15:11:43 INFO     ✓ [118/132] mtur_ptd_docdiretiv_assinado_30_01_2025_assinado_a  1050.4KB
+15:11:45 INFO     ✓ [119/132] mtur_ptd_anexo_de_entregas_assinado_30_01_2025_ass   118.8KB
+15:11:48 INFO     ✓ [120/132] pf_ptd_docdiretivo_2025_2027_assinado-copia_tarjad   964.3KB
+15:11:50 INFO     ✓ [121/132] pf_ptd_anexo_de_entregas_2025_2027_assinado-copia_    62.5KB
+15:11:52 INFO     ✓ [122/132] mf_ptd_2026_2027_anexo_de_entregas_4_mf_pgfn_assin   466.8KB
+15:12:01 INFO     ✓ [123/132] previc_plano_de_transformacao_digital_2025_2026_29  6652.7KB
+15:12:04 INFO     ✓ [124/132] previc_ptd_repactuacao_2025-2026_assinado_assinado   182.9KB
+15:12:06 INFO     ✓ [125/132] prf_documentodiretivo_ptd_2026-2027_assinado_tarja   535.9KB
+15:12:09 INFO     ✓ [126/132] prf_anexo_de_entregas_do_ptd__2026_2027___ptd___en   157.7KB
+15:12:11 INFO     ✓ [127/132] mf_ptd_2026_2027_anexo_de_entregas_2_mf_rfb_assina   253.7KB
+15:12:14 INFO     ✓ [128/132] sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarj   791.2KB
+15:12:17 INFO     ✓ [129/132] sgpr_ptd_2025_2027_anexo_de_entregas_assinado-copi   897.9KB
+15:12:19 INFO     ✓ [130/132] mf_ptd_2026_2027_anexo_de_entregas_3_mf_stn_assina   467.8KB
+15:12:23 INFO     ✓ [131/132] susep_ptd_2025_2027_docdiretivo-assinado-copia_tar  1030.1KB
+15:12:25 INFO     ✓ [132/132] susep_ptd_2025-2026_anexo_de_entregas_final_assina   221.9KB
+15:12:26 INFO     132 OK | 0 erros | 123.3 MB total
+15:12:32 INFO     Sanity: 132 PDFs | 113 texto | 19 imagem/OCR | 0 duplicatas
+15:12:32 INFO     --siglas (debug): 15 PDFs de ['AGU', 'FIOCRUZ', 'FUNAI', 'FUNDACENTRO', 'INCRA', 'ITI', 'MCOM', 'SGPR']
+15:12:32 INFO     DocumentConverter instanciado (singleton × 2: plain + OCR)
+15:12:32 INFO     [1/15] → agu_ptd_2025_2027_anexo_de_entregas_assinado_assinado_assinado-copia_tarjada.pdf
+15:12:32 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:12:32 INFO     Going to convert document batch...
+15:12:32 INFO     Initializing pipeline for StandardPdfPipeline with options hash bc6794697da537796efc497178f9263f
+15:12:32 INFO     Loading plugin 'docling_defaults'
+15:12:32 INFO     Registered picture descriptions: ['picture_description_vlm_engine', 'vlm', 'api']
+15:12:32 INFO     Loading plugin 'docling_defaults'
+15:12:32 INFO     Registered ocr engines: ['auto', 'easyocr', 'kserve_v2_ocr', 'ocrmac', 'rapidocr', 'tesserocr', 'tesseract']
+15:12:32 INFO     command: tesseract --list-langs
+15:12:32 INFO     Loading plugin 'docling_defaults'
+15:12:32 INFO     Registered layout engines: ['layout_object_detection', 'docling_layout_default', 'docling_experimental_table_crops_layout']
+15:12:32 INFO     Accelerator device: 'cpu'
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-layout-heron/revision/main "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-layout-heron/resolve/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/.gitattributes "HTTP/1.1 307 Temporary Redirect"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/.gitattributes "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-layout-heron/resolve/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/README.md "HTTP/1.1 307 Temporary Redirect"
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/.gitattributes "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-layout-heron/resolve/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/model.safetensors "HTTP/1.1 302 Found"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-layout-heron/resolve/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/docling_heron_400.png "HTTP/1.1 307 Temporary Redirect"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-layout-heron/resolve/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/preprocessor_config.json "HTTP/1.1 307 Temporary Redirect"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-layout-heron/resolve/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/config.json "HTTP/1.1 307 Temporary Redirect"
+15:12:32 WARNING  Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/README.md "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/docling_heron_400.png "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/preprocessor_config.json "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/config.json "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/docling_heron_400.png "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/README.md "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/config.json "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-layout-heron/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8/preprocessor_config.json "HTTP/1.1 200 OK"
+15:12:32 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-layout-heron/xet-read-token/8f39ad3c0b4c58e9c2d2c84a38465abf757272d8 "HTTP/1.1 200 OK"
+15:12:34 INFO     Loading plugin 'docling_defaults'
+15:12:34 INFO     Registered table structure engines: ['docling_tableformer', 'docling_tableformer_v2']
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-models/revision/v2.3.0 "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/.gitignore "HTTP/1.1 307 Temporary Redirect"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/.gitattributes "HTTP/1.1 307 Temporary Redirect"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/config.json "HTTP/1.1 307 Temporary Redirect"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/README.md "HTTP/1.1 307 Temporary Redirect"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/.gitignore "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/.gitattributes "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/config.json "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/README.md "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/.gitignore "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts/tableformer/accurate/tm_config.json "HTTP/1.1 307 Temporary Redirect"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts/tableformer/fast/tm_config.json "HTTP/1.1 307 Temporary Redirect"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/config.json "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts/tableformer/accurate/tableformer_accurate.safetensors "HTTP/1.1 302 Found"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/.gitattributes "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/README.md "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts%2Ftableformer%2Faccurate%2Ftm_config.json "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts%2Ftableformer%2Ffast%2Ftm_config.json "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts%2Ftableformer%2Faccurate%2Ftm_config.json "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/resolve-cache/models/docling-project/docling-models/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts%2Ftableformer%2Ffast%2Ftm_config.json "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: HEAD https://huggingface.co/docling-project/docling-models/resolve/fc0f2d45e2218ea24bce5045f58a389aed16dc23/model_artifacts/tableformer/fast/tableformer_fast.safetensors "HTTP/1.1 302 Found"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-models/xet-read-token/fc0f2d45e2218ea24bce5045f58a389aed16dc23 "HTTP/1.1 200 OK"
+15:12:34 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-models/xet-read-token/fc0f2d45e2218ea24bce5045f58a389aed16dc23 "HTTP/1.1 200 OK"
+15:12:35 INFO     Accelerator device: 'cpu'
+15:12:35 INFO     Processing document agu_ptd_2025_2027_anexo_de_entregas_assinado_assinado_assinado-copia_tarjada.pdf
+15:12:36 INFO     command: tesseract --psm 0 -l osd /tmp/tmpunwls3q4.png stdout
+15:12:37 INFO     command: tesseract -l por /tmp/tmpunwls3q4.png stdout tsv
+15:12:40 INFO     command: tesseract --psm 0 -l osd /tmp/tmpgy_cy3lw.png stdout
+15:12:41 INFO     command: tesseract -l por /tmp/tmpgy_cy3lw.png stdout tsv
+15:13:01 INFO     Finished converting document agu_ptd_2025_2027_anexo_de_entregas_assinado_assinado_assinado-copia_tarjada.pdf in 28.78 sec.
+15:13:01 INFO       pixel_budget (Docling) agu_ptd_2025_2027_anexo_de_entregas_assinado_assinado_assinado-copia_tarjada.pdf: 45.8% (área tabelas/1001817 px²)
+15:13:01 INFO     [1/15] ✓ AGU       :   33 entregas | 28.8s | ETA ~6min
+15:13:01 INFO     [2/15] → agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf
+15:13:01 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:13:01 INFO     Going to convert document batch...
+15:13:01 INFO     Processing document agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf
+15:13:01 INFO     command: tesseract --psm 0 -l osd /tmp/tmp2_hp2z4x.png stdout
+15:13:02 INFO     command: tesseract -l por /tmp/tmp2_hp2z4x.png stdout tsv
+15:13:04 INFO     command: tesseract --psm 0 -l osd /tmp/tmpx3v1rssw.png stdout
+15:13:05 INFO     command: tesseract -l por /tmp/tmpx3v1rssw.png stdout tsv
+15:13:08 INFO     command: tesseract --psm 0 -l osd /tmp/tmp1nj14k84.png stdout
+15:13:09 INFO     command: tesseract -l por /tmp/tmp1nj14k84.png stdout tsv
+15:13:11 INFO     command: tesseract --psm 0 -l osd /tmp/tmp7gjeyir7.png stdout
+15:13:12 INFO     command: tesseract -l por /tmp/tmp7gjeyir7.png stdout tsv
+15:13:14 INFO     command: tesseract --psm 0 -l osd /tmp/tmpjewhw__7.png stdout
+15:13:15 INFO     command: tesseract -l por /tmp/tmpjewhw__7.png stdout tsv
+15:13:17 INFO     command: tesseract --psm 0 -l osd /tmp/tmp3funpklr.png stdout
+15:13:19 INFO     command: tesseract -l por /tmp/tmp3funpklr.png stdout tsv
+15:13:29 INFO     command: tesseract --psm 0 -l osd /tmp/tmp_fihpthu.png stdout
+15:13:30 INFO     command: tesseract -l por /tmp/tmp_fihpthu.png stdout tsv
+15:13:32 INFO     command: tesseract --psm 0 -l osd /tmp/tmpks8lo7dw.png stdout
+15:13:33 INFO     command: tesseract -l por /tmp/tmpks8lo7dw.png stdout tsv
+15:13:35 INFO     command: tesseract --psm 0 -l osd /tmp/tmpm5cae831.png stdout
+15:13:36 INFO     command: tesseract -l por /tmp/tmpm5cae831.png stdout tsv
+15:13:38 INFO     command: tesseract --psm 0 -l osd /tmp/tmp5gf3vyjz.png stdout
+15:13:40 INFO     command: tesseract -l por /tmp/tmp5gf3vyjz.png stdout tsv
+15:13:56 INFO     command: tesseract --psm 0 -l osd /tmp/tmp7x92jsd4.png stdout
+15:13:57 INFO     command: tesseract -l por /tmp/tmp7x92jsd4.png stdout tsv
+15:14:00 INFO     Finished converting document agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf in 59.32 sec.
+15:14:00 INFO       pixel_budget (Docling) agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf: 2.1% (área tabelas/5513330 px²)
+15:14:00 INFO     [2/15] ✓ AGU       :    6 entregas | 59.3s | ETA ~9min
+15:14:00 INFO     [3/15] → anexo-de-entregas-mcom_ptd-25_27-copia_tarjada.pdf
+15:14:00 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:14:00 INFO     Going to convert document batch...
+15:14:00 INFO     Processing document anexo-de-entregas-mcom_ptd-25_27-copia_tarjada.pdf
+15:14:01 INFO     command: tesseract --psm 0 -l osd /tmp/tmpizkhqm84.png stdout
+15:14:02 INFO     command: tesseract -l por /tmp/tmpizkhqm84.png stdout tsv
+15:14:05 INFO     command: tesseract --psm 0 -l osd /tmp/tmpr7o9pxhc.png stdout
+15:14:06 INFO     command: tesseract -l por /tmp/tmpr7o9pxhc.png stdout tsv
+15:14:19 INFO     command: tesseract --psm 0 -l osd /tmp/tmpn80s3aum.png stdout
+15:14:20 INFO     command: tesseract -l por /tmp/tmpn80s3aum.png stdout tsv
+15:14:40 INFO     Finished converting document anexo-de-entregas-mcom_ptd-25_27-copia_tarjada.pdf in 39.90 sec.
+15:14:40 INFO       pixel_budget (Docling) anexo-de-entregas-mcom_ptd-25_27-copia_tarjada.pdf: 55.2% (área tabelas/1503636 px²)
+15:14:40 INFO     [3/15] ✓ MCOM      :   55 entregas | 39.9s | ETA ~8min
+15:14:40 INFO     [4/15] → documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf
+15:14:40 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:14:40 INFO     Going to convert document batch...
+15:14:40 INFO     Processing document documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf
+15:14:41 INFO     command: tesseract --psm 0 -l osd /tmp/tmp01d71bge.png stdout
+15:14:41 INFO     command: tesseract -l por /tmp/tmp01d71bge.png stdout tsv
+15:14:44 INFO     command: tesseract --psm 0 -l osd /tmp/tmpg9h6ifex.png stdout
+15:14:45 INFO     command: tesseract -l por /tmp/tmpg9h6ifex.png stdout tsv
+15:14:51 INFO     command: tesseract --psm 0 -l osd /tmp/tmp1ohz95ci.png stdout
+15:14:52 INFO     command: tesseract -l por /tmp/tmp1ohz95ci.png stdout tsv
+15:14:53 INFO     command: tesseract --psm 0 -l osd /tmp/tmprzbpvq52.png stdout
+15:14:54 INFO     command: tesseract -l por /tmp/tmprzbpvq52.png stdout tsv
+15:14:56 INFO     command: tesseract --psm 0 -l osd /tmp/tmpk3n763d5.png stdout
+15:14:57 INFO     command: tesseract -l por /tmp/tmpk3n763d5.png stdout tsv
+15:14:59 INFO     command: tesseract --psm 0 -l osd /tmp/tmpxlqgek_5.png stdout
+15:15:01 INFO     command: tesseract -l por /tmp/tmpxlqgek_5.png stdout tsv
+15:15:18 INFO     command: tesseract --psm 0 -l osd /tmp/tmpa76rx1dq.png stdout
+15:15:19 INFO     command: tesseract -l por /tmp/tmpa76rx1dq.png stdout tsv
+15:15:21 INFO     command: tesseract --psm 0 -l osd /tmp/tmp2bo77y8d.png stdout
+15:15:21 INFO     command: tesseract -l por /tmp/tmp2bo77y8d.png stdout tsv
+15:15:24 INFO     command: tesseract --psm 0 -l osd /tmp/tmpu_mt1syv.png stdout
+15:15:25 INFO     command: tesseract -l por /tmp/tmpu_mt1syv.png stdout tsv
+15:15:26 INFO     command: tesseract --psm 0 -l osd /tmp/tmp8ydghgt2.png stdout
+15:15:28 INFO     command: tesseract -l por /tmp/tmp8ydghgt2.png stdout tsv
+15:15:33 INFO     command: tesseract --psm 0 -l osd /tmp/tmp6gcnhjvp.png stdout
+15:15:34 INFO     command: tesseract -l por /tmp/tmp6gcnhjvp.png stdout tsv
+15:15:39 INFO     command: tesseract --psm 0 -l osd /tmp/tmpxy00jkon.png stdout
+15:15:40 INFO     command: tesseract -l por /tmp/tmpxy00jkon.png stdout tsv
+15:15:42 INFO     command: tesseract --psm 0 -l osd /tmp/tmp6ccmonif.png stdout
+15:15:43 INFO     command: tesseract -l por /tmp/tmp6ccmonif.png stdout tsv
+15:15:45 INFO     command: tesseract --psm 0 -l osd /tmp/tmpwny7kr82.png stdout
+15:15:45 INFO     command: tesseract -l por /tmp/tmpwny7kr82.png stdout tsv
+15:15:51 INFO     Finished converting document documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf in 71.40 sec.
+15:15:51 INFO       pixel_budget (Docling) documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf: 10.8% (área tabelas/7016966 px²)
+15:15:51 WARNING  [4/15] ⚠ MCOM      :    0 entregas | 71.4s | ETA ~9min
+15:15:51 INFO     [5/15] → fiocruz-ptd-06_2024-copia_tarjada.pdf
+15:15:51 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:15:51 INFO     Going to convert document batch...
+15:15:51 INFO     Initializing pipeline for StandardPdfPipeline with options hash d18651824ca6fe56cf3ccb20424ac2c8
+15:15:51 INFO     Accelerator device: 'cpu'
+15:15:52 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-layout-heron/revision/main "HTTP/1.1 200 OK"
+15:15:52 INFO     HTTP Request: GET https://huggingface.co/api/models/docling-project/docling-models/revision/v2.3.0 "HTTP/1.1 200 OK"
+15:15:52 INFO     Accelerator device: 'cpu'
+15:15:52 INFO     Processing document fiocruz-ptd-06_2024-copia_tarjada.pdf
+15:17:01 INFO     Finished converting document fiocruz-ptd-06_2024-copia_tarjada.pdf in 69.56 sec.
+15:17:01 INFO       pixel_budget (Docling) fiocruz-ptd-06_2024-copia_tarjada.pdf: 36.4% (área tabelas/7518178 px²)
+15:17:01 WARNING  [5/15] ⚠ FIOCRUZ   :    0 entregas | 69.6s | ETA ~8min
+15:17:01 INFO     [6/15] → fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf
+15:17:01 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:17:01 INFO     Going to convert document batch...
+15:17:01 INFO     Processing document fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf
+15:17:19 INFO     Finished converting document fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf in 18.24 sec.
+15:17:19 INFO       pixel_budget (Docling) fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf: 11.3% (área tabelas/5012118 px²)
+15:17:19 WARNING  [6/15] ⚠ FIOCRUZ   :    0 entregas | 18.2s | ETA ~7min
+15:17:19 INFO     [7/15] → fiocruz_ptd_anexo_de_entregas_assinado_v1_assinado_assinado-1-copia_tarjada.pdf
+15:17:19 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:17:19 INFO     Going to convert document batch...
+15:17:19 INFO     Processing document fiocruz_ptd_anexo_de_entregas_assinado_v1_assinado_assinado-1-copia_tarjada.pdf
+15:17:52 INFO     Finished converting document fiocruz_ptd_anexo_de_entregas_assinado_v1_assinado_assinado-1-copia_tarjada.pdf in 32.34 sec.
+15:17:52 INFO       pixel_budget (Docling) fiocruz_ptd_anexo_de_entregas_assinado_v1_assinado_assinado-1-copia_tarjada.pdf: 54.7% (área tabelas/2004847 px²)
+15:17:52 INFO     [7/15] ✓ FIOCRUZ   :   62 entregas | 32.4s | ETA ~6min
+15:17:52 INFO     [8/15] → funai_anexo_de_entregas_repactuado_2026_2027_assinado_assinado_assinado.pdf
+15:17:52 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:17:52 INFO     Going to convert document batch...
+15:17:52 INFO     Processing document funai_anexo_de_entregas_repactuado_2026_2027_assinado_assinado_assinado.pdf
+15:17:53 INFO     command: tesseract --psm 0 -l osd /tmp/tmphkymqf6d.png stdout
+15:17:53 INFO     command: tesseract -l por /tmp/tmphkymqf6d.png stdout tsv
+15:18:07 INFO     Finished converting document funai_anexo_de_entregas_repactuado_2026_2027_assinado_assinado_assinado.pdf in 15.04 sec.
+15:18:07 INFO       pixel_budget (Docling) funai_anexo_de_entregas_repactuado_2026_2027_assinado_assinado_assinado.pdf: 49.8% (área tabelas/501212 px²)
+15:18:07 INFO     [8/15] ✓ FUNAI     :   22 entregas | 15.0s | ETA ~4min
+15:18:07 INFO     [9/15] → funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf
+15:18:07 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:18:07 INFO     Going to convert document batch...
+15:18:07 INFO     Processing document funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf
+15:18:08 INFO     command: tesseract --psm 0 -l osd /tmp/tmpw5yczcp0.png stdout
+15:18:09 INFO     command: tesseract -l por /tmp/tmpw5yczcp0.png stdout tsv
+15:18:10 INFO     command: tesseract --psm 0 -l osd /tmp/tmpjijeke6s.png stdout
+15:18:11 INFO     command: tesseract -l por /tmp/tmpjijeke6s.png stdout tsv
+15:18:15 INFO     command: tesseract --psm 0 -l osd /tmp/tmpq52p17hd.png stdout
+15:18:16 INFO     command: tesseract -l por /tmp/tmpq52p17hd.png stdout tsv
+15:18:18 INFO     command: tesseract --psm 0 -l osd /tmp/tmp68zhb0_x.png stdout
+15:18:19 INFO     command: tesseract -l por /tmp/tmp68zhb0_x.png stdout tsv
+15:18:20 INFO     command: tesseract --psm 0 -l osd /tmp/tmp8cpchhy0.png stdout
+15:18:21 INFO     command: tesseract -l por /tmp/tmp8cpchhy0.png stdout tsv
+15:18:23 INFO     command: tesseract --psm 0 -l osd /tmp/tmpsdziyypm.png stdout
+15:18:25 INFO     command: tesseract -l por /tmp/tmpsdziyypm.png stdout tsv
+15:18:34 INFO     command: tesseract --psm 0 -l osd /tmp/tmpk9l0hnst.png stdout
+15:18:35 INFO     command: tesseract -l por /tmp/tmpk9l0hnst.png stdout tsv
+15:18:37 INFO     command: tesseract --psm 0 -l osd /tmp/tmpvqvs6u17.png stdout
+15:18:37 INFO     command: tesseract -l por /tmp/tmpvqvs6u17.png stdout tsv
+15:18:39 INFO     command: tesseract --psm 0 -l osd /tmp/tmprkifupzk.png stdout
+15:18:39 INFO     command: tesseract -l por /tmp/tmprkifupzk.png stdout tsv
+15:18:41 INFO     command: tesseract --psm 0 -l osd /tmp/tmpaitiki9_.png stdout
+15:18:43 INFO     command: tesseract -l por /tmp/tmpaitiki9_.png stdout tsv
+15:18:54 INFO     command: tesseract --psm 0 -l osd /tmp/tmp4vy79v3w.png stdout
+15:18:55 INFO     command: tesseract -l por /tmp/tmp4vy79v3w.png stdout tsv
+15:19:04 INFO     command: tesseract --psm 0 -l osd /tmp/tmphvqctpxg.png stdout
+15:19:05 INFO     command: tesseract -l por /tmp/tmphvqctpxg.png stdout tsv
+15:19:07 INFO     command: tesseract --psm 0 -l osd /tmp/tmpo195j4f3.png stdout
+15:19:07 INFO     command: tesseract -l por /tmp/tmpo195j4f3.png stdout tsv
+15:19:14 INFO     Finished converting document funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf in 67.17 sec.
+15:19:14 INFO       pixel_budget (Docling) funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf: 16.4% (área tabelas/6515754 px²)
+15:19:14 INFO     [9/15] ✓ FUNAI     :    8 entregas | 67.2s | ETA ~4min
+15:19:14 INFO     [10/15] → incra_anexo_de_entregas_assinado-1_assinado_assinado-copia_tarjada.pdf
+15:19:14 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:19:14 INFO     Going to convert document batch...
+15:19:14 INFO     Processing document incra_anexo_de_entregas_assinado-1_assinado_assinado-copia_tarjada.pdf
+15:19:15 INFO     command: tesseract --psm 0 -l osd /tmp/tmpie1eug1t.png stdout
+15:19:16 INFO     command: tesseract -l por /tmp/tmpie1eug1t.png stdout tsv
+15:19:19 INFO     command: tesseract --psm 0 -l osd /tmp/tmp2va26rx9.png stdout
+15:19:20 INFO     command: tesseract -l por /tmp/tmp2va26rx9.png stdout tsv
+15:19:28 INFO     command: tesseract --psm 0 -l osd /tmp/tmpw0ualdqm.png stdout
+15:19:29 INFO     command: tesseract -l por /tmp/tmpw0ualdqm.png stdout tsv
+15:19:31 INFO     command: tesseract --psm 0 -l osd /tmp/tmpor06b0oj.png stdout
+15:19:32 INFO     command: tesseract -l por /tmp/tmpor06b0oj.png stdout tsv
+15:19:34 INFO     command: tesseract --psm 0 -l osd /tmp/tmpudgg4uux.png stdout
+15:19:35 INFO     command: tesseract -l por /tmp/tmpudgg4uux.png stdout tsv
+15:21:07 INFO     Finished converting document incra_anexo_de_entregas_assinado-1_assinado_assinado-copia_tarjada.pdf in 113.01 sec.
+15:21:07 INFO       pixel_budget (Docling) incra_anexo_de_entregas_assinado-1_assinado_assinado-copia_tarjada.pdf: 30.0% (área tabelas/2423520 px²)
+15:21:07 INFO     [10/15] ✓ INCRA     :   11 entregas | 113.0s | ETA ~4min
+15:21:07 INFO     [11/15] → incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf
+15:21:07 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:21:07 INFO     Going to convert document batch...
+15:21:07 INFO     Processing document incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf
+15:21:08 INFO     command: tesseract --psm 0 -l osd /tmp/tmpkta2uzmq.png stdout
+15:21:09 INFO     command: tesseract -l por /tmp/tmpkta2uzmq.png stdout tsv
+15:21:11 INFO     command: tesseract --psm 0 -l osd /tmp/tmpzpc4xkno.png stdout
+15:21:13 INFO     command: tesseract -l por /tmp/tmpzpc4xkno.png stdout tsv
+15:21:19 INFO     command: tesseract --psm 0 -l osd /tmp/tmpoov_rqwb.png stdout
+15:21:19 INFO     command: tesseract -l por /tmp/tmpoov_rqwb.png stdout tsv
+15:21:21 INFO     command: tesseract --psm 0 -l osd /tmp/tmpjl8ebvse.png stdout
+15:21:22 INFO     command: tesseract -l por /tmp/tmpjl8ebvse.png stdout tsv
+15:21:24 INFO     command: tesseract --psm 0 -l osd /tmp/tmpxk7xhqpr.png stdout
+15:21:25 INFO     command: tesseract -l por /tmp/tmpxk7xhqpr.png stdout tsv
+15:21:27 INFO     command: tesseract --psm 0 -l osd /tmp/tmpzo6s18pc.png stdout
+15:21:28 INFO     command: tesseract -l por /tmp/tmpzo6s18pc.png stdout tsv
+15:21:44 INFO     command: tesseract --psm 0 -l osd /tmp/tmpg_9szaz8.png stdout
+15:21:45 INFO     command: tesseract -l por /tmp/tmpg_9szaz8.png stdout tsv
+15:21:47 INFO     command: tesseract --psm 0 -l osd /tmp/tmpscg4orsx.png stdout
+15:21:48 INFO     command: tesseract -l por /tmp/tmpscg4orsx.png stdout tsv
+15:21:49 INFO     command: tesseract --psm 0 -l osd /tmp/tmpfx9e7jxi.png stdout
+15:21:50 INFO     command: tesseract -l por /tmp/tmpfx9e7jxi.png stdout tsv
+15:21:52 INFO     command: tesseract --psm 0 -l osd /tmp/tmplxmd6a5u.png stdout
+15:21:53 INFO     command: tesseract -l por /tmp/tmplxmd6a5u.png stdout tsv
+15:21:58 INFO     command: tesseract --psm 0 -l osd /tmp/tmp1prou3w6.png stdout
+15:21:59 INFO     command: tesseract -l por /tmp/tmp1prou3w6.png stdout tsv
+15:22:12 INFO     command: tesseract --psm 0 -l osd /tmp/tmpks4ip6bn.png stdout
+15:22:12 INFO     command: tesseract -l por /tmp/tmpks4ip6bn.png stdout tsv
+15:22:14 INFO     command: tesseract --psm 0 -l osd /tmp/tmphhrsvkzk.png stdout
+15:22:15 INFO     command: tesseract -l por /tmp/tmphhrsvkzk.png stdout tsv
+15:22:23 INFO     Finished converting document incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf in 75.71 sec.
+15:22:23 INFO       pixel_budget (Docling) incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf: 20.2% (área tabelas/6515754 px²)
+15:22:23 INFO     [11/15] ✓ INCRA     :    9 entregas | 75.7s | ETA ~3min
+15:22:23 INFO     [12/15] → iti_anexo_de_entregas_assinado.pdf
+15:22:23 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:22:23 INFO     Going to convert document batch...
+15:22:23 INFO     Processing document iti_anexo_de_entregas_assinado.pdf
+15:22:24 INFO     command: tesseract --psm 0 -l osd /tmp/tmpkwxmrtb_.png stdout
+15:22:24 INFO     command: tesseract -l por /tmp/tmpkwxmrtb_.png stdout tsv
+15:22:41 INFO     Finished converting document iti_anexo_de_entregas_assinado.pdf in 17.86 sec.
+15:22:41 INFO       pixel_budget (Docling) iti_anexo_de_entregas_assinado.pdf: 57.2% (área tabelas/501212 px²)
+15:22:41 INFO     [12/15] ✓ ITI       :   31 entregas | 17.9s | ETA ~2min
+15:22:41 INFO     [13/15] → iti_doc_diretivo_assinado-1_tarjado.pdf
+15:22:41 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:22:41 INFO     Going to convert document batch...
+15:22:41 INFO     Processing document iti_doc_diretivo_assinado-1_tarjado.pdf
+15:22:41 INFO     command: tesseract --psm 0 -l osd /tmp/tmpndiut4ua.png stdout
+15:22:42 INFO     command: tesseract -l por /tmp/tmpndiut4ua.png stdout tsv
+15:22:44 INFO     command: tesseract --psm 0 -l osd /tmp/tmpkhbii_eg.png stdout
+15:22:45 INFO     command: tesseract -l por /tmp/tmpkhbii_eg.png stdout tsv
+15:22:49 INFO     command: tesseract --psm 0 -l osd /tmp/tmp2vr2l4x1.png stdout
+15:22:50 INFO     command: tesseract -l por /tmp/tmp2vr2l4x1.png stdout tsv
+15:22:52 INFO     command: tesseract --psm 0 -l osd /tmp/tmpuj2ahe8d.png stdout
+15:22:52 INFO     command: tesseract -l por /tmp/tmpuj2ahe8d.png stdout tsv
+15:22:54 INFO     command: tesseract --psm 0 -l osd /tmp/tmp9rtup66r.png stdout
+15:22:55 INFO     command: tesseract -l por /tmp/tmp9rtup66r.png stdout tsv
+15:22:57 INFO     command: tesseract --psm 0 -l osd /tmp/tmp6inrb7rv.png stdout
+15:22:58 INFO     command: tesseract -l por /tmp/tmp6inrb7rv.png stdout tsv
+15:23:14 INFO     command: tesseract --psm 0 -l osd /tmp/tmp8l_0b0yu.png stdout
+15:23:15 INFO     command: tesseract -l por /tmp/tmp8l_0b0yu.png stdout tsv
+15:23:17 INFO     command: tesseract --psm 0 -l osd /tmp/tmp143t16fb.png stdout
+15:23:18 INFO     command: tesseract -l por /tmp/tmp143t16fb.png stdout tsv
+15:23:20 INFO     command: tesseract --psm 0 -l osd /tmp/tmpuo5xkucg.png stdout
+15:23:21 INFO     command: tesseract -l por /tmp/tmpuo5xkucg.png stdout tsv
+15:23:23 INFO     command: tesseract --psm 0 -l osd /tmp/tmpxr7bp8p_.png stdout
+15:23:24 INFO     command: tesseract -l por /tmp/tmpxr7bp8p_.png stdout tsv
+15:23:39 INFO     command: tesseract --psm 0 -l osd /tmp/tmpfqk1lntj.png stdout
+15:23:39 INFO     command: tesseract -l por /tmp/tmpfqk1lntj.png stdout tsv
+15:23:43 INFO     Finished converting document iti_doc_diretivo_assinado-1_tarjado.pdf in 62.05 sec.
+15:23:43 INFO       pixel_budget (Docling) iti_doc_diretivo_assinado-1_tarjado.pdf: 8.0% (área tabelas/5516339 px²)
+15:23:43 INFO     [13/15] ✓ ITI       :    6 entregas | 62.1s | ETA ~1min
+15:23:43 INFO     [14/15] → sgpr_ptd_2025_2027_anexo_de_entregas_assinado-copia_tarjada.pdf
+15:23:43 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:23:43 INFO     Going to convert document batch...
+15:23:43 INFO     Processing document sgpr_ptd_2025_2027_anexo_de_entregas_assinado-copia_tarjada.pdf
+15:23:44 INFO     command: tesseract --psm 0 -l osd /tmp/tmp6yz_pu6m.png stdout
+15:23:44 INFO     command: tesseract -l por /tmp/tmp6yz_pu6m.png stdout tsv
+15:23:47 INFO     command: tesseract --psm 0 -l osd /tmp/tmpid8e9qhx.png stdout
+15:23:48 INFO     command: tesseract -l por /tmp/tmpid8e9qhx.png stdout tsv
+15:24:01 INFO     Finished converting document sgpr_ptd_2025_2027_anexo_de_entregas_assinado-copia_tarjada.pdf in 18.43 sec.
+15:24:01 INFO       pixel_budget (Docling) sgpr_ptd_2025_2027_anexo_de_entregas_assinado-copia_tarjada.pdf: 29.5% (área tabelas/1002424 px²)
+15:24:01 INFO     [14/15] ✓ SGPR      :   18 entregas | 18.4s | ETA ~49s
+15:24:01 INFO     [15/15] → sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf
+15:24:01 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:24:01 INFO     Going to convert document batch...
+15:24:01 INFO     Processing document sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf
+15:24:21 INFO     Finished converting document sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf in 19.80 sec.
+15:24:21 INFO       pixel_budget (Docling) sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf: 8.2% (área tabelas/5513330 px²)
+15:24:21 WARNING  [15/15] ⚠ SGPR      :    0 entregas | 19.8s | ETA ~0s
+15:24:21 INFO     261 registros | 7 órgãos
+15:24:21 INFO     ╔══════════════════════════════════════════════════════════════╗
+15:24:21 INFO     ║                  ENTREGAS — fase concluída                   ║
+15:24:21 INFO     ║  Processados: 15    |  ✓ 11  ⚠ 4                             ║
+15:24:21 INFO     ║  Duração: 11.8 min                                           ║
+15:24:21 INFO     ║  261 registros | 7 órgãos                                    ║
+15:24:21 INFO     ╚══════════════════════════════════════════════════════════════╝
+15:24:21 INFO     [1/7] → agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf
+15:24:21 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:24:21 INFO     Going to convert document batch...
+15:24:21 INFO     Processing document agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf
+15:24:21 INFO     command: tesseract --psm 0 -l osd /tmp/tmpyvrg0ivv.png stdout
+15:24:22 INFO     command: tesseract -l por /tmp/tmpyvrg0ivv.png stdout tsv
+15:24:24 INFO     command: tesseract --psm 0 -l osd /tmp/tmp4o2176ul.png stdout
+15:24:25 INFO     command: tesseract -l por /tmp/tmp4o2176ul.png stdout tsv
+15:24:29 INFO     command: tesseract --psm 0 -l osd /tmp/tmp81ayot5x.png stdout
+15:24:30 INFO     command: tesseract -l por /tmp/tmp81ayot5x.png stdout tsv
+15:24:32 INFO     command: tesseract --psm 0 -l osd /tmp/tmp9ua4epcy.png stdout
+15:24:33 INFO     command: tesseract -l por /tmp/tmp9ua4epcy.png stdout tsv
+15:24:35 INFO     command: tesseract --psm 0 -l osd /tmp/tmpninc3b2z.png stdout
+15:24:36 INFO     command: tesseract -l por /tmp/tmpninc3b2z.png stdout tsv
+15:24:38 INFO     command: tesseract --psm 0 -l osd /tmp/tmpg9u5qtnr.png stdout
+15:24:40 INFO     command: tesseract -l por /tmp/tmpg9u5qtnr.png stdout tsv
+15:24:50 INFO     command: tesseract --psm 0 -l osd /tmp/tmpcsz_7gi2.png stdout
+15:24:50 INFO     command: tesseract -l por /tmp/tmpcsz_7gi2.png stdout tsv
+15:24:53 INFO     command: tesseract --psm 0 -l osd /tmp/tmplhwmjtim.png stdout
+15:24:53 INFO     command: tesseract -l por /tmp/tmplhwmjtim.png stdout tsv
+15:24:56 INFO     command: tesseract --psm 0 -l osd /tmp/tmp07p9n1ol.png stdout
+15:24:56 INFO     command: tesseract -l por /tmp/tmp07p9n1ol.png stdout tsv
+15:24:59 INFO     command: tesseract --psm 0 -l osd /tmp/tmpxbobk6cq.png stdout
+15:25:00 INFO     command: tesseract -l por /tmp/tmpxbobk6cq.png stdout tsv
+15:25:12 INFO     command: tesseract --psm 0 -l osd /tmp/tmpm06iqnd5.png stdout
+15:25:12 INFO     command: tesseract -l por /tmp/tmpm06iqnd5.png stdout tsv
+15:25:17 INFO     Finished converting document agu_ptd_2025_2027_docdiretivo_assinado_assinado_assinado-copia_tarjada.pdf in 55.85 sec.
+15:25:17 INFO     [1/7] ✓ AGU       :   7 riscos | 55.9s | ETA ~5min
+15:25:17 INFO     [2/7] → documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf
+15:25:17 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:25:17 INFO     Going to convert document batch...
+15:25:17 INFO     Processing document documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf
+15:25:17 INFO     command: tesseract --psm 0 -l osd /tmp/tmp56ot1vi6.png stdout
+15:25:18 INFO     command: tesseract -l por /tmp/tmp56ot1vi6.png stdout tsv
+15:25:21 INFO     command: tesseract --psm 0 -l osd /tmp/tmphsx9fvcs.png stdout
+15:25:22 INFO     command: tesseract -l por /tmp/tmphsx9fvcs.png stdout tsv
+15:25:28 INFO     command: tesseract --psm 0 -l osd /tmp/tmphtfod0_m.png stdout
+15:25:29 INFO     command: tesseract -l por /tmp/tmphtfod0_m.png stdout tsv
+15:25:30 INFO     command: tesseract --psm 0 -l osd /tmp/tmprh5r4dp3.png stdout
+15:25:30 INFO     command: tesseract -l por /tmp/tmprh5r4dp3.png stdout tsv
+15:25:32 INFO     command: tesseract --psm 0 -l osd /tmp/tmpnlbwt_vi.png stdout
+15:25:33 INFO     command: tesseract -l por /tmp/tmpnlbwt_vi.png stdout tsv
+15:25:36 INFO     command: tesseract --psm 0 -l osd /tmp/tmpz45ji6ok.png stdout
+15:25:37 INFO     command: tesseract -l por /tmp/tmpz45ji6ok.png stdout tsv
+15:25:54 INFO     command: tesseract --psm 0 -l osd /tmp/tmp160jvoq5.png stdout
+15:25:55 INFO     command: tesseract -l por /tmp/tmp160jvoq5.png stdout tsv
+15:25:57 INFO     command: tesseract --psm 0 -l osd /tmp/tmpo4npe8gu.png stdout
+15:25:58 INFO     command: tesseract -l por /tmp/tmpo4npe8gu.png stdout tsv
+15:26:00 INFO     command: tesseract --psm 0 -l osd /tmp/tmplhl5savl.png stdout
+15:26:01 INFO     command: tesseract -l por /tmp/tmplhl5savl.png stdout tsv
+15:26:03 INFO     command: tesseract --psm 0 -l osd /tmp/tmpfcldkn2d.png stdout
+15:26:04 INFO     command: tesseract -l por /tmp/tmpfcldkn2d.png stdout tsv
+15:26:10 INFO     command: tesseract --psm 0 -l osd /tmp/tmpiu1ndshs.png stdout
+15:26:11 INFO     command: tesseract -l por /tmp/tmpiu1ndshs.png stdout tsv
+15:26:16 INFO     command: tesseract --psm 0 -l osd /tmp/tmptv1o_1pu.png stdout
+15:26:17 INFO     command: tesseract -l por /tmp/tmptv1o_1pu.png stdout tsv
+15:26:18 INFO     command: tesseract --psm 0 -l osd /tmp/tmp6xio87ay.png stdout
+15:26:19 INFO     command: tesseract -l por /tmp/tmp6xio87ay.png stdout tsv
+15:26:21 INFO     command: tesseract --psm 0 -l osd /tmp/tmp596dajjl.png stdout
+15:26:22 INFO     command: tesseract -l por /tmp/tmp596dajjl.png stdout tsv
+15:26:29 INFO     Finished converting document documento-diretivo-mcom-_-ptd-25_27-copia_tarjada.pdf in 71.87 sec.
+15:26:29 INFO     [2/7] ✓ MCOM      :  14 riscos | 71.9s | ETA ~5min
+15:26:29 INFO     [3/7] → fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf
+15:26:29 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:26:29 INFO     Going to convert document batch...
+15:26:29 INFO     Processing document fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf
+15:26:46 INFO     Finished converting document fiocruz_novo-ptd_2-1_docdiretivo_repactuacao_2024-2026_assinado_assinado-copia_tarjada.pdf in 17.89 sec.
+15:26:46 INFO     [3/7] ✓ FIOCRUZ   :   6 riscos | 17.9s | ETA ~3min
+15:26:46 INFO     [4/7] → funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf
+15:26:46 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:26:47 INFO     Going to convert document batch...
+15:26:47 INFO     Processing document funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf
+15:26:48 INFO     command: tesseract --psm 0 -l osd /tmp/tmp3kh7zoap.png stdout
+15:26:48 INFO     command: tesseract -l por /tmp/tmp3kh7zoap.png stdout tsv
+15:26:50 INFO     command: tesseract --psm 0 -l osd /tmp/tmpkqs1r4z_.png stdout
+15:26:51 INFO     command: tesseract -l por /tmp/tmpkqs1r4z_.png stdout tsv
+15:26:53 INFO     command: tesseract --psm 0 -l osd /tmp/tmpygib9iph.png stdout
+15:26:54 INFO     command: tesseract -l por /tmp/tmpygib9iph.png stdout tsv
+15:26:56 INFO     command: tesseract --psm 0 -l osd /tmp/tmpie0nkixy.png stdout
+15:26:56 INFO     command: tesseract -l por /tmp/tmpie0nkixy.png stdout tsv
+15:26:58 INFO     command: tesseract --psm 0 -l osd /tmp/tmp5me7i8py.png stdout
+15:26:59 INFO     command: tesseract -l por /tmp/tmp5me7i8py.png stdout tsv
+15:27:01 INFO     command: tesseract --psm 0 -l osd /tmp/tmpcu5_o31h.png stdout
+15:27:02 INFO     command: tesseract -l por /tmp/tmpcu5_o31h.png stdout tsv
+15:27:14 INFO     command: tesseract --psm 0 -l osd /tmp/tmpm44ei33y.png stdout
+15:27:14 INFO     command: tesseract -l por /tmp/tmpm44ei33y.png stdout tsv
+15:27:16 INFO     command: tesseract --psm 0 -l osd /tmp/tmpgpyd34u5.png stdout
+15:27:16 INFO     command: tesseract -l por /tmp/tmpgpyd34u5.png stdout tsv
+15:27:18 INFO     command: tesseract --psm 0 -l osd /tmp/tmpq1db60ii.png stdout
+15:27:18 INFO     command: tesseract -l por /tmp/tmpq1db60ii.png stdout tsv
+15:27:20 INFO     command: tesseract --psm 0 -l osd /tmp/tmph2cgswbj.png stdout
+15:27:22 INFO     command: tesseract -l por /tmp/tmph2cgswbj.png stdout tsv
+15:27:34 INFO     command: tesseract --psm 0 -l osd /tmp/tmpfgr_dv5k.png stdout
+15:27:35 INFO     command: tesseract -l por /tmp/tmpfgr_dv5k.png stdout tsv
+15:27:43 INFO     command: tesseract --psm 0 -l osd /tmp/tmp445cy544.png stdout
+15:27:44 INFO     command: tesseract -l por /tmp/tmp445cy544.png stdout tsv
+15:27:46 INFO     command: tesseract --psm 0 -l osd /tmp/tmplh_5iv5d.png stdout
+15:27:47 INFO     command: tesseract -l por /tmp/tmplh_5iv5d.png stdout tsv
+15:27:53 INFO     Finished converting document funai_ptd_2025_2027_docdiretivo_assinado-1_tarjado.pdf in 66.72 sec.
+15:27:53 INFO     [4/7] ✓ FUNAI     :  15 riscos | 66.7s | ETA ~2min
+15:27:53 INFO     [5/7] → incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf
+15:27:53 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:27:53 INFO     Going to convert document batch...
+15:27:53 INFO     Processing document incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf
+15:27:54 INFO     command: tesseract --psm 0 -l osd /tmp/tmpif9pwjvb.png stdout
+15:27:55 INFO     command: tesseract -l por /tmp/tmpif9pwjvb.png stdout tsv
+15:27:57 INFO     command: tesseract --psm 0 -l osd /tmp/tmpe9xezruo.png stdout
+15:27:59 INFO     command: tesseract -l por /tmp/tmpe9xezruo.png stdout tsv
+15:28:05 INFO     command: tesseract --psm 0 -l osd /tmp/tmpfw60km_y.png stdout
+15:28:05 INFO     command: tesseract -l por /tmp/tmpfw60km_y.png stdout tsv
+15:28:07 INFO     command: tesseract --psm 0 -l osd /tmp/tmpm6ozrtsf.png stdout
+15:28:08 INFO     command: tesseract -l por /tmp/tmpm6ozrtsf.png stdout tsv
+15:28:10 INFO     command: tesseract --psm 0 -l osd /tmp/tmpu8p1p4bq.png stdout
+15:28:10 INFO     command: tesseract -l por /tmp/tmpu8p1p4bq.png stdout tsv
+15:28:13 INFO     command: tesseract --psm 0 -l osd /tmp/tmpsur7duxs.png stdout
+15:28:14 INFO     command: tesseract -l por /tmp/tmpsur7duxs.png stdout tsv
+15:28:29 INFO     command: tesseract --psm 0 -l osd /tmp/tmpr047gqlw.png stdout
+15:28:30 INFO     command: tesseract -l por /tmp/tmpr047gqlw.png stdout tsv
+15:28:32 INFO     command: tesseract --psm 0 -l osd /tmp/tmpcvfov9a6.png stdout
+15:28:32 INFO     command: tesseract -l por /tmp/tmpcvfov9a6.png stdout tsv
+15:28:34 INFO     command: tesseract --psm 0 -l osd /tmp/tmpdgqxcwb2.png stdout
+15:28:35 INFO     command: tesseract -l por /tmp/tmpdgqxcwb2.png stdout tsv
+15:28:37 INFO     command: tesseract --psm 0 -l osd /tmp/tmpui1a80ix.png stdout
+15:28:38 INFO     command: tesseract -l por /tmp/tmpui1a80ix.png stdout tsv
+15:28:42 INFO     command: tesseract --psm 0 -l osd /tmp/tmpbahrje61.png stdout
+15:28:43 INFO     command: tesseract -l por /tmp/tmpbahrje61.png stdout tsv
+15:28:55 INFO     command: tesseract --psm 0 -l osd /tmp/tmp1x3nx17t.png stdout
+15:28:56 INFO     command: tesseract -l por /tmp/tmp1x3nx17t.png stdout tsv
+15:28:58 INFO     command: tesseract --psm 0 -l osd /tmp/tmpq0fxr3gi.png stdout
+15:28:59 INFO     command: tesseract -l por /tmp/tmpq0fxr3gi.png stdout tsv
+15:29:06 INFO     Finished converting document incra_ptd_docdiretivo__assinado-1_assinado_assinado-copia_tarjada.pdf in 72.99 sec.
+15:29:06 INFO     [5/7] ✓ INCRA     :  15 riscos | 73.0s | ETA ~1min
+15:29:06 INFO     [6/7] → iti_doc_diretivo_assinado-1_tarjado.pdf
+15:29:06 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:29:06 INFO     Going to convert document batch...
+15:29:06 INFO     Processing document iti_doc_diretivo_assinado-1_tarjado.pdf
+15:29:07 INFO     command: tesseract --psm 0 -l osd /tmp/tmpklphluf9.png stdout
+15:29:07 INFO     command: tesseract -l por /tmp/tmpklphluf9.png stdout tsv
+15:29:10 INFO     command: tesseract --psm 0 -l osd /tmp/tmpg1u9b27g.png stdout
+15:29:11 INFO     command: tesseract -l por /tmp/tmpg1u9b27g.png stdout tsv
+15:29:15 INFO     command: tesseract --psm 0 -l osd /tmp/tmp1hn426hd.png stdout
+15:29:16 INFO     command: tesseract -l por /tmp/tmp1hn426hd.png stdout tsv
+15:29:18 INFO     command: tesseract --psm 0 -l osd /tmp/tmpvae8z39l.png stdout
+15:29:19 INFO     command: tesseract -l por /tmp/tmpvae8z39l.png stdout tsv
+15:29:20 INFO     command: tesseract --psm 0 -l osd /tmp/tmp9n0p002y.png stdout
+15:29:21 INFO     command: tesseract -l por /tmp/tmp9n0p002y.png stdout tsv
+15:29:23 INFO     command: tesseract --psm 0 -l osd /tmp/tmpql_6zdr4.png stdout
+15:29:25 INFO     command: tesseract -l por /tmp/tmpql_6zdr4.png stdout tsv
+15:29:42 INFO     command: tesseract --psm 0 -l osd /tmp/tmp11ulbn09.png stdout
+15:29:43 INFO     command: tesseract -l por /tmp/tmp11ulbn09.png stdout tsv
+15:29:45 INFO     command: tesseract --psm 0 -l osd /tmp/tmpfgdtlduc.png stdout
+15:29:46 INFO     command: tesseract -l por /tmp/tmpfgdtlduc.png stdout tsv
+15:29:48 INFO     command: tesseract --psm 0 -l osd /tmp/tmpc2fa61m0.png stdout
+15:29:48 INFO     command: tesseract -l por /tmp/tmpc2fa61m0.png stdout tsv
+15:29:51 INFO     command: tesseract --psm 0 -l osd /tmp/tmpz9p3x8hb.png stdout
+15:29:52 INFO     command: tesseract -l por /tmp/tmpz9p3x8hb.png stdout tsv
+15:29:58 INFO     command: tesseract --psm 0 -l osd /tmp/tmp4cuzkjz2.png stdout
+15:29:59 INFO     command: tesseract -l por /tmp/tmp4cuzkjz2.png stdout tsv
+15:30:07 INFO     Finished converting document iti_doc_diretivo_assinado-1_tarjado.pdf in 61.22 sec.
+15:30:07 INFO     [6/7] ✓ ITI       :  14 riscos | 61.2s | ETA ~58s
+15:30:07 INFO     [7/7] → sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf
+15:30:07 INFO     detected formats: [<InputFormat.PDF: 'pdf'>]
+15:30:07 INFO     Going to convert document batch...
+15:30:07 INFO     Processing document sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf
+15:30:28 INFO     Finished converting document sgpr_ptd_2026_2027_docdiretivo_assinado-copia_tarjada.pdf in 20.55 sec.
+15:30:28 INFO     [7/7] ✓ SGPR      :  10 riscos | 20.6s | ETA ~0s
+15:30:28 INFO     ╔══════════════════════════════════════════════════════════════╗
+15:30:28 INFO     ║                   RISCOS — fase concluída                    ║
+15:30:28 INFO     ║  Processados: 7     |  ✓ 7  ⚠ 0                              ║
+15:30:28 INFO     ║  Duração: 6.1 min                                            ║
+15:30:28 INFO     ║  81 riscos | 7 órgãos                                        ║
+15:30:28 INFO     ╚══════════════════════════════════════════════════════════════╝
+15:30:28 INFO     81 riscos | 0 ações | 135 relações
+15:30:28 INFO     ptd_corpus_raw                     : 261 linhas
+15:30:28 INFO     ptd_pivot_eixos                    : 7 linhas
+15:30:31 INFO     ptd_datas_assinatura               : 132 linhas
+15:30:31 INFO     ptd_riscos                         : 81 linhas
+15:30:31 INFO     ptd_riscos_acoes                   : 135 linhas
+15:30:31 INFO     Manifesto salvo: pipeline_manifest.json | SHA-256 de 132 PDFs
+15:30:31 INFO     ==================================================
+15:30:31 INFO     PTD-BR v3.0-melhorado — PIPELINE CONCLUÍDO
+15:30:31 INFO     ==================================================
+15:30:31 INFO     ptd_corpus_raw.csv                        160 KB
+15:30:31 INFO     ptd_pivot_eixos.csv                         0 KB
+15:30:31 INFO     ptd_datas_assinatura.csv                    9 KB
+15:30:31 INFO     ptd_riscos.csv                             23 KB
+15:30:31 INFO     ptd_riscos_acoes.csv                        2 KB
+15:30:31 INFO     proveniencia.json                           0 KB
+15:30:31 INFO     pipeline_manifest.json                     20 KB
+15:30:31 INFO     📦 Artefatos: https://github.com/freirelucas/teste/actions/runs/23981441318
+15:30:31 INFO     ==================================================
