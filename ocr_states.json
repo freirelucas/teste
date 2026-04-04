@@ -22,5 +22,21 @@
   "SGPR": {
     "state": 2,
     "type": "docling"
+  },
+  "21": {
+    "state": 1,
+    "type": "docling"
+  },
+  "INPI": {
+    "state": 1,
+    "type": "docling"
+  },
+  "MIDR": {
+    "state": 1,
+    "type": "docling"
+  },
+  "MMULHERES": {
+    "state": 1,
+    "type": "docling"
   }
 }

@@ -22,5 +22,21 @@
   "SGPR": {
     "table_min_rows": 2,
     "force_ocr": true
+  },
+  "21": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "INPI": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "MIDR": {
+    "table_min_rows": 1,
+    "force_ocr": false
+  },
+  "MMULHERES": {
+    "table_min_rows": 1,
+    "force_ocr": false
   }
 }
