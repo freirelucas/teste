@@ -1,34 +1,195 @@
 {
-  "run_id": "23972157595",
-  "timestamp": "2026-04-04T05:48:43",
-  "branch": "claude/setup-docling-pipeline-g11gg",
-  "stage": 1,
-  "stage_label": "parse_quality",
-  "n_orgaos": 7,
-  "n_registros_raw": 255,
-  "n_registros_v21": 255,
-  "pct_ok": 68.2,
-  "sem_produto_pct": 29.4,
-  "col_map_ok_rate": 75.1,
+  "run_id": "23970639776",
+  "timestamp": "2026-04-04T06:11:30",
+  "branch": "master",
+  "stage": 0,
+  "stage_label": "cobertura",
+  "n_orgaos": 65,
+  "n_registros_raw": 5957,
+  "n_registros_v21": 5957,
+  "pct_ok": 69.0,
+  "sem_produto_pct": 28.4,
+  "col_map_ok_rate": 73.9,
   "extratores": {
-    "docling": 255
+    "docling": 5957
   },
   "orgaos_zero_entregas": [],
-  "orgaos_zero_ou_noise": [],
+  "orgaos_zero_ou_noise": [
+    "21",
+    "INPI",
+    "MIDR",
+    "MMULHERES"
+  ],
   "orgs_below_50pct": [
+    {
+      "sigla": "ANA",
+      "pct_ok": 45.3,
+      "n": 86
+    },
+    {
+      "sigla": "ANAC",
+      "pct_ok": 43.2,
+      "n": 125
+    },
+    {
+      "sigla": "ANATEL",
+      "pct_ok": 45.8,
+      "n": 59
+    },
+    {
+      "sigla": "CVM",
+      "pct_ok": 39.4,
+      "n": 33
+    },
+    {
+      "sigla": "FIOCRUZ",
+      "pct_ok": 13.1,
+      "n": 61
+    },
+    {
+      "sigla": "IBGE",
+      "pct_ok": 21.7,
+      "n": 46
+    },
+    {
+      "sigla": "INPI",
+      "pct_ok": 0.0,
+      "n": 30
+    },
     {
       "sigla": "ITI",
       "pct_ok": 45.9,
       "n": 37
+    },
+    {
+      "sigla": "MD",
+      "pct_ok": 46.2,
+      "n": 292
+    },
+    {
+      "sigla": "MPI",
+      "pct_ok": 36.7,
+      "n": 60
+    },
+    {
+      "sigla": "MRE",
+      "pct_ok": 48.4,
+      "n": 95
     }
   ],
   "top_unmatched_phrases": [
     {
+      "phrase": "Disponibilização emAcesso Digital",
+      "count": 239
+    },
+    {
+      "phrase": "Serviços Digitais e Melhoria da",
+      "count": 161
+    },
+    {
+      "phrase": "Projetos Especiais",
+      "count": 112
+    },
+    {
       "phrase": "Segurança e Privacidade",
-      "count": 10
+      "count": 78
+    },
+    {
+      "phrase": "Integração à ferramenta de avaliação",
+      "count": 60
+    },
+    {
+      "phrase": "Governança e Gestão de Dados",
+      "count": 57
+    },
+    {
+      "phrase": "Construção de diagnóstico",
+      "count": 54
+    },
+    {
+      "phrase": "Disponibilização emAcessoDigital",
+      "count": 46
+    },
+    {
+      "phrase": "Integração ao SEI",
+      "count": 44
+    },
+    {
+      "phrase": "Integração ao Pagtesouro",
+      "count": 42
+    },
+    {
+      "phrase": "Evolução do serviço",
+      "count": 28
+    },
+    {
+      "phrase": "Integração de avaliação",
+      "count": 25
+    },
+    {
+      "phrase": "Implementação da Política de Governança",
+      "count": 21
+    },
+    {
+      "phrase": "Serviços Digitais",
+      "count": 19
+    },
+    {
+      "phrase": "Fornecer Acesso Digital",
+      "count": 19
+    },
+    {
+      "phrase": "Disponibilização emAcesso",
+      "count": 18
+    },
+    {
+      "phrase": "Serviços Digitais e",
+      "count": 17
+    },
+    {
+      "phrase": "Governança e Gestão deDados",
+      "count": 17
+    },
+    {
+      "phrase": "Integração àbasededados",
+      "count": 17
+    },
+    {
+      "phrase": "Cancelar Certificação de Boas Práticas",
+      "count": 16
     }
   ],
   "por_orgao": [
+    {
+      "sigla": "21",
+      "n_entregas": 12,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 100.0,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "ABIN",
+      "n_entregas": 20,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 70.0,
+      "sem_produto_n": 6,
+      "sem_produto_pct": 30.0,
+      "col_map_ok_rate": 55.0
+    },
+    {
+      "sigla": "AEB",
+      "n_entregas": 63,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 63.5,
+      "sem_produto_n": 23,
+      "sem_produto_pct": 36.5,
+      "col_map_ok_rate": 84.1
+    },
     {
       "sigla": "AGU",
       "n_entregas": 39,
@@ -40,13 +201,223 @@
       "col_map_ok_rate": 69.2
     },
     {
+      "sigla": "ANA",
+      "n_entregas": 86,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 45.3,
+      "sem_produto_n": 46,
+      "sem_produto_pct": 53.5,
+      "col_map_ok_rate": 76.7
+    },
+    {
+      "sigla": "ANAC",
+      "n_entregas": 125,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 43.2,
+      "sem_produto_n": 70,
+      "sem_produto_pct": 56.0,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "ANATEL",
+      "n_entregas": 59,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 45.8,
+      "sem_produto_n": 10,
+      "sem_produto_pct": 16.9,
+      "col_map_ok_rate": 94.9
+    },
+    {
+      "sigla": "ANCINE",
+      "n_entregas": 142,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 56.3,
+      "sem_produto_n": 45,
+      "sem_produto_pct": 31.7,
+      "col_map_ok_rate": 78.2
+    },
+    {
+      "sigla": "ANEEL",
+      "n_entregas": 68,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 92.6,
+      "sem_produto_n": 5,
+      "sem_produto_pct": 7.4,
+      "col_map_ok_rate": 29.4
+    },
+    {
+      "sigla": "ANEXO",
+      "n_entregas": 55,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 96.4,
+      "sem_produto_n": 2,
+      "sem_produto_pct": 3.6,
+      "col_map_ok_rate": 87.3
+    },
+    {
+      "sigla": "ANM",
+      "n_entregas": 263,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 97.3,
+      "sem_produto_n": 4,
+      "sem_produto_pct": 1.5,
+      "col_map_ok_rate": 48.7
+    },
+    {
+      "sigla": "ANPD",
+      "n_entregas": 67,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 52.2,
+      "sem_produto_n": 31,
+      "sem_produto_pct": 46.3,
+      "col_map_ok_rate": 64.2
+    },
+    {
+      "sigla": "ANS",
+      "n_entregas": 42,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 73.8,
+      "sem_produto_n": 11,
+      "sem_produto_pct": 26.2,
+      "col_map_ok_rate": 85.7
+    },
+    {
+      "sigla": "ANTAQ",
+      "n_entregas": 52,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 82.7,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 17.3,
+      "col_map_ok_rate": 51.9
+    },
+    {
+      "sigla": "ANVISA",
+      "n_entregas": 472,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 71.0,
+      "sem_produto_n": 137,
+      "sem_produto_pct": 29.0,
+      "col_map_ok_rate": 62.9
+    },
+    {
+      "sigla": "BCB",
+      "n_entregas": 73,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 69.9,
+      "sem_produto_n": 22,
+      "sem_produto_pct": 30.1,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "CADE",
+      "n_entregas": 42,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 78.6,
+      "sem_produto_n": 8,
+      "sem_produto_pct": 19.0,
+      "col_map_ok_rate": 47.6
+    },
+    {
+      "sigla": "CGU",
+      "n_entregas": 34,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.7,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 35.3,
+      "col_map_ok_rate": 44.1
+    },
+    {
+      "sigla": "CNPQ",
+      "n_entregas": 24,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 62.5,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 37.5,
+      "col_map_ok_rate": 75.0
+    },
+    {
+      "sigla": "COAF",
+      "n_entregas": 29,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 75.9,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 24.1,
+      "col_map_ok_rate": 75.9
+    },
+    {
+      "sigla": "CVM",
+      "n_entregas": 33,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 39.4,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 60.6,
+      "col_map_ok_rate": 66.7
+    },
+    {
+      "sigla": "DNOCS",
+      "n_entregas": 78,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 85.9,
+      "sem_produto_n": 11,
+      "sem_produto_pct": 14.1,
+      "col_map_ok_rate": 62.8
+    },
+    {
+      "sigla": "FBN",
+      "n_entregas": 62,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 80.6,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 19.4,
+      "col_map_ok_rate": 80.6
+    },
+    {
+      "sigla": "FCP",
+      "n_entregas": 30,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 53.3,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 40.0,
+      "col_map_ok_rate": 40.0
+    },
+    {
+      "sigla": "FCRB",
+      "n_entregas": 40,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 87.5,
+      "sem_produto_n": 5,
+      "sem_produto_pct": 12.5,
+      "col_map_ok_rate": 70.0
+    },
+    {
       "sigla": "FIOCRUZ",
       "n_entregas": 61,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 95.1,
-      "sem_produto_n": 3,
-      "sem_produto_pct": 4.9,
+      "pct_ok": 13.1,
+      "sem_produto_n": 53,
+      "sem_produto_pct": 86.9,
       "col_map_ok_rate": 100.0
     },
     {
@@ -60,6 +431,36 @@
       "col_map_ok_rate": 72.4
     },
     {
+      "sigla": "FUNARTE",
+      "n_entregas": 80,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 65.0,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 15.0,
+      "col_map_ok_rate": 85.0
+    },
+    {
+      "sigla": "FUNDACENTR",
+      "n_entregas": 12,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 8.3,
+      "sem_produto_n": 4,
+      "sem_produto_pct": 33.3,
+      "col_map_ok_rate": 33.3
+    },
+    {
+      "sigla": "IBGE",
+      "n_entregas": 46,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 21.7,
+      "sem_produto_n": 36,
+      "sem_produto_pct": 78.3,
+      "col_map_ok_rate": 60.9
+    },
+    {
       "sigla": "INCRA",
       "n_entregas": 19,
       "extrator": "docling",
@@ -68,6 +469,36 @@
       "sem_produto_n": 12,
       "sem_produto_pct": 63.2,
       "col_map_ok_rate": 0.0
+    },
+    {
+      "sigla": "INPI",
+      "n_entregas": 30,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 23,
+      "sem_produto_pct": 76.7,
+      "col_map_ok_rate": 23.3
+    },
+    {
+      "sigla": "INSS",
+      "n_entregas": 85,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 65.9,
+      "sem_produto_n": 29,
+      "sem_produto_pct": 34.1,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "IPHAN",
+      "n_entregas": 119,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 60.5,
+      "sem_produto_n": 31,
+      "sem_produto_pct": 26.1,
+      "col_map_ok_rate": 63.9
     },
     {
       "sigla": "ITI",
@@ -80,24 +511,304 @@
       "col_map_ok_rate": 83.8
     },
     {
-      "sigla": "MCOM",
-      "n_entregas": 55,
+      "sigla": "MAPA",
+      "n_entregas": 144,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 96.4,
-      "sem_produto_n": 2,
-      "sem_produto_pct": 3.6,
+      "pct_ok": 89.6,
+      "sem_produto_n": 11,
+      "sem_produto_pct": 7.6,
+      "col_map_ok_rate": 66.0
+    },
+    {
+      "sigla": "MCTI",
+      "n_entregas": 62,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 69.4,
+      "sem_produto_n": 19,
+      "sem_produto_pct": 30.6,
+      "col_map_ok_rate": 50.0
+    },
+    {
+      "sigla": "MD",
+      "n_entregas": 292,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 46.2,
+      "sem_produto_n": 157,
+      "sem_produto_pct": 53.8,
+      "col_map_ok_rate": 93.2
+    },
+    {
+      "sigla": "MDA",
+      "n_entregas": 79,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 94.9,
+      "sem_produto_n": 4,
+      "sem_produto_pct": 5.1,
+      "col_map_ok_rate": 82.3
+    },
+    {
+      "sigla": "MDHC",
+      "n_entregas": 112,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.3,
+      "sem_produto_n": 40,
+      "sem_produto_pct": 35.7,
+      "col_map_ok_rate": 72.3
+    },
+    {
+      "sigla": "MDIC",
+      "n_entregas": 73,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 57.5,
+      "sem_produto_n": 29,
+      "sem_produto_pct": 39.7,
       "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "MEC",
+      "n_entregas": 18,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 61.1,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 38.9,
+      "col_map_ok_rate": 61.1
+    },
+    {
+      "sigla": "MEMP",
+      "n_entregas": 52,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 78.8,
+      "sem_produto_n": 10,
+      "sem_produto_pct": 19.2,
+      "col_map_ok_rate": 90.4
+    },
+    {
+      "sigla": "MESP",
+      "n_entregas": 41,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 56.1,
+      "sem_produto_n": 18,
+      "sem_produto_pct": 43.9,
+      "col_map_ok_rate": 65.9
+    },
+    {
+      "sigla": "MF",
+      "n_entregas": 405,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 77.3,
+      "sem_produto_n": 92,
+      "sem_produto_pct": 22.7,
+      "col_map_ok_rate": 88.6
+    },
+    {
+      "sigla": "MGI",
+      "n_entregas": 327,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 90.5,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 6.1,
+      "col_map_ok_rate": 82.3
+    },
+    {
+      "sigla": "MIDR",
+      "n_entregas": 13,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 13,
+      "sem_produto_pct": 100.0,
+      "col_map_ok_rate": 30.8
+    },
+    {
+      "sigla": "MINC",
+      "n_entregas": 109,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 82.6,
+      "sem_produto_n": 18,
+      "sem_produto_pct": 16.5,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "MJSP",
+      "n_entregas": 154,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 76.6,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 13.0,
+      "col_map_ok_rate": 77.9
+    },
+    {
+      "sigla": "MMA",
+      "n_entregas": 363,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 69.1,
+      "sem_produto_n": 112,
+      "sem_produto_pct": 30.9,
+      "col_map_ok_rate": 52.1
+    },
+    {
+      "sigla": "MME",
+      "n_entregas": 74,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 70.3,
+      "sem_produto_n": 22,
+      "sem_produto_pct": 29.7,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "MMULHERES",
+      "n_entregas": 14,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 14,
+      "sem_produto_pct": 100.0,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "MPI",
+      "n_entregas": 60,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 36.7,
+      "sem_produto_n": 22,
+      "sem_produto_pct": 36.7,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "MPO",
+      "n_entregas": 29,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 65.5,
+      "sem_produto_n": 10,
+      "sem_produto_pct": 34.5,
+      "col_map_ok_rate": 96.6
+    },
+    {
+      "sigla": "MPOR",
+      "n_entregas": 64,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 73.4,
+      "sem_produto_n": 17,
+      "sem_produto_pct": 26.6,
+      "col_map_ok_rate": 95.3
+    },
+    {
+      "sigla": "MPS",
+      "n_entregas": 49,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 79.6,
+      "sem_produto_n": 10,
+      "sem_produto_pct": 20.4,
+      "col_map_ok_rate": 87.8
+    },
+    {
+      "sigla": "MRE",
+      "n_entregas": 95,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 48.4,
+      "sem_produto_n": 49,
+      "sem_produto_pct": 51.6,
+      "col_map_ok_rate": 66.3
+    },
+    {
+      "sigla": "MT",
+      "n_entregas": 51,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 76.5,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 23.5,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "MTE",
+      "n_entregas": 58,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 51.7,
+      "sem_produto_n": 25,
+      "sem_produto_pct": 43.1,
+      "col_map_ok_rate": 84.5
+    },
+    {
+      "sigla": "MTUR",
+      "n_entregas": 116,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 89.7,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 10.3,
+      "col_map_ok_rate": 88.8
+    },
+    {
+      "sigla": "PF",
+      "n_entregas": 163,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 87.7,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 12.3,
+      "col_map_ok_rate": 68.7
+    },
+    {
+      "sigla": "PREVIC",
+      "n_entregas": 149,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 70.5,
+      "sem_produto_n": 44,
+      "sem_produto_pct": 29.5,
+      "col_map_ok_rate": 69.1
+    },
+    {
+      "sigla": "PRF",
+      "n_entregas": 223,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 69.1,
+      "sem_produto_n": 69,
+      "sem_produto_pct": 30.9,
+      "col_map_ok_rate": 97.8
     },
     {
       "sigla": "SGPR",
       "n_entregas": 15,
       "extrator": "docling",
       "status": "ok",
-      "pct_ok": 73.3,
-      "sem_produto_n": 4,
-      "sem_produto_pct": 26.7,
+      "pct_ok": 80.0,
+      "sem_produto_n": 3,
+      "sem_produto_pct": 20.0,
       "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "SUSEP",
+      "n_entregas": 25,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.0,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 36.0,
+      "col_map_ok_rate": 64.0
     }
   ]
 }
