@@ -7,6 +7,20 @@ const ACT_LABELS = {
   3: 'Platform for Change',
 }
 
+const SUIT_LABELS = {
+  circuitos: 'Circuitos',
+  territorios: 'Territórios',
+  ferramentas: 'Ferramentas',
+  sinais: 'Sinais',
+}
+
+const SUIT_ICONS = {
+  circuitos: '\u21BB',
+  territorios: '\u2302',
+  ferramentas: '\u2692',
+  sinais: '\u2632',
+}
+
 export default function Card({ card, isReversed, isRevealed, position, onClick }) {
   return (
     <div
@@ -32,10 +46,14 @@ export default function Card({ card, isReversed, isRevealed, position, onClick }
         </div>
 
         {/* Front face */}
-        <div className="card__front">
+        <div className={`card__front ${card.suit ? `card__front--${card.suit}` : ''}`}>
           <div className="card__header">
             <span className="card__numeral">{card.numeral}</span>
-            <span className="card__act">{ACT_LABELS[card.act]}</span>
+            <span className={`card__act ${card.suit ? `card__act--${card.suit}` : ''}`}>
+              {card.suit
+                ? `${SUIT_ICONS[card.suit]} ${SUIT_LABELS[card.suit]}`
+                : ACT_LABELS[card.act]}
+            </span>
           </div>
           <h3 className="card__name">{card.name_pt}</h3>
           <p className="card__concept">{card.concept_pt}</p>

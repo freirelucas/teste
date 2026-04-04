@@ -4,6 +4,7 @@
     "name_pt": "Diagnóstico Pessoal",
     "name_en": "Personal Diagnosis",
     "description_pt": "Três cartas: situação, obstáculo, caminho.",
+    "deck": "full",
     "card_count": 3,
     "positions": [
       { "label": "Situação", "description": "O estado atual do sistema-eu" },
@@ -16,6 +17,7 @@
     "name_pt": "Modelo de Sistema Viável",
     "name_en": "Viable System Model",
     "description_pt": "Cinco cartas mapeadas aos cinco sistemas de Beer (S1–S5).",
+    "deck": "major",
     "card_count": 5,
     "positions": [
       { "label": "S1 — Operação", "description": "As unidades que fazem o trabalho real" },
@@ -30,6 +32,7 @@
     "name_pt": "Sintegridade",
     "name_en": "Syntegrity",
     "description_pt": "Doze cartas em estrutura icosaédrica — inteligência coletiva não-hierárquica.",
+    "deck": "full",
     "card_count": 12,
     "positions": [
       { "label": "Vértice 1", "description": "Primeiro tema da reverberação" },
@@ -51,6 +54,7 @@
     "name_pt": "Plataforma para Mudança",
     "name_en": "Platform for Change",
     "description_pt": "Treze cartas — diagnóstico completo de uma organização ou projeto.",
+    "deck": "full",
     "card_count": 13,
     "positions": [
       { "label": "Identidade", "description": "Quem é este sistema?" },
@@ -73,6 +77,7 @@
     "name_pt": "Sinal Algedônico",
     "name_en": "Algedonic Signal",
     "description_pt": "Uma carta. Dor ou prazer? O diagnóstico mais direto possível.",
+    "deck": "full",
     "card_count": 1,
     "positions": [
       { "label": "Sinal", "description": "O que o sistema está gritando agora?" }

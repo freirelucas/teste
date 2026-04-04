@@ -38,7 +38,10 @@ export const useReadingStore = create((set, get) => ({
     const { spread } = get()
     if (!spread) return
 
-    const shuffled = shuffleFisherYates(cards)
+    const pool = spread.deck === 'major'
+      ? cards.filter((c) => c.arcana === 'major')
+      : cards
+    const shuffled = shuffleFisherYates(pool)
     const drawn = shuffled.slice(0, spread.card_count)
     const rev = {}
     drawn.forEach((card, i) => {

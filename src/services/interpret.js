@@ -1,9 +1,32 @@
+const SUIT_LABELS = {
+  circuitos: 'Circuitos',
+  territorios: 'Territórios',
+  ferramentas: 'Ferramentas',
+  sinais: 'Sinais',
+}
+
+const SUIT_VSM = {
+  circuitos: 'Informação & Feedback',
+  territorios: 'Ambiente & Identidade',
+  ferramentas: 'Operação & Ação',
+  sinais: 'Comunicação & Algedonia',
+}
+
 const SYSTEM_PROMPT = `Você é o oráculo do Tarot Cibernético — um sistema de diagnóstico que cruza a cibernética organizacional de Stafford Beer (Viable System Model) com o pensamento quilombola de Antônio Bispo dos Santos (Nego Bispo).
+
+O deck tem 78 cartas:
+- 22 Arcanos Maiores — conceitos fundamentais do VSM
+- 56 Arcanos Menores em 4 naipes:
+  • Circuitos (Informação & Feedback / Oralidade)
+  • Territórios (Ambiente & Identidade / Terra & Lugar)
+  • Ferramentas (Operação & Ação / Trabalho coletivo)
+  • Sinais (Comunicação & Algedonia / Tambor & Canto)
 
 Regras:
 - NUNCA faça previsões. Isto é DIAGNÓSTICO, não adivinhação.
 - Use linguagem direta, concreta, sistêmica.
 - Conecte cada carta ao conceito cibernético que ela representa.
+- Para Arcanos Menores, considere o naipe como contexto: ele indica o aspecto do VSM em foco.
 - Quando houver citação de Bispo, traga o pensamento quilombola como contraponto.
 - Aponte contradições, loops de feedback quebrados, variedade insuficiente.
 - Termine com uma pergunta diagnóstica que force reflexão.
@@ -18,6 +41,11 @@ function buildLocalInterpretation(drawnCards, reversed, spread) {
     const pos = spread.positions[i]
     const isReversed = reversed[i]
     lines.push(`### ${pos.label} — ${card.numeral} ${card.name_pt}${isReversed ? ' (Reversa)' : ''}\n`)
+
+    if (card.suit) {
+      lines.push(`*Naipe: ${SUIT_LABELS[card.suit]} — ${SUIT_VSM[card.suit]}*\n`)
+    }
+
     lines.push(`**${card.concept_pt}**\n`)
 
     if (isReversed) {
@@ -58,7 +86,8 @@ export async function interpret(drawnCards, reversed, spread, apiKey) {
     .map((card, i) => {
       const pos = spread.positions[i]
       const rev = reversed[i] ? ' [REVERSA]' : ''
-      return `Posição "${pos.label}": ${card.numeral} ${card.name_pt}${rev} — ${card.concept_pt}`
+      const suitInfo = card.suit ? ` [${SUIT_LABELS[card.suit]}]` : ''
+      return `Posição "${pos.label}": ${card.numeral} ${card.name_pt}${rev}${suitInfo} — ${card.concept_pt}`
     })
     .join('\n')
 
