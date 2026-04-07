@@ -1,27 +1,9 @@
 {
   "versao_pipeline": "3.0-melhorado",
-  "data_execucao": "2026-04-07T08:44:55.425151",
+  "data_execucao": "2026-04-07T10:11:52.763595",
   "total_pdfs_baixados": 132,
-  "total_registros_extraidos": 273,
-  "total_riscos": 81,
-  "texto_nao_nulo_pct": 100.0,
-  "rows_por_sha256": {
-    "011ced7932efeac94fd5074a00621d79536fd7ad336b91f19674e2eec40a1093": 31,
-    "07109299c406002a197697805a46c8fdc42585dc54151f30c868d56a944c8734": 3,
-    "2cea12f35e0c5420cc333911f783d0b73acb340b17c3c001914cb2c56a2aff2c": 6,
-    "362fd8ad5b7d825a1b9f2a9a3a00449047e21de942d042d587b11be5d30d4137": 33,
-    "601e35c45da7d3848d5fa901d606b7c85f6d7150c586a85beb1373a11f18d4de": 21,
-    "6d01cbfa847465dfec2e3740d578ca7c20b552ced2388d0a7200fceb8d292c39": 1,
-    "734f30c17d4eed1cab6d52951ee3c9d4cb72764310cd8d1c6ef9fc313904cc8a": 9,
-    "88995e9705ca1c953b2f6405bc3dc35ddfe04718af1b4453feb2317ca8f64637": 61,
-    "9141beb9ba4b9873ba4485ea96fca068c08f08f5e5575cdcf592936f9835a4cb": 11,
-    "b58736aac17894267901ad50277c37d1c8393b4b437f0b54d664e4575c04eb89": 55,
-    "d4cafee730f48f7534a6d30f1166163680888b484276c794840f2eab29171bb2": 4,
-    "e909520aab2d890f27a29bfeb3bc1bf937409a02b056371a0b1e5465afb2ba19": 5,
-    "e9de00987768db49197f2198f114eb72b07244549de81a9fee9498d65c3075c6": 10,
-    "ed1055eeaebe06ba6cf8d81592e1ae9f443635047e9c184a81c7b881efafcfc2": 8,
-    "fb9f3f3a114389f8c553964c9e4ebfc9b41332fcc3af0374c8161dbd11ede04f": 15
-  },
+  "total_registros_extraidos": 6169,
+  "total_riscos": 545,
   "outputs": {
     "ptd_corpus_raw.csv": "corpus bruto de entregas com sha256",
     "ptd_pivot_eixos.csv": "pivot sigla × eixo — input ptd_corpus_v21",
@@ -177,9 +159,9 @@
     ],
     "unidade": "COGIT/DIEST/IPEA",
     "versao": "3.0-melhorado",
-    "n_entregas": 273,
-    "n_orgaos": 7,
-    "n_riscos": 81,
+    "n_entregas": 6169,
+    "n_orgaos": 65,
+    "n_riscos": 545,
     "versao_pipeline": "3.0-melhorado"
   }
 }
