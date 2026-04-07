@@ -2,10 +2,19 @@
   "_comentario": "Keywords extras de colunas por sigla. Gerado/atualizado pelo watcher (Step B). Ordem importa: mais específico primeiro. Campo: [servico, produto, area, data].",
   "_schema": {
     "SIGLA": {
-      "servico": ["keyword1", "keyword2"],
-      "produto": ["keyword1"],
-      "area": ["keyword1"],
-      "data": ["keyword1"]
+      "servico": [
+        "keyword1",
+        "keyword2"
+      ],
+      "produto": [
+        "keyword1"
+      ],
+      "area": [
+        "keyword1"
+      ],
+      "data": [
+        "keyword1"
+      ]
     }
   },
   "_nota_riscos": "Órgãos com tabelas de riscos extraídas como entregas (INCRA, ANS-PLANO, MDA-DOCUME) NÃO devem ser corrigidos aqui. O fix correto é fortalecer _is_risk_table() em ptd_pipeline_v30.py para que essas tabelas sejam detectadas antes de entrar no pipeline de entregas.",
@@ -17,5 +26,31 @@
     "data": [
       "dtpactuada"
     ]
+  },
+  "ANM": {
+    "servico": [],
+    "produto": [],
+    "area": [],
+    "data": []
+  },
+  "FCP": {
+    "servico": [],
+    "produto": [],
+    "area": [],
+    "data": []
+  },
+  "FUNDACENTR": {
+    "servico": [],
+    "produto": [],
+    "area": [],
+    "data": [
+      "dtpactuada"
+    ]
+  },
+  "INPI": {
+    "servico": [],
+    "produto": [],
+    "area": [],
+    "data": []
   }
 }

@@ -1,51 +1,504 @@
 {
-  "run_id": "24071575391",
-  "timestamp": "2026-04-07T08:44:57",
-  "branch": "claude/setup-docling-pipeline-g11gg",
-  "stage": 1,
-  "stage_label": "parse_quality",
-  "n_orgaos": 7,
-  "n_registros_raw": 273,
-  "n_registros_v21": 273,
-  "pct_ok": 64.5,
-  "sem_produto_pct": 33.3,
-  "col_map_ok_rate": 74.4,
+  "run_id": "24070345279",
+  "timestamp": "2026-04-07T10:11:55",
+  "branch": "master",
+  "stage": 0,
+  "stage_label": "cobertura",
+  "n_orgaos": 65,
+  "n_registros_raw": 6169,
+  "n_registros_v21": 6169,
+  "pct_ok": 73.2,
+  "sem_produto_pct": 24.3,
+  "col_map_ok_rate": 80.0,
   "extratores": {
-    "docling": 273
-  },
-  "risco_coverage": {
-    "cobertura_riscos_pct": 100.0,
-    "n_orgaos_com_riscos": 7,
-    "n_riscos_total": 81,
-    "meta_cobertura_riscos": 80.0,
-    "abaixo_meta": false
-  },
-  "doc_coverage": {
-    "cobertura_documental_pct": 100.0,
-    "texto_nao_nulo_pct": 100.0,
-    "pdfs_com_perda": [],
-    "pdfs_analisados": 15
+    "docling": 6169
   },
   "orgaos_zero_entregas": [],
-  "orgaos_zero_ou_noise": [],
+  "orgaos_zero_ou_noise": [
+    "21",
+    "INPI",
+    "MIDR",
+    "MMULHERES"
+  ],
   "orgs_below_50pct": [
+    {
+      "sigla": "ANA",
+      "pct_ok": 43.3,
+      "n": 90
+    },
+    {
+      "sigla": "ANAC",
+      "pct_ok": 46.5,
+      "n": 129
+    },
+    {
+      "sigla": "CVM",
+      "pct_ok": 32.5,
+      "n": 40
+    },
+    {
+      "sigla": "IBGE",
+      "pct_ok": 28.0,
+      "n": 50
+    },
+    {
+      "sigla": "INPI",
+      "pct_ok": 0.0,
+      "n": 34
+    },
     {
       "sigla": "ITI",
       "pct_ok": 42.5,
       "n": 40
+    },
+    {
+      "sigla": "MPI",
+      "pct_ok": 35.9,
+      "n": 64
+    },
+    {
+      "sigla": "MRE",
+      "pct_ok": 45.5,
+      "n": 99
     }
   ],
   "top_unmatched_phrases": [
     {
+      "phrase": "Projetos Especiais",
+      "count": 115
+    },
+    {
       "phrase": "Segurança e Privacidade",
-      "count": 10
+      "count": 78
+    },
+    {
+      "phrase": "Governança e Gestão de Dados",
+      "count": 75
+    },
+    {
+      "phrase": "Integração à ferramenta de avaliação",
+      "count": 61
+    },
+    {
+      "phrase": "Serviços Digitais e Melhoria da",
+      "count": 58
+    },
+    {
+      "phrase": "Construção de diagnóstico",
+      "count": 54
+    },
+    {
+      "phrase": "Integração ao SEI",
+      "count": 44
+    },
+    {
+      "phrase": "Integração ao Pagtesouro",
+      "count": 42
+    },
+    {
+      "phrase": "Representante da Ouvidoria do órgão",
+      "count": 40
+    },
+    {
+      "phrase": "Gerente de Relacionamento",
+      "count": 39
+    },
+    {
+      "phrase": "Evolução do serviço",
+      "count": 28
+    },
+    {
+      "phrase": "Integração de avaliação",
+      "count": 25
+    },
+    {
+      "phrase": "Ismael Alves Pereira Filho",
+      "count": 24
+    },
+    {
+      "phrase": "Luciene Sicuti Damazo",
+      "count": 23
+    },
+    {
+      "phrase": "Implementação da Política de Governança",
+      "count": 21
+    },
+    {
+      "phrase": "Implantação da Experiência Lab Q",
+      "count": 19
+    },
+    {
+      "phrase": "Fornecer Acesso Digital",
+      "count": 19
+    },
+    {
+      "phrase": "Integração àbasededados",
+      "count": 17
+    },
+    {
+      "phrase": "Atraso nos cronogramas pactuados",
+      "count": 16
+    },
+    {
+      "phrase": "Marcelo Moreira de Oliveira",
+      "count": 16
     }
   ],
   "top_unmatched_por_sigla": {
+    "21": [
+      {
+        "phrase": "Avaliação pelo usuário integrado ao",
+        "count": 3
+      },
+      {
+        "phrase": "Ponto de Inclusão Digital",
+        "count": 2
+      },
+      {
+        "phrase": "Obter aprovação de projetos de",
+        "count": 2
+      }
+    ],
+    "ABIN": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 4
+      }
+    ],
+    "AEB": [
+      {
+        "phrase": "Pouco provável",
+        "count": 7
+      },
+      {
+        "phrase": "Fernanda de Paula Lobo Melo",
+        "count": 2
+      },
+      {
+        "phrase": "Tra nsferir",
+        "count": 2
+      }
+    ],
     "AGU": [
       {
         "phrase": "Segurança e Privacidade",
         "count": 3
+      }
+    ],
+    "ANA": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 6
+      },
+      {
+        "phrase": "Programa STARTUP",
+        "count": 5
+      },
+      {
+        "phrase": "Pouco provável",
+        "count": 5
+      },
+      {
+        "phrase": "Saneamento Básico",
+        "count": 4
+      },
+      {
+        "phrase": "Muito provável",
+        "count": 4
+      }
+    ],
+    "ANAC": [
+      {
+        "phrase": "Integração de avaliação",
+        "count": 25
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 12
+      },
+      {
+        "phrase": "Integração àbasededados",
+        "count": 11
+      },
+      {
+        "phrase": "Integração à ferramentade avaliação dasatisfação",
+        "count": 8
+      },
+      {
+        "phrase": "Obter licença para exercer a",
+        "count": 4
+      }
+    ],
+    "ANATEL": [
+      {
+        "phrase": "Signatário ou Representante da Secretaria",
+        "count": 2
+      },
+      {
+        "phrase": "Marcelo Moreira de Oliveira",
+        "count": 2
+      }
+    ],
+    "ANCINE": [
+      {
+        "phrase": "Pouco provável",
+        "count": 7
+      },
+      {
+        "phrase": "Integração à ferramenta de avaliação",
+        "count": 6
+      },
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 2
+      },
+      {
+        "phrase": "Secretaria de Gestão",
+        "count": 2
+      },
+      {
+        "phrase": "Solicitar cancelamento de registro de",
+        "count": 2
+      }
+    ],
+    "ANEEL": [
+      {
+        "phrase": "Marcos Bragatto",
+        "count": 4
+      },
+      {
+        "phrase": "Implementação da Política de Governança",
+        "count": 2
+      },
+      {
+        "phrase": "Obter homologação de contratos de",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      }
+    ],
+    "ANM": [
+      {
+        "phrase": "André Elias Marques",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      }
+    ],
+    "ANPD": [
+      {
+        "phrase": "Pouco provável",
+        "count": 5
+      },
+      {
+        "phrase": "Reduzir ou mitigar o risco",
+        "count": 5
+      },
+      {
+        "phrase": "Diego André Sant",
+        "count": 3
+      },
+      {
+        "phrase": "Nathalia Andreia Pinheiro Coelho",
+        "count": 2
+      },
+      {
+        "phrase": "Marcelo Moreira de Oliveira",
+        "count": 2
+      }
+    ],
+    "ANS": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 4
+      },
+      {
+        "phrase": "João Paulo Dias de Araújo",
+        "count": 3
+      },
+      {
+        "phrase": "Governança bem definida",
+        "count": 2
+      }
+    ],
+    "ANVISA": [
+      {
+        "phrase": "Integração ao Pagtesouro",
+        "count": 41
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 12
+      },
+      {
+        "phrase": "Cancelar Certificação de Boas Práticas",
+        "count": 8
+      },
+      {
+        "phrase": "Distribuição e Armazenagem",
+        "count": 6
+      },
+      {
+        "phrase": "Integração à ferramenta de avaliação",
+        "count": 4
+      }
+    ],
+    "ASSINADO": [
+      {
+        "phrase": "Silvana Stadniki Morato Miranda",
+        "count": 2
+      }
+    ],
+    "BCB": [
+      {
+        "phrase": "Integração à ferramenta deavaliação da",
+        "count": 10
+      },
+      {
+        "phrase": "Implantação da Experiência Lab Q",
+        "count": 7
+      },
+      {
+        "phrase": "Departamento d",
+        "count": 6
+      },
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 5
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 3
+      }
+    ],
+    "CADE": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 7
+      },
+      {
+        "phrase": "Maria Luiza Bittar Khouri",
+        "count": 3
+      },
+      {
+        "phrase": "Luciene Sicuti Damazo",
+        "count": 3
+      }
+    ],
+    "CGU": [
+      {
+        "phrase": "Pouco provável",
+        "count": 4
+      }
+    ],
+    "CNPQ": [
+      {
+        "phrase": "Pouco provável",
+        "count": 5
+      }
+    ],
+    "COAF": [
+      {
+        "phrase": "Pouco provável",
+        "count": 5
+      },
+      {
+        "phrase": "Reduzir ou mitigar o risco",
+        "count": 4
+      },
+      {
+        "phrase": "Luciene Sicuti Damazo",
+        "count": 3
+      },
+      {
+        "phrase": "Geneci Maria Fachinello Bonetti",
+        "count": 2
+      }
+    ],
+    "CVM": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 10
+      },
+      {
+        "phrase": "Implementação da Política de Governança",
+        "count": 4
+      },
+      {
+        "phrase": "Executar o Plano de Implementação",
+        "count": 3
+      },
+      {
+        "phrase": "Governança de Dados",
+        "count": 3
+      },
+      {
+        "phrase": "Felipe Claret da Mota",
+        "count": 3
+      }
+    ],
+    "DNOCS": [
+      {
+        "phrase": "Integração ao SEI",
+        "count": 4
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 4
+      }
+    ],
+    "FBN": [
+      {
+        "phrase": "Pouco provável",
+        "count": 8
+      },
+      {
+        "phrase": "Oscar Manoel da Costa Gonçalves",
+        "count": 2
+      },
+      {
+        "phrase": "Muito provável",
+        "count": 2
+      }
+    ],
+    "FCP": [
+      {
+        "phrase": "Pouco provável",
+        "count": 4
+      },
+      {
+        "phrase": "Evolução de Serviços",
+        "count": 2
+      },
+      {
+        "phrase": "Antonio Marcos Barbosa Santos",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      },
+      {
+        "phrase": "Reduzir ou mitigar o risco",
+        "count": 2
+      }
+    ],
+    "FCRB": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 4
+      },
+      {
+        "phrase": "Priscila Soares Vaisman",
+        "count": 3
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
       }
     ],
     "FIOCRUZ": [
@@ -76,6 +529,56 @@
         "count": 2
       }
     ],
+    "FUNARTE": [
+      {
+        "phrase": "Pouco provável",
+        "count": 4
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 2
+      },
+      {
+        "phrase": "Projetos Especiais",
+        "count": 2
+      }
+    ],
+    "FUNDACENTR": [
+      {
+        "phrase": "Guilherme Masaaki Koreeda",
+        "count": 3
+      },
+      {
+        "phrase": "Publicação no SEI",
+        "count": 2
+      },
+      {
+        "phrase": "Lucas Roberto de Azevedo Ferreira",
+        "count": 2
+      }
+    ],
+    "IBGE": [
+      {
+        "phrase": "Pouco provável",
+        "count": 7
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 7
+      },
+      {
+        "phrase": "Integração àbasededados",
+        "count": 6
+      },
+      {
+        "phrase": "Integração à ferramentade avaliação dasatisfação",
+        "count": 4
+      },
+      {
+        "phrase": "Sheila Souza Fonseca",
+        "count": 3
+      }
+    ],
     "INCRA": [
       {
         "phrase": "Ações sugeridas",
@@ -87,6 +590,60 @@
       },
       {
         "phrase": "Ana Lúcia Aparecida da Silva",
+        "count": 2
+      }
+    ],
+    "INPI": [
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 3
+      },
+      {
+        "phrase": "Solicitar o registro de marca",
+        "count": 2
+      },
+      {
+        "phrase": "Integração Integração",
+        "count": 2
+      },
+      {
+        "phrase": "Apresentar recurso administrativo contra decisão",
+        "count": 2
+      },
+      {
+        "phrase": "Marcelo Moreira de Oliveira",
+        "count": 2
+      }
+    ],
+    "INSS": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 7
+      },
+      {
+        "phrase": "Catalogação de Dados Governança e",
+        "count": 2
+      }
+    ],
+    "IPHAN": [
+      {
+        "phrase": "Construção de diagnóstico",
+        "count": 3
+      },
+      {
+        "phrase": "Realizar Diagnóstico combasenosciclos de integrações",
+        "count": 2
+      },
+      {
+        "phrase": "Catálogo do Conectagov",
+        "count": 2
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 2
+      },
+      {
+        "phrase": "Projetos Especiais",
         "count": 2
       }
     ],
@@ -112,6 +669,492 @@
         "count": 3
       }
     ],
+    "MAPA": [
+      {
+        "phrase": "Integração com CNPJ",
+        "count": 2
+      },
+      {
+        "phrase": "Governança e",
+        "count": 2
+      },
+      {
+        "phrase": "Solicitar documento oficial de trânsito",
+        "count": 2
+      },
+      {
+        "phrase": "Recintos e Terminais para Trânsito",
+        "count": 2
+      }
+    ],
+    "MCTI": [
+      {
+        "phrase": "Pouco provável",
+        "count": 8
+      },
+      {
+        "phrase": "Bianca Lane Lopes Botelho",
+        "count": 3
+      },
+      {
+        "phrase": "Projetos Especiais",
+        "count": 2
+      },
+      {
+        "phrase": "Paula Paes Montandon Vasconcelos",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      }
+    ],
+    "MD": [
+      {
+        "phrase": "Fornecer Acesso Digital",
+        "count": 19
+      },
+      {
+        "phrase": "Integrar ao Login Único",
+        "count": 12
+      },
+      {
+        "phrase": "Privacidade e Segurança da Informação",
+        "count": 12
+      },
+      {
+        "phrase": "Integrar ao Módulo de Avaliação",
+        "count": 8
+      },
+      {
+        "phrase": "Segurança da Informação",
+        "count": 6
+      }
+    ],
+    "MDHC": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 8
+      },
+      {
+        "phrase": "Solicitar pensão especial por isolamento",
+        "count": 3
+      },
+      {
+        "phrase": "Denise Antônia de Paulo",
+        "count": 3
+      },
+      {
+        "phrase": "Luciene Sicuti Damazo",
+        "count": 3
+      },
+      {
+        "phrase": "Identificar APIs Governamentais para implantar",
+        "count": 2
+      }
+    ],
+    "MDIC": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 9
+      },
+      {
+        "phrase": "Balança Comercial",
+        "count": 2
+      },
+      {
+        "phrase": "Portal Único de Comércio Exterior",
+        "count": 2
+      },
+      {
+        "phrase": "Portal Único Siscomex",
+        "count": 2
+      }
+    ],
+    "MEC": [
+      {
+        "phrase": "Resistências a processos de compartilhamento",
+        "count": 2
+      },
+      {
+        "phrase": "Muito provável",
+        "count": 2
+      },
+      {
+        "phrase": "Estabelecer no modelo de gove",
+        "count": 2
+      }
+    ],
+    "MEMP": [
+      {
+        "phrase": "Pouco provável",
+        "count": 3
+      }
+    ],
+    "MESP": [
+      {
+        "phrase": "Aureliano Vogado Neto",
+        "count": 3
+      },
+      {
+        "phrase": "Cadastrar Projetos para que as",
+        "count": 2
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 2
+      },
+      {
+        "phrase": "Projetos Especiais",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      }
+    ],
+    "MF": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 22
+      },
+      {
+        "phrase": "Disponibilização em Acesso",
+        "count": 8
+      },
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 7
+      },
+      {
+        "phrase": "Construção de diagnóstico",
+        "count": 5
+      },
+      {
+        "phrase": "Implementação da Política de Governança",
+        "count": 4
+      }
+    ],
+    "MGI": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 10
+      },
+      {
+        "phrase": "Startup Gov",
+        "count": 9
+      },
+      {
+        "phrase": "Implementação da Política de Governança",
+        "count": 5
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 3
+      },
+      {
+        "phrase": "Pontos Focais",
+        "count": 3
+      }
+    ],
+    "MIDR": [
+      {
+        "phrase": "Pouco provável",
+        "count": 5
+      },
+      {
+        "phrase": "Muito provável",
+        "count": 4
+      },
+      {
+        "phrase": "Maria Amélia Eugenia Pinheiro",
+        "count": 3
+      },
+      {
+        "phrase": "Thiago Teles da Silva",
+        "count": 3
+      },
+      {
+        "phrase": "Luciene Sicuti Damazo",
+        "count": 3
+      }
+    ],
+    "MINC": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 3
+      },
+      {
+        "phrase": "Integração à ferramenta de avaliação",
+        "count": 3
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 2
+      },
+      {
+        "phrase": "Aline Tofeti Naves",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      }
+    ],
+    "MJSP": [
+      {
+        "phrase": "Implantação da Experiência Lab Q",
+        "count": 4
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 3
+      },
+      {
+        "phrase": "Signatário ou Representante da Secretaria",
+        "count": 2
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 2
+      },
+      {
+        "phrase": "Projetos Especiais",
+        "count": 2
+      }
+    ],
+    "MMA": [
+      {
+        "phrase": "Integração à ferramenta de avaliação",
+        "count": 25
+      },
+      {
+        "phrase": "Integração ao SEI",
+        "count": 4
+      },
+      {
+        "phrase": "Reduzir ou mitigar",
+        "count": 4
+      },
+      {
+        "phrase": "Realizar Identificação e Controle de",
+        "count": 2
+      },
+      {
+        "phrase": "Animais Domésticos",
+        "count": 2
+      }
+    ],
+    "MME": [
+      {
+        "phrase": "Construção de diagnóstico",
+        "count": 6
+      },
+      {
+        "phrase": "Implantação da Área Logada",
+        "count": 5
+      },
+      {
+        "phrase": "Solicitar Regime Especial de Incentivos",
+        "count": 2
+      },
+      {
+        "phrase": "Desenvolvimento da Infraestrutura",
+        "count": 2
+      },
+      {
+        "phrase": "Possibilitar o Controle de Acesso",
+        "count": 2
+      }
+    ],
+    "MMULHERES": [
+      {
+        "phrase": "Muito provável",
+        "count": 3
+      },
+      {
+        "phrase": "Pouco Provável",
+        "count": 2
+      },
+      {
+        "phrase": "Pouco provável",
+        "count": 2
+      },
+      {
+        "phrase": "Muito Provável",
+        "count": 2
+      }
+    ],
+    "MPI": [
+      {
+        "phrase": "Integração à basededados",
+        "count": 9
+      },
+      {
+        "phrase": "Integrar a Plataforma de Gestão",
+        "count": 8
+      },
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 7
+      },
+      {
+        "phrase": "Conflitos Fundiários Indígenas a API",
+        "count": 5
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 3
+      }
+    ],
+    "MPO": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 3
+      },
+      {
+        "phrase": "Carolina Palhares Lima",
+        "count": 3
+      },
+      {
+        "phrase": "Luciene Sicuti Damazo",
+        "count": 3
+      }
+    ],
+    "MPOR": [
+      {
+        "phrase": "Projetos Especiais",
+        "count": 7
+      },
+      {
+        "phrase": "Secretaria Nacional de Hidrovias e",
+        "count": 3
+      },
+      {
+        "phrase": "Signatário da Secretaria",
+        "count": 2
+      },
+      {
+        "phrase": "Maíra Cervi Barrozo do Nascimento",
+        "count": 2
+      }
+    ],
+    "MPS": [
+      {
+        "phrase": "Implementação da Política de Governança",
+        "count": 2
+      },
+      {
+        "phrase": "Ana Paula Schwelm Goncalves",
+        "count": 2
+      },
+      {
+        "phrase": "Lucas Roberto de Azevedo Ferreira",
+        "count": 2
+      }
+    ],
+    "MRE": [
+      {
+        "phrase": "Integração à ferramenta de avaliação",
+        "count": 19
+      },
+      {
+        "phrase": "Projetos Especiais",
+        "count": 7
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 4
+      },
+      {
+        "phrase": "Startup Gov",
+        "count": 4
+      },
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 3
+      }
+    ],
+    "MTUR": [
+      {
+        "phrase": "Segurança e Privacidade",
+        "count": 4
+      },
+      {
+        "phrase": "Signatário ou Representante da Secretaria",
+        "count": 2
+      },
+      {
+        "phrase": "Marcos Paulo Hiath da Silva",
+        "count": 2
+      },
+      {
+        "phrase": "Ismael Alves Pereira Filho",
+        "count": 2
+      }
+    ],
+    "PF": [
+      {
+        "phrase": "Startup Gov",
+        "count": 3
+      },
+      {
+        "phrase": "Projetos Especiais",
+        "count": 3
+      },
+      {
+        "phrase": "Implantação da Experiência Lab Q",
+        "count": 3
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 3
+      }
+    ],
+    "PREVIC": [
+      {
+        "phrase": "Integração ao SEI",
+        "count": 24
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 18
+      },
+      {
+        "phrase": "Governança e Gestão de Dad",
+        "count": 3
+      },
+      {
+        "phrase": "Identificação de dependências com fornecedores",
+        "count": 2
+      },
+      {
+        "phrase": "Governança bem definida",
+        "count": 2
+      }
+    ],
+    "PRF": [
+      {
+        "phrase": "Evolução do serviço",
+        "count": 27
+      },
+      {
+        "phrase": "Construção de diagnóstico",
+        "count": 26
+      },
+      {
+        "phrase": "Serviços Digitais e Melhoria da",
+        "count": 13
+      },
+      {
+        "phrase": "Conferir autenticidade de documento emitido",
+        "count": 4
+      },
+      {
+        "phrase": "Governança e Gestão de Dados",
+        "count": 4
+      }
+    ],
     "SGPR": [
       {
         "phrase": "Obter a carteira de Identidade",
@@ -125,9 +1168,64 @@
         "phrase": "Marcelo Moreira de Oliveira",
         "count": 2
       }
+    ],
+    "SUSEP": [
+      {
+        "phrase": "Rafael Guimarães Bisaggio",
+        "count": 2
+      },
+      {
+        "phrase": "Mariana de Lima e Silva",
+        "count": 2
+      },
+      {
+        "phrase": "Aline Vieira Velozo",
+        "count": 2
+      },
+      {
+        "phrase": "Lucas Roberto de Azevedo Ferreira",
+        "count": 2
+      }
     ]
   },
   "por_orgao": [
+    {
+      "sigla": "21",
+      "n_entregas": 12,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 100.0,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "ABIN",
+      "n_entregas": 20,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 70.0,
+      "sem_produto_n": 6,
+      "sem_produto_pct": 30.0,
+      "col_map_ok_rate": 55.0,
+      "unrecognized_headers": [
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "AEB",
+      "n_entregas": 65,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 81.5,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 18.5,
+      "col_map_ok_rate": 84.6,
+      "unrecognized_headers": [
+        "IDdo risco|Risco|Probabilidade de Ocorrer [ escolher entr|Impacto [ escolher entre: muito baixo; b|Opção de tratamento [escolher entre: mit|Descrever tratamen to do risco*"
+      ]
+    },
     {
       "sigla": "AGU",
       "n_entregas": 39,
@@ -140,17 +1238,296 @@
       "unrecognized_headers": [
         "0|1|2|3",
         "0|1|2|3|4"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 80.0,
-      "vsm_gap_pp": -18.5,
-      "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "media",
-      "triple_actuality": 61.5,
-      "triple_capability": 69.2,
-      "triple_potentiality": 80.0,
-      "triple_gap_type": "ruido",
-      "n_riscos": 7
+      ]
+    },
+    {
+      "sigla": "ANA",
+      "n_entregas": 90,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 43.3,
+      "sem_produto_n": 50,
+      "sem_produto_pct": 55.6,
+      "col_map_ok_rate": 83.3,
+      "unrecognized_headers": [
+        "Órgão|Agência Nacional de Águas e Saneamento B|Agência Nacional de Águas e Saneamento B|Agência Nacional de Águas e Saneamento B|Vigência",
+        "PEI ANA (2023-2026)|PETIC ANA (2023-2026)|OBJETIVOS EFGD (2024-2027)",
+        "Risco|Probabilidade de Ocorrer|Impacto|Opção de tratamento|Descrever ações de tratamento do risco",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "ANAC",
+      "n_entregas": 129,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 46.5,
+      "sem_produto_n": 68,
+      "sem_produto_pct": 52.7,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "ANATEL",
+      "n_entregas": 63,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 54.0,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 11.1,
+      "col_map_ok_rate": 88.9,
+      "unrecognized_headers": [
+        "Cargo|Assinatura",
+        "Órgão|Agência Nacional de Telecomunicações|Agência Nacional de Telecomunicações|Vigência|"
+      ]
+    },
+    {
+      "sigla": "ANCINE",
+      "n_entregas": 146,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.4,
+      "sem_produto_n": 35,
+      "sem_produto_pct": 24.0,
+      "col_map_ok_rate": 89.0,
+      "unrecognized_headers": [
+        "Cargo|Assinatura",
+        "Órgão|AGÊNCIA NACIONAL DO CINEMA - ANCINE|AGÊNCIA NACIONAL DO CINEMA - ANCINE|AGÊNCIA NACIONAL DO CINEMA - ANCINE|Vigência",
+        "Risco|Probabilidade de Ocorrer [escolher entre|i mpacto [escolher entre: muito baixo; b|Opção de tratamento [escolher entre: mit|Descrever ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "ANEEL",
+      "n_entregas": 72,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 87.5,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 12.5,
+      "col_map_ok_rate": 93.1,
+      "unrecognized_headers": [
+        "Órgão|Agência Nacional de Energia Eletrica|Agência Nacional de Energia Eletrica|Vigência|",
+        "0|1|2|3"
+      ]
+    },
+    {
+      "sigla": "ANM",
+      "n_entregas": 267,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 95.9,
+      "sem_produto_n": 8,
+      "sem_produto_pct": 3.0,
+      "col_map_ok_rate": 49.4,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "0|1|2|3"
+      ]
+    },
+    {
+      "sigla": "ANPD",
+      "n_entregas": 67,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.2,
+      "sem_produto_n": 23,
+      "sem_produto_pct": 34.3,
+      "col_map_ok_rate": 64.2,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "Órgão|Autoridade Nacional de Proteção de Dados|Autoridade Nacional de Proteção de Dados|Autoridade Nacional de Proteção de Dados|Vigência",
+        "|certo]|||"
+      ]
+    },
+    {
+      "sigla": "ANS",
+      "n_entregas": 46,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 67.4,
+      "sem_produto_n": 15,
+      "sem_produto_pct": 32.6,
+      "col_map_ok_rate": 78.3,
+      "unrecognized_headers": [
+        "Órgão|Agência Nacional de Saúde Suplementar|Agência Nacional de Saúde Suplementar|Agência Nacional de Saúde Suplementar|Vigência",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "ANTAQ",
+      "n_entregas": 52,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 82.7,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 17.3,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "ANVISA",
+      "n_entregas": 475,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 85.1,
+      "sem_produto_n": 71,
+      "sem_produto_pct": 14.9,
+      "col_map_ok_rate": 71.2,
+      "unrecognized_headers": [
+        "0|1|2|3|4|5",
+        "0|1|2|3|4|5|6",
+        "0|1|2|3",
+        "Cargo|Assinatura",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "ASSINADO",
+      "n_entregas": 83,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 91.6,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 8.4,
+      "col_map_ok_rate": 78.3,
+      "unrecognized_headers": [
+        "0|1|2|3|4|5",
+        "Órgão|Ministério do Desenvolvimento Agrário e |Ministério do Desenvolvimento Agrário e |Ministério do Desenvolvimento Agrário e |Vigência",
+        "Risco|Probabilidade de Ocorrer|Impacto|Opção de tratamento|Descrever ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "BCB",
+      "n_entregas": 73,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 68.5,
+      "sem_produto_n": 23,
+      "sem_produto_pct": 31.5,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "CADE",
+      "n_entregas": 46,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 71.7,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 26.1,
+      "col_map_ok_rate": 91.3,
+      "unrecognized_headers": [
+        "Órgão|Conselho Administrativo de Defesa Econôm|Conselho Administrativo de Defesa Econôm|Vigência|"
+      ]
+    },
+    {
+      "sigla": "CGU",
+      "n_entregas": 34,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.7,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 35.3,
+      "col_map_ok_rate": 91.2,
+      "unrecognized_headers": [
+        "Cargo|Assinatura"
+      ]
+    },
+    {
+      "sigla": "CNPQ",
+      "n_entregas": 26,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 69.2,
+      "sem_produto_n": 8,
+      "sem_produto_pct": 30.8,
+      "col_map_ok_rate": 69.2,
+      "unrecognized_headers": [
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "COAF",
+      "n_entregas": 33,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 66.7,
+      "sem_produto_n": 11,
+      "sem_produto_pct": 33.3,
+      "col_map_ok_rate": 78.8,
+      "unrecognized_headers": [
+        "ID do RISCO|Risco|Probabilidade de Ocorrer [escolher entre|Impacto [escolher entre: muito baixo; ba|Opção de tratamento [escolher entre: mit|Descrever ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "CVM",
+      "n_entregas": 40,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 32.5,
+      "sem_produto_n": 27,
+      "sem_produto_pct": 67.5,
+      "col_map_ok_rate": 80.0,
+      "unrecognized_headers": [
+        "Órgão|Comissão de Valores Mobiliários (CVM)|Comissão de Valores Mobiliários (CVM)|Vigência|",
+        "Risco|Probabilidade de Ocorrer|Impacto|Opção de tratamento|Descrever ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "DNOCS",
+      "n_entregas": 79,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 83.5,
+      "sem_produto_n": 13,
+      "sem_produto_pct": 16.5,
+      "col_map_ok_rate": 62.0,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "||||foco naqueles que geram maior valor estr",
+        "||||fornecedores",
+        "||||processos e as soluções desenvolvida s p"
+      ]
+    },
+    {
+      "sigla": "FBN",
+      "n_entregas": 64,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 78.1,
+      "sem_produto_n": 14,
+      "sem_produto_pct": 21.9,
+      "col_map_ok_rate": 81.2,
+      "unrecognized_headers": [
+        "ID do risco|Risco|Probabilidade de Ocorrer [escolher entre|Impacto [escolher entre: muito baixo; ba|Opção de tratamento|Descrever tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "FCP",
+      "n_entregas": 32,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 50.0,
+      "sem_produto_n": 14,
+      "sem_produto_pct": 43.8,
+      "col_map_ok_rate": 43.8,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "|Probabilidade de Ocorrer||Opção de tratamento|Descrever ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "FCRB",
+      "n_entregas": 44,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 79.5,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 20.5,
+      "col_map_ok_rate": 72.7,
+      "unrecognized_headers": [
+        "0|1|2|3|4"
+      ]
     },
     {
       "sigla": "FIOCRUZ",
@@ -164,17 +1541,7 @@
       "unrecognized_headers": [
         "0|1|2|3|4",
         "Risco|Probabilidad e de Ocorrer|Impacto|Opção de tratamento|Descrever ações de tratamento do risco"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 90.0,
-      "vsm_gap_pp": -1.9,
-      "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "normal",
-      "triple_actuality": 88.1,
-      "triple_capability": 97.0,
-      "triple_potentiality": 90.0,
-      "triple_gap_type": "ruido",
-      "n_riscos": 6
+      ]
     },
     {
       "sigla": "FUNAI",
@@ -188,17 +1555,47 @@
       "unrecognized_headers": [
         "0|1|2|3",
         "||||procedimen to eletrônico"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 70.0,
-      "vsm_gap_pp": -35.5,
-      "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "alta",
-      "triple_actuality": 34.5,
-      "triple_capability": 72.4,
-      "triple_potentiality": 70.0,
-      "triple_gap_type": "vocabulario",
-      "n_riscos": 15
+      ]
+    },
+    {
+      "sigla": "FUNARTE",
+      "n_entregas": 80,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 65.0,
+      "sem_produto_n": 12,
+      "sem_produto_pct": 15.0,
+      "col_map_ok_rate": 90.0,
+      "unrecognized_headers": [
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "FUNDACENTR",
+      "n_entregas": 18,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 5.6,
+      "sem_produto_n": 10,
+      "sem_produto_pct": 55.6,
+      "col_map_ok_rate": 44.4,
+      "unrecognized_headers": [
+        "DtPactuada||||||01/03/2026||||01/12/2026|",
+        "01/12/2026|01/06/2026|01/06/2026|01/12/2026"
+      ]
+    },
+    {
+      "sigla": "IBGE",
+      "n_entregas": 50,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 28.0,
+      "sem_produto_n": 36,
+      "sem_produto_pct": 72.0,
+      "col_map_ok_rate": 64.0,
+      "unrecognized_headers": [
+        "0|1|2|3|4|5"
+      ]
     },
     {
       "sigla": "INCRA",
@@ -213,17 +1610,53 @@
         "0|1|2|3|4|5|6",
         "0|1|2|3",
         "0|1|2|3|4"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 70.0,
-      "vsm_gap_pp": -60.5,
-      "vsm_estrategia": "col_keys",
-      "vsm_prioridade": "alta",
-      "triple_actuality": 9.5,
-      "triple_capability": 23.8,
-      "triple_potentiality": 70.0,
-      "triple_gap_type": "col_keys",
-      "n_riscos": 15
+      ]
+    },
+    {
+      "sigla": "INPI",
+      "n_entregas": 34,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 27,
+      "sem_produto_pct": 79.4,
+      "col_map_ok_rate": 20.6,
+      "unrecognized_headers": [
+        "|de de",
+        "||||jun/26 jun/26 jun/26",
+        "|||INPI INPI INPI|nov/26 nov/26 nov/26 nov/26",
+        "0|1|2|3|4",
+        "||Qualidade Qualidade Qualidade Qualidade||mai/24 mai/24 mai/24 dez/24 out/23 out/2"
+      ]
+    },
+    {
+      "sigla": "INSS",
+      "n_entregas": 89,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 62.9,
+      "sem_produto_n": 33,
+      "sem_produto_pct": 37.1,
+      "col_map_ok_rate": 95.5,
+      "unrecognized_headers": [
+        "Órgão|INSTITUTO NACIONALDOSEGURO SOCIAL|INSTITUTO NACIONALDOSEGURO SOCIAL|Vigência|"
+      ]
+    },
+    {
+      "sigla": "IPHAN",
+      "n_entregas": 123,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 67.5,
+      "sem_produto_n": 24,
+      "sem_produto_pct": 19.5,
+      "col_map_ok_rate": 72.4,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "0|1|2|3",
+        "Órgão|Iphan- Instituto do Patrimônio Histórico|Iphan- Instituto do Patrimônio Histórico|Vigência|",
+        "Risco|Probabilidade de Ocorrer [escolher entre|Impacto [escolher entre: muito baixo; ba|Opção de tratamento [escolher entre: mit|Descrever açõesde tratamento do risco"
+      ]
     },
     {
       "sigla": "ITI",
@@ -236,17 +1669,20 @@
       "col_map_ok_rate": 85.0,
       "unrecognized_headers": [
         "Requisitos/demandas de desenvolvimento e|Pouco Provável|| Muito Alto|Mitigar|1214 o"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 75.0,
-      "vsm_gap_pp": -32.5,
-      "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "alta",
-      "triple_actuality": 42.5,
-      "triple_capability": 85.0,
-      "triple_potentiality": 75.0,
-      "triple_gap_type": "vocabulario",
-      "n_riscos": 14
+      ]
+    },
+    {
+      "sigla": "MAPA",
+      "n_entregas": 144,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 89.6,
+      "sem_produto_n": 11,
+      "sem_produto_pct": 7.6,
+      "col_map_ok_rate": 66.0,
+      "unrecognized_headers": [
+        "0|1|2|3|4"
+      ]
     },
     {
       "sigla": "MCOM",
@@ -259,17 +1695,362 @@
       "col_map_ok_rate": 94.8,
       "unrecognized_headers": [
         "|Ns das Comunicações|"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 90.0,
-      "vsm_gap_pp": 1.4,
-      "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "normal",
-      "triple_actuality": 91.4,
-      "triple_capability": 94.8,
-      "triple_potentiality": 90.0,
-      "triple_gap_type": "ruido",
-      "n_riscos": 14
+      ]
+    },
+    {
+      "sigla": "MCTI",
+      "n_entregas": 68,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 63.2,
+      "sem_produto_n": 25,
+      "sem_produto_pct": 36.8,
+      "col_map_ok_rate": 80.9,
+      "unrecognized_headers": [
+        "Risco|Probabilidade de Ocorrer [escolher entre|Impacto [escolher entre: muito baixo; ba|Opção de tratamento [escolher entre: mit|Descrever ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "MD",
+      "n_entregas": 294,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 50.7,
+      "sem_produto_n": 145,
+      "sem_produto_pct": 49.3,
+      "col_map_ok_rate": 92.5,
+      "unrecognized_headers": [
+        "0|1|2|3",
+        "Risco|Probabilidade de Ocorrer|Impacto|Opção de tratamento|Ações de tratamento do risco",
+        "RISCO|PROBABILIDADE DE OCORRER|IMPACTO|OPÇÃO DE TRATAMENTO**|TRATAMENTO DO RISCO*",
+        "MEDIDAS|MD|MB|EB|FAB",
+        "CICLO|TOTAL DE MEDIDAS|TOTAL IMPLEMENTADAS|TOTAL A IMPLEMENTAR"
+      ]
+    },
+    {
+      "sigla": "MDHC",
+      "n_entregas": 116,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 71.6,
+      "sem_produto_n": 33,
+      "sem_produto_pct": 28.4,
+      "col_map_ok_rate": 69.8,
+      "unrecognized_headers": [
+        "|Disseminar informações sobre segurança d|Outros|Projetos Especiais|CGTI|abr/24",
+        "Órgão|Ministério dos Direitos Humanos e da Cid|Ministério dos Direitos Humanos e da Cid|Ministério dos Direitos Humanos e da Cid|Vigência",
+        "C|Disponibilidade dos sistemas de acesso p|provável|muito alto|mitigar|14. Planejar dependências com fornecedor",
+        "0|1|2|3|4|5"
+      ]
+    },
+    {
+      "sigla": "MDIC",
+      "n_entregas": 73,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 79.5,
+      "sem_produto_n": 13,
+      "sem_produto_pct": 17.8,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "MEC",
+      "n_entregas": 18,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 61.1,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 38.9,
+      "col_map_ok_rate": 61.1,
+      "unrecognized_headers": [
+        "RISCO|PROBABILIDADE DE OCORRER escolher entre:|IMPACTO escolher entre: muito baixo; bai|OPÇÃO DE TRATAMENTO escolher entre: miti|DESCREVER AÇÕES DETRATAMENTO DO RISCO",
+        "Risco|Probabilidadede Ocorrer [escolher entre:|Impacto [escolher entre: muito baixo; ba|Opção de tratamento [escolher entre: mit|Descreveraçõesdetratamentodo risco"
+      ]
+    },
+    {
+      "sigla": "MEMP",
+      "n_entregas": 52,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 88.5,
+      "sem_produto_n": 5,
+      "sem_produto_pct": 9.6,
+      "col_map_ok_rate": 90.4,
+      "unrecognized_headers": [
+        "Risco|Probabilidade de Ocorrer|Impacto|Opção de tratamento|Ações de tratamento do risco"
+      ]
+    },
+    {
+      "sigla": "MESP",
+      "n_entregas": 45,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 71.1,
+      "sem_produto_n": 13,
+      "sem_produto_pct": 28.9,
+      "col_map_ok_rate": 91.1,
+      "unrecognized_headers": [
+        "Órgão|Ministério do Esporte|Ministério do Esporte|Vigência|"
+      ]
+    },
+    {
+      "sigla": "MF",
+      "n_entregas": 415,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 83.1,
+      "sem_produto_n": 70,
+      "sem_produto_pct": 16.9,
+      "col_map_ok_rate": 95.4,
+      "unrecognized_headers": [
+        "0|1|2|3",
+        "0|1|2|3|4",
+        "Órgão|Ministério da Fazenda|Ministério da Fazenda|Vigência"
+      ]
+    },
+    {
+      "sigla": "MGI",
+      "n_entregas": 337,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 87.8,
+      "sem_produto_n": 30,
+      "sem_produto_pct": 8.9,
+      "col_map_ok_rate": 88.1,
+      "unrecognized_headers": [
+        "0|1|2|3|4|5|6|7"
+      ]
+    },
+    {
+      "sigla": "MIDR",
+      "n_entregas": 23,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 23,
+      "sem_produto_pct": 100.0,
+      "col_map_ok_rate": 52.2,
+      "unrecognized_headers": [
+        "0|1|2|3",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "MINC",
+      "n_entregas": 113,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 85.0,
+      "sem_produto_n": 16,
+      "sem_produto_pct": 14.2,
+      "col_map_ok_rate": 96.5,
+      "unrecognized_headers": [
+        "0|1|2|3"
+      ]
+    },
+    {
+      "sigla": "MJSP",
+      "n_entregas": 154,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 75.3,
+      "sem_produto_n": 22,
+      "sem_produto_pct": 14.3,
+      "col_map_ok_rate": 87.0,
+      "unrecognized_headers": [
+        "Cargo|Assinatura",
+        "0|1",
+        "Órgão|Ministério da Justiça e Segurança Públic|Ministério da Justiça e Segurança Públic|Vigência|",
+        "Risco|Probabilida- de de Ocor- rência|Impacto|Opção de Tratamento|Mitigadores"
+      ]
+    },
+    {
+      "sigla": "MMA",
+      "n_entregas": 374,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 82.4,
+      "sem_produto_n": 66,
+      "sem_produto_pct": 17.6,
+      "col_map_ok_rate": 72.7,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "0|1|2",
+        "Cargo|Assinatura"
+      ]
+    },
+    {
+      "sigla": "MME",
+      "n_entregas": 78,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 74.4,
+      "sem_produto_n": 20,
+      "sem_produto_pct": 25.6,
+      "col_map_ok_rate": 94.9,
+      "unrecognized_headers": [
+        "Órgão|Ministério de Minas e Energia|Ministério de Minas e Energia|Vigência|"
+      ]
+    },
+    {
+      "sigla": "MMULHERES",
+      "n_entregas": 14,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 14,
+      "sem_produto_pct": 100.0,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "MPI",
+      "n_entregas": 64,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 35.9,
+      "sem_produto_n": 25,
+      "sem_produto_pct": 39.1,
+      "col_map_ok_rate": 93.8,
+      "unrecognized_headers": [
+        "Órgão|Ministério dos Povos Indígenas - MPI|Ministério dos Povos Indígenas - MPI|Vigência|"
+      ]
+    },
+    {
+      "sigla": "MPO",
+      "n_entregas": 35,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 62.9,
+      "sem_produto_n": 13,
+      "sem_produto_pct": 37.1,
+      "col_map_ok_rate": 80.0,
+      "unrecognized_headers": [
+        "Órgão|Ministério do Planejamento e Orçamento -|Ministério do Planejamento e Orçamento -|Vigência|",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "MPOR",
+      "n_entregas": 68,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 77.9,
+      "sem_produto_n": 15,
+      "sem_produto_pct": 22.1,
+      "col_map_ok_rate": 89.7,
+      "unrecognized_headers": [
+        "Órgão|Ministério de Portos e Aeroportos - MPOR|Ministério de Portos e Aeroportos - MPOR|Vigência|",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "MPS",
+      "n_entregas": 53,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 86.8,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 13.2,
+      "col_map_ok_rate": 92.5,
+      "unrecognized_headers": [
+        "Órgão.|Ministério da Previdência Social|Ministério da Previdência Social|Vigência.jan/2025 a dez/2026"
+      ]
+    },
+    {
+      "sigla": "MRE",
+      "n_entregas": 99,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 45.5,
+      "sem_produto_n": 54,
+      "sem_produto_pct": 54.5,
+      "col_map_ok_rate": 92.9,
+      "unrecognized_headers": [
+        "Cargo|Assinatura",
+        "Órgão|Ministério das Relações Exteriores|Ministério das Relações Exteriores|Vigência|"
+      ]
+    },
+    {
+      "sigla": "MT",
+      "n_entregas": 59,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 96.6,
+      "sem_produto_n": 2,
+      "sem_produto_pct": 3.4,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "MTE",
+      "n_entregas": 62,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 59.7,
+      "sem_produto_n": 22,
+      "sem_produto_pct": 35.5,
+      "col_map_ok_rate": 79.0,
+      "unrecognized_headers": [
+        "Órgão|MINISTÉRIO DO TRABALHO E EMPREGO - MTE|MINISTÉRIO DO TRABALHO E EMPREGO - MTE|Vigência|",
+        "0|1|2|3|4"
+      ]
+    },
+    {
+      "sigla": "MTUR",
+      "n_entregas": 120,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 89.2,
+      "sem_produto_n": 13,
+      "sem_produto_pct": 10.8,
+      "col_map_ok_rate": 85.8,
+      "unrecognized_headers": [
+        "0|1|2|3|4",
+        "Cargo|Assinatura",
+        "Órgão|Ministério do Turismo - MTur|Ministério do Turismo - MTur|Vigência|"
+      ]
+    },
+    {
+      "sigla": "PF",
+      "n_entregas": 163,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 95.7,
+      "sem_produto_n": 7,
+      "sem_produto_pct": 4.3,
+      "col_map_ok_rate": 100.0,
+      "unrecognized_headers": []
+    },
+    {
+      "sigla": "PREVIC",
+      "n_entregas": 149,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 75.8,
+      "sem_produto_n": 36,
+      "sem_produto_pct": 24.2,
+      "col_map_ok_rate": 71.8,
+      "unrecognized_headers": [
+        "|muito provável; praticamente certo ]|médio; alto; muito alto ]|transferir; aceitar;]|",
+        "0|1|2|3|4",
+        "0|1|2|3|4|5"
+      ]
+    },
+    {
+      "sigla": "PRF",
+      "n_entregas": 229,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 67.7,
+      "sem_produto_n": 74,
+      "sem_produto_pct": 32.3,
+      "col_map_ok_rate": 95.2,
+      "unrecognized_headers": [
+        "Órgão|POLÍCIA RODOVIÁRIA FEDERAL|POLÍCIA RODOVIÁRIA FEDERAL|Vigência|",
+        "0|1|2|3|4|5"
+      ]
     },
     {
       "sigla": "SGPR",
@@ -282,18 +2063,20 @@
       "col_map_ok_rate": 78.9,
       "unrecognized_headers": [
         "Órgão|Secretaria-Geral da Presidência da Repúb|Secretaria-Geral da Presidência da Repúb|Vigência|"
-      ],
-      "vsm_status": "ativo",
-      "vsm_s5_meta": 80.0,
-      "vsm_gap_pp": -22.1,
-      "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "media",
-      "triple_actuality": 57.9,
-      "triple_capability": 78.9,
-      "triple_potentiality": 80.0,
-      "triple_gap_type": "vocabulario",
-      "n_riscos": 10
+      ]
+    },
+    {
+      "sigla": "SUSEP",
+      "n_entregas": 25,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 64.0,
+      "sem_produto_n": 9,
+      "sem_produto_pct": 36.0,
+      "col_map_ok_rate": 64.0,
+      "unrecognized_headers": [
+        "Órgão|Superintendência de Seguros Privados - S|Superintendência de Seguros Privados - S|Superintendência de Seguros Privados - S|Vigência"
+      ]
     }
-  ],
-  "orgaos_excluidos": []
+  ]
 }

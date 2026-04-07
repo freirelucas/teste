@@ -25,18 +25,22 @@
   },
   "21": {
     "state": 2,
-    "type": "docling"
+    "type": "docling",
+    "escalado": true
   },
   "INPI": {
     "state": 2,
-    "type": "docling"
+    "type": "docling",
+    "escalado": true
   },
   "MIDR": {
     "state": 2,
-    "type": "docling"
+    "type": "docling",
+    "escalado": true
   },
   "MMULHERES": {
     "state": 2,
-    "type": "docling"
+    "type": "docling",
+    "escalado": true
   }
 }
