@@ -1,0 +1,4 @@
+09:46:58 INFO     Docling disponível
+09:46:58 WARNING  OCR fallback indisponível (IndentationError: unexpected indent (ptd_ocr_fallback.py, line 45))
+09:46:59 INFO     Ignorado (guia/template/norma): ABNT-NBR-17225-Acessibilidade-Digital.pdf
+09:46:59 INFO     Ignorado (guia/template/norma): cgrep-guia10passos-ptd-orgao.pdf
