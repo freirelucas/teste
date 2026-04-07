@@ -4,7 +4,7 @@ IPEA / COGIT / DIEST
 Uso: python gerar_apresentacao.py
 Output: apresentacao_ptd_corpus_v4.pptx
 
-v4.0 (2026-04-06): 13 slides, KPIs de 18.4K linhas/59 órgãos,
+v4.0 (2026-04-06): 13 slides, KPIs de 18.4K linhas/~90 órgãos,
   +slide Evolução (155 iterações), +slide Balanço S5,
   +slide Arquitetura de Aprendizado VSM
 """
@@ -287,7 +287,7 @@ def slide_qualidade(prs):
     sem_prod_n = f'{_KPIS["sem_produto_n"]:,}'.replace(',','.')
     metricas = [
         ('Cobertura de órgãos',   f'{_KPIS["n_orgaos"]}/{_KPIS["n_orgaos"]}',
-         'Todos os 59 órgãos com ao menos 1 entrega extraída'),
+         f'Todos os {n_orgaos} órgãos com ao menos 1 entrega extraída'),
         ('Parse OK (serv+prod)',   pct_ok_str,
          f'{_KPIS["n_registros"]-_KPIS["sem_produto_n"]:,} linhas com campos identificados'.replace(',','.')),
         ('Cobertura serviço',      f'{_KPIS["cob_servico_pct"]:.1f}%',
@@ -398,7 +398,7 @@ def slide_balanco(prs):
     itr = _KPIS['iteration']
     n_reg = f'{_KPIS["n_registros"]:,}'.replace(',','.')
     entregues = [
-        f'Corpus PTD-BR v2.1     — {n_reg} comprometimentos · 59 órgãos · 420 riscos',
+        f'Corpus PTD-BR v2.1     — {n_reg} comprometimentos · {_KPIS["n_orgaos"]} órgãos · {_KPIS["n_riscos"]} riscos',
         'ptd_pipeline_v30.py     — Pipeline autônomo com loop watcher (155 iterações)',
         'meta_learning.py        — S4 mínimo viável: slope analysis + strategy switch',
         'config/col_keys_extra.json   — Col_map por sigla (Step B watcher)',
@@ -441,7 +441,7 @@ def slide_evolucao(prs):
     # Timeline horizontal
     marcos = [
         (0,    'Stage 0\nCobertura', '10 órgãos\nzerados',   RGBColor(0xE6,0x39,0x46)),
-        (50,   'Stage 0 →1\nConcluído', '59/59\nórgãos OK',  VERDE_IPEA),
+        (50,   'Stage 0 →1\nConcluído', '~90/90\nórgãos OK',  VERDE_IPEA),
         (100,  'Stage 1\nQualidade', 'vocab loop\nvazio',     LARANJA),
         (154,  'S4 ativo\nmeta_learning', 'unmatched\npor sigla', AZUL_IPEA),
         (itr,  f'Iter. {itr}\nAtual', 'pct_ok=68%\nstage=1',  VERDE_IPEA),
@@ -492,7 +492,7 @@ def slide_balanco_s5(prs):
          '❌',
          'Vocab insuficiente (54 produtos), col_map=0% INCRA, watcher loop vazio (resolvido iter. 155)'),
         ('Riscos ≥ 80% órgãos',
-         f'31/59 órgãos (52%)',
+         f'{_KPIS.get("n_orgaos_riscos", 31)}/{_KPIS["n_orgaos"]} órgãos',
          '−16 órgãos',
          '❌',
          'Extrator L7 funciona para 31 órgãos; 28 sem riscos (ausência real ou falha do parser)'),
@@ -590,7 +590,7 @@ def _carregar_kpis() -> dict:
             tot_e = sum(e.values()) or 1
             kpis.update({
                 'n_registros':     c.get('total_linhas', 18396),
-                'n_orgaos':        m.get('proveniencia', {}).get('n_orgaos', 59),
+                'n_orgaos':        m.get('proveniencia', {}).get('n_orgaos', 90),
                 'n_servicos':      c.get('servicos_unicos', 3376),
                 'fator_mult':      c.get('fator_mult_medio', 5.45),
                 'n_riscos':        m.get('proveniencia', {}).get('n_riscos', 420),
@@ -613,7 +613,7 @@ def _carregar_kpis() -> dict:
                 try: kpis['iteration'] = int(line.split(':')[1].strip())
                 except: pass
     kpis.setdefault('n_registros',  18396)
-    kpis.setdefault('n_orgaos',     59)
+    kpis.setdefault('n_orgaos',     90)
     kpis.setdefault('n_servicos',   3376)
     kpis.setdefault('fator_mult',   5.45)
     kpis.setdefault('n_riscos',     420)
@@ -637,7 +637,7 @@ def gerar():
     slide_capa(prs)          # 1
     slide_contexto(prs)      # 2
     slide_arquitetura(prs)   # 3
-    slide_coleta(prs)        # 4 — atualizado: 59 órgãos, 18.4K linhas
+    slide_coleta(prs)        # 4 — atualizado: ~90 órgãos, ~180 PDFs, 18.4K linhas
     slide_corpus(prs)        # 5 — atualizado: eixos reais, iter atual
     slide_evolucao(prs)      # 5b NOVO: 155 iterações, timeline
     slide_problemas(prs)     # 6

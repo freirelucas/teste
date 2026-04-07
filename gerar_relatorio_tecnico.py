@@ -59,6 +59,7 @@ def _load():
             d['sem_servico'] = (df['parse_flag'] == 'sem_servico').sum()
             d['top_orgaos'] = df.groupby('sigla').size().sort_values(ascending=False).head(20)
             d['siglas_all'] = sorted(df['sigla'].unique())
+            d['n_orgaos'] = len(d['siglas_all']) if d['siglas_all'] else 90
         else:
             d['corpus_df'] = None
             d['n_total'] = d['meta'].get('corpus', {}).get('total_linhas', 18396)
@@ -69,6 +70,7 @@ def _load():
             d['sem_servico'] = 135
             d['top_orgaos'] = {}
             d['siglas_all'] = []
+            d['n_orgaos'] = 90
 
         # Pivot eixos
         pivot_path = DB / 'ptd_pivot_eixos.csv'
@@ -292,11 +294,12 @@ def _sec1_resumo(d: dict) -> str:
     it = d['iteration']
     nr = d['n_riscos']
     ns = d['n_servicos']
+    n_orgaos = d.get('n_orgaos', 90)
     return f"""
 <h2 id="sec1"><span class="section-num">01 /</span> Resumo Executivo</h2>
 <div class="kpi-grid">
   <div class="kpi"><div class="val">{n:,}</div><div class="lbl">Entregas extraídas</div></div>
-  <div class="kpi"><div class="val">59</div><div class="lbl">Órgãos cobertos</div></div>
+  <div class="kpi"><div class="val">{n_orgaos}</div><div class="lbl">Órgãos cobertos</div></div>
   <div class="kpi"><div class="val">{ns:,}</div><div class="lbl">Serviços únicos</div></div>
   <div class="kpi"><div class="val">{nr}</div><div class="lbl">Riscos documentados</div></div>
   <div class="kpi"><div class="val">{pct}%</div><div class="lbl">Qualidade (pct_ok)</div></div>
@@ -306,11 +309,11 @@ def _sec1_resumo(d: dict) -> str:
 <p>O <strong>PTD-BR Pipeline</strong> é um sistema autônomo de extração e estruturação dos
 <em>Planos de Transformação Digital (PTD)</em> dos órgãos do Governo Federal Brasileiro,
 desenvolvido pelo IPEA/COGIT/DIEST em 2025–2026.</p>
-<p>O pipeline processa ~130 PDFs de 59 órgãos e produz um corpus analítico com entregas,
+<p>O pipeline processa ~180 PDFs de {n_orgaos} órgãos e produz um corpus analítico com entregas,
 produtos, eixos EFGD e riscos — completamente estruturado a partir de documentos originais
 em formato tabular semi-estruturado.</p>
 <p>Após <strong>{it} iterações autônomas</strong>, o corpus contém <strong>{n:,} entregas</strong>
-de todos os 59 órgãos, com qualidade semântica de <strong>{pct}%</strong> (parse_flag=ok).
+de todos os {n_orgaos} órgãos, com qualidade semântica de <strong>{pct}%</strong> (parse_flag=ok).
 O sistema opera continuamente via GitHub Actions (cron a cada 5 minutos), aprendendo
 e melhorando a cada ciclo.</p>
 <p><strong>Base legal:</strong> Decreto 12.198/2024 e Portaria SGD/MGI 6.618/2024.</p>
@@ -327,7 +330,7 @@ def _sec2_conceito() -> str:
 para todos os órgãos da APF (Administração Pública Federal), nos termos do Decreto 12.198/2024.
 Cada órgão publica seu PTD em PDF no Portal do Governo Digital, contendo tabelas com
 entregas, produtos, eixos da EFGD (Estratégia Federal de Governo Digital), indicadores e riscos.</p>
-<p>O problema: esses ~130 PDFs de 59 órgãos estão em formato não estruturado, com
+<p>O problema: esses ~180 PDFs de ~90 órgãos estão em formato não estruturado, com
 tabelas de layouts variados, OCR de qualidade heterogênea e vocabulário diverso.
 Não existe um corpus analítico que permita monitoramento consolidado do progresso da EFGD.</p>
 
@@ -426,6 +429,7 @@ def _sec4_corpus(d: dict) -> str:
     sem_serv = d['sem_servico']
     cob_s = d['cob_servico']
     cob_p = d['cob_produto']
+    n_orgaos = d.get('n_orgaos', 90)
 
     # Tabela top orgaos
     if HAS_PANDAS and d['corpus_df'] is not None:
@@ -452,7 +456,7 @@ def _sec4_corpus(d: dict) -> str:
 <h3>Visão geral</h3>
 <div class="kpi-grid">
   <div class="kpi"><div class="val">{n:,}</div><div class="lbl">Total de linhas</div></div>
-  <div class="kpi"><div class="val">59</div><div class="lbl">Órgãos</div></div>
+  <div class="kpi"><div class="val">{n_orgaos}</div><div class="lbl">Órgãos</div></div>
   <div class="kpi"><div class="val">{ns:,}</div><div class="lbl">Serviços únicos</div></div>
   <div class="kpi"><div class="val">{pct_ok}%</div><div class="lbl">pct_ok global</div></div>
   <div class="kpi"><div class="val">{cob_s}%</div><div class="lbl">Cobertura serviço</div></div>
@@ -496,13 +500,13 @@ executando a cada 5 minutos e aplicando correções progressivas. A evolução s
   </div>
   <div class="timeline-item done">
     <div class="timeline-date">Iteração ~50 — Stage 0 concluído</div>
-    <div class="timeline-title">0 órgãos zerados: todos os 59 órgãos com ao menos 1 entrega</div>
+    <div class="timeline-title">0 órgãos zerados: todos os ~90 órgãos com ao menos 1 entrega</div>
     <div class="timeline-desc">Docling e pytesseract cobrem todos os layouts de PDF.
     Stage 1 ativado: foco em qualidade semântica (pct_ok).</div>
   </div>
   <div class="timeline-item done">
     <div class="timeline-date">Iteração ~100 — Stage 1</div>
-    <div class="timeline-title">59/59 órgãos com entregas; pct_ok atinge 68%</div>
+    <div class="timeline-title">~90/90 órgãos com entregas; pct_ok atinge 68%</div>
     <div class="timeline-desc">Vocabulário Aho-Corasick expandido iterativamente.
     Watcher travou em loop vazio (sensor reportava só 1 frase global).</div>
   </div>
@@ -545,7 +549,8 @@ def _sec6_balanco(d: dict) -> str:
     sem_prod_pct = round(d['sem_produto'] / d['n_total'] * 100, 1) if d['n_total'] else 0
     ruido_pct = round(d['ruido'] / d['n_total'] * 100, 1) if d['n_total'] else 0
     n_riscos_orgs = d['orgaos_riscos']
-    risk_pct = round(n_riscos_orgs / 59 * 100, 1)
+    n_orgaos = d.get('n_orgaos', 90)
+    risk_pct = round(n_riscos_orgs / max(n_orgaos, 1) * 100, 1)
 
     def badge_s5(val, meta, invert=False):
         ok = val >= meta if not invert else val <= meta
@@ -596,7 +601,7 @@ def _sec6_balanco(d: dict) -> str:
     <td><span class="badge badge-ok">✅ Atendido</span></td>
   </tr>
   <tr>
-    <td>Órgãos zerados</td><td>0 / 59</td>
+    <td>Órgãos zerados</td><td>0 / {n_orgaos}</td>
     <td><span class="badge badge-ok">✅ 0</span></td>
     <td>OK</td>
     <td><span class="badge badge-ok">✅ Atendido</span></td>
@@ -613,8 +618,8 @@ def _sec6_balanco(d: dict) -> str:
 <h3>Causa raiz dos gaps</h3>
 <table>
   <tr><th>Gap</th><th>Causa primária</th><th>Impacto estimado</th></tr>
-  <tr><td>pct_ok = {pct_ok}% (meta: 90%)</td><td>Vocabulário insuficiente (54 produtos para 59 órgãos). INCRA col_map=0%</td><td>{d['sem_produto']:,} linhas sem_produto recuperáveis</td></tr>
-  <tr><td>Riscos em {n_riscos_orgs}/59 órgãos ({risk_pct}%)</td><td>PDFs sem seção de riscos (genuíno) ou extrator não detectou tabela de riscos</td><td>28 órgãos a investigar</td></tr>
+  <tr><td>pct_ok = {pct_ok}% (meta: 90%)</td><td>Vocabulário insuficiente (~65 produtos para {n_orgaos} órgãos). INCRA col_map=0%</td><td>{d['sem_produto']:,} linhas sem_produto recuperáveis</td></tr>
+  <tr><td>Riscos em {n_riscos_orgs}/{n_orgaos} órgãos ({risk_pct}%)</td><td>PDFs sem seção de riscos (genuíno) ou extrator não detectou tabela de riscos</td><td>a investigar</td></tr>
   <tr><td>Loop watcher 154 iterações sem progresso</td><td>Sensor só via 1 frase global; filtrada como subeixo genérico</td><td>Resolvido no commit c27a65f</td></tr>
 </table>
 
@@ -630,6 +635,7 @@ def _sec6_balanco(d: dict) -> str:
 def _sec7_riscos(d: dict) -> str:
     nr = d['n_riscos']
     no = d['orgaos_riscos']
+    n_orgaos = d.get('n_orgaos', 90)
 
     if HAS_PANDAS and d['riscos'] is not None:
         riscos = d['riscos']
@@ -654,7 +660,7 @@ def _sec7_riscos(d: dict) -> str:
         rows_prob = ''
         rows_trat = ''
 
-    sem_riscos = 59 - no
+    sem_riscos = n_orgaos - no
 
     return f"""
 <h2 id="sec7"><span class="section-num">07 /</span> Extração de Riscos</h2>
@@ -663,7 +669,7 @@ def _sec7_riscos(d: dict) -> str:
   <div class="kpi"><div class="val">{nr}</div><div class="lbl">Riscos documentados</div></div>
   <div class="kpi"><div class="val">{no}</div><div class="lbl">Órgãos com riscos</div></div>
   <div class="kpi"><div class="val">{sem_riscos}</div><div class="lbl">Órgãos sem riscos</div></div>
-  <div class="kpi"><div class="val">{round(no/59*100,1)}%</div><div class="lbl">Cobertura de riscos</div></div>
+  <div class="kpi"><div class="val">{round(no/max(n_orgaos,1)*100,1)}%</div><div class="lbl">Cobertura de riscos</div></div>
 </div>
 
 <h3>Top 15 órgãos por volume de riscos</h3>
@@ -905,7 +911,7 @@ def _sec11_apendice(d: dict) -> str:
   {rows}
 </table>
 <p style="margin-top:16px;color:#6b7280;font-size:0.88rem">
-Perfis completos de todos os 59 órgãos disponíveis em
+Perfis completos de todos os ~90 órgãos disponíveis em
 <code>ptd_corpus/03_database/ptd_corpus_v21.csv</code>.
 </p>
 </div>

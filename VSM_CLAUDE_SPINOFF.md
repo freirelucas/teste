@@ -622,7 +622,7 @@ Grupo grande (15–30 agentes):  Icosaedro — 4 rodadas, máxima resiliência
 Acima de 30:                   Recursão — INFOSET de INFOSETs (Beer)
 ```
 
-**Para o PTD-BR (59 órgãos)**: usar octaedro de 6 meta-tópicos (um por eixo EFGD),
+**Para o PTD-BR (~90 órgãos)**: usar octaedro de 6 meta-tópicos (um por eixo EFGD),
 onde cada agente é responsável por 1 eixo como Member e critica o eixo oposto.
 Meta-agente S4 integra na Rodada 3.
 
