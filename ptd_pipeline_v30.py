@@ -162,12 +162,19 @@ def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
                 parent_text = t
                 break
 
+        # Extrai todas as siglas mencionadas no contexto (ex: "MEC / CAPES / EBSERH / ...")
+        _ctx_siglas_raw = re.findall(r'\b([A-ZÁÀÃÂ-Z]{2,10}(?:-[A-Z]+)?)\b', parent_text)
+        _IGNORAR_SIGLAS = {'PTD', 'PLANO', 'DIGITAL', 'DOCUMENTO', 'DIRETIVO', 'ANEXO',
+                           'ENTREGAS', 'VIGENTE', 'DE', 'DO', 'DA', 'E', 'EM', 'COM'}
+        _ctx_siglas = [s for s in _ctx_siglas_raw if s not in _IGNORAR_SIGLAS]
+
         rows.append({
             'url': download_url,
             'filename': fn,
             'tipo': 'entregas' if 'entrega' in txt or 'entrega' in fn else
                     ('diretivo' if 'diretivo' in txt or 'diretivo' in fn or 'dcd' in fn else 'desconhecido'),
             'contexto': parent_text[:100],
+            'siglas_grupo': '/'.join(_ctx_siglas),  # ex: "MEC/CAPES/EBSERH/FNDE/FUNDAJ/IBC/INEP/INES"
         })
 
     df = pd.DataFrame(rows).drop_duplicates(subset=['filename'])

@@ -1,0 +1,99 @@
+{
+  "_meta": {
+    "descricao": "Grupos de órgãos que compartilham documentos PTD. Cada grupo tem um órgão 'lead' cujo arquivo PDF é o documento compartilhado. Sub-órgãos invisíveis no filename são expandidos a partir deste mapa.",
+    "total_orgaos": 91,
+    "total_grupos": 7,
+    "versao": "1.0",
+    "ultima_edicao": "2026-04-07",
+    "fonte": "Portal gov.br/governodigital — lista 'Total de Órgãos com PTD vigente: 91'",
+    "nota": "Órgãos fora dos grupos possuem documento PTD próprio (sigla individual no filename)."
+  },
+  "grupos": {
+    "MD": {
+      "nome": "Ministério da Defesa",
+      "documento": "compartilhado",
+      "lead": "MD",
+      "membros": {
+        "MD":       { "nome": "Ministério da Defesa",                                          "tipo": "ministerio"   },
+        "CEX":      { "nome": "Comando do Exército",                                           "tipo": "forca_armada" },
+        "CM":       { "nome": "Comando da Marinha",                                            "tipo": "forca_armada" },
+        "COMAER":   { "nome": "Comando da Aeronáutica",                                        "tipo": "forca_armada" },
+        "CENSIPAM": { "nome": "Centro Gestor e Operacional do Sistema de Proteção da Amazônia","tipo": "vinculado"    },
+        "FOSORIO":  { "nome": "Fundação Osório",                                               "tipo": "fundacao"     },
+        "HFA":      { "nome": "Hospital das Forças Armadas",                                   "tipo": "vinculado"    }
+      }
+    },
+    "MEC": {
+      "nome": "Ministério da Educação",
+      "documento": "compartilhado",
+      "lead": "MEC",
+      "membros": {
+        "MEC":    { "nome": "Ministério da Educação",                                                        "tipo": "ministerio"     },
+        "CAPES":  { "nome": "Coordenação de Aperfeiçoamento de Pessoal de Nível Superior",                   "tipo": "fundacao"       },
+        "EBSERH": { "nome": "Empresa Brasileira de Serviços Hospitalares",                                   "tipo": "empresa_publica"},
+        "FNDE":   { "nome": "Fundo Nacional de Desenvolvimento da Educação",                                 "tipo": "autarquia"      },
+        "FUNDAJ": { "nome": "Fundação Joaquim Nabuco",                                                       "tipo": "fundacao"       },
+        "IBC":    { "nome": "Instituto Benjamin Constant",                                                   "tipo": "autarquia"      },
+        "INEP":   { "nome": "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira",        "tipo": "autarquia"      },
+        "INES":   { "nome": "Instituto Nacional de Educação de Surdos",                                      "tipo": "autarquia"      }
+      }
+    },
+    "MMA": {
+      "nome": "Ministério do Meio Ambiente e Mudança do Clima",
+      "documento": "compartilhado",
+      "lead": "MMA",
+      "membros": {
+        "MMA":    { "nome": "Ministério do Meio Ambiente e Mudança do Clima",                  "tipo": "ministerio" },
+        "IBAMA":  { "nome": "Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis", "tipo": "autarquia" },
+        "ICMBIO": { "nome": "Instituto Chico Mendes de Conservação da Biodiversidade",         "tipo": "autarquia"  },
+        "SFB":    { "nome": "Serviço Florestal Brasileiro",                                    "tipo": "autarquia"  },
+        "JBRJ":   { "nome": "Instituto de Pesquisas Jardim Botânico do Rio de Janeiro",        "tipo": "instituto"  }
+      }
+    },
+    "MIDR": {
+      "nome": "Ministério da Integração e do Desenvolvimento Regional",
+      "documento": "compartilhado",
+      "lead": "MIDR",
+      "membros": {
+        "MIDR":     { "nome": "Ministério da Integração e do Desenvolvimento Regional",        "tipo": "ministerio"     },
+        "CODEVASF": { "nome": "Companhia de Desenvolvimento dos Vales do São Francisco e do Parnaíba", "tipo": "empresa_publica" },
+        "SUDAM":    { "nome": "Superintendência do Desenvolvimento da Amazônia",               "tipo": "autarquia"      },
+        "SUDECO":   { "nome": "Superintendência do Desenvolvimento do Centro-Oeste",           "tipo": "autarquia"      },
+        "SUDENE":   { "nome": "Superintendência do Desenvolvimento do Nordeste",               "tipo": "autarquia"      }
+      }
+    },
+    "MDA": {
+      "nome": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",
+      "documento": "compartilhado",
+      "lead": "MDA",
+      "membros": {
+        "MDA":   { "nome": "Ministério do Desenvolvimento Agrário e Agricultura Familiar",     "tipo": "ministerio"     },
+        "CONAB": { "nome": "Companhia Nacional de Abastecimento",                              "tipo": "empresa_publica"}
+      }
+    },
+    "MT": {
+      "nome": "Ministério dos Transportes",
+      "documento": "compartilhado",
+      "tipos_disponiveis": ["entregas"],
+      "_nota": "Sem documento diretivo separado — apenas Anexo de Entregas conjunto para MT/ANTT/DNIT.",
+      "lead": "MT",
+      "membros": {
+        "MT":   { "nome": "Ministério dos Transportes",                              "tipo": "ministerio" },
+        "ANTT": { "nome": "Agência Nacional de Transportes Terrestres",              "tipo": "autarquia"  },
+        "DNIT": { "nome": "Departamento Nacional de Infraestrutura de Transportes", "tipo": "autarquia"  }
+      }
+    },
+    "MF": {
+      "nome": "Ministério da Fazenda",
+      "documento": "separado_por_subunidade",
+      "_nota": "Cada sub-unidade publica PDFs próprios com filename_prefixo próprio. Não é documento compartilhado — é separação organizacional interna do MF.",
+      "lead": "MF",
+      "membros": {
+        "MF":   { "nome": "Ministério da Fazenda (Secretaria Executiva)",        "tipo": "ministerio",   "filename_prefixo": "mf_se"   },
+        "RFB":  { "nome": "Secretaria Especial da Receita Federal do Brasil",    "tipo": "secretaria",   "filename_prefixo": "mf_rfb"  },
+        "STN":  { "nome": "Secretaria do Tesouro Nacional",                      "tipo": "secretaria",   "filename_prefixo": "mf_stn"  },
+        "PGFN": { "nome": "Procuradoria-Geral da Fazenda Nacional",              "tipo": "procuradoria", "filename_prefixo": "mf_pgfn" }
+      }
+    }
+  }
+}

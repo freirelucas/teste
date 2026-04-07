@@ -93,5 +93,15 @@
     "s5_pct_ok_meta": 80.0,
     "prioridade": "normal",
     "estrategia": "vocabulario"
+  },
+  "_grupos": {
+    "descricao": "Mapeamento de sub-órgãos de cada grupo. Sub-órgãos herdam política do lead via _default, a menos que tenham entrada explícita acima.",
+    "MD":   ["CEX", "CM", "COMAER", "CENSIPAM", "FOSORIO", "HFA"],
+    "MEC":  ["CAPES", "EBSERH", "FNDE", "FUNDAJ", "IBC", "INEP", "INES"],
+    "MMA":  ["IBAMA", "ICMBIO", "SFB", "JBRJ"],
+    "MIDR": ["CODEVASF", "SUDAM", "SUDECO", "SUDENE"],
+    "MDA":  ["CONAB"],
+    "MT":   ["ANTT", "DNIT"],
+    "MF":   ["RFB", "STN", "PGFN"]
   }
 }

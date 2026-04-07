@@ -99,12 +99,41 @@ flag_dist = corpus['parse_flag'].value_counts().to_dict() if 'parse_flag' in cor
 n_ok      = flag_dist.get('ok', 0)
 pct_ok    = round(n_ok / len(corpus) * 100, 1) if corpus is not None and len(corpus) else 0
 
+# ── Organ groups: expande lead siglas para contar sub-órgãos ─────────
+def _load_organ_groups() -> dict:
+    p = Path('config/organ_groups.json')
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding='utf-8'))
+        except Exception:
+            pass
+    return {}
+
+def _expand_siglas(siglas_corpus: 'set', organ_groups: dict) -> set:
+    """Dado o conjunto de siglas do corpus, expande para incluir todos os
+    membros de cada grupo. Ex: {'MEC'} → {'MEC','CAPES','EBSERH',...}"""
+    lead_to_members = {
+        g: set(d['membros'].keys())
+        for g, d in organ_groups.get('grupos', {}).items()
+    }
+    expanded = set(siglas_corpus)
+    for sigla in list(siglas_corpus):
+        if str(sigla).upper() in lead_to_members:
+            expanded |= lead_to_members[str(sigla).upper()]
+    return expanded
+
+_organ_groups_cfg  = _load_organ_groups()
+_n_orgaos_meta     = _organ_groups_cfg.get('_meta', {}).get('total_orgaos', 91)
+_siglas_corpus_set = set(corpus['sigla'].dropna().unique()) if 'sigla' in corpus.columns else set()
+_siglas_expandidas = _expand_siglas(_siglas_corpus_set, _organ_groups_cfg)
+n_orgaos_expandido = len(_siglas_expandidas)  # conta sub-órgãos de grupos
+
 # Alertas
 alertas = []
 if pct_ok < 50:
     alertas.append(('WARN', f'Cobertura parse OK baixa: {pct_ok}% — revisar parser ou PRODUTOS'))
 if n_orgaos < 80:
-    alertas.append(('WARN', f'Apenas {n_orgaos}/90 órgãos com dados — verificar scraping e downloads'))
+    alertas.append(('WARN', f'Apenas {n_orgaos_expandido}/{_n_orgaos_meta} órgãos com dados — verificar scraping e downloads'))
 sem_prod = flag_dist.get('sem_produto', 0)
 if sem_prod / len(corpus) > 0.3 if len(corpus) else False:
     alertas.append(('WARN', f'{sem_prod} linhas sem produto identificado ({sem_prod/len(corpus)*100:.0f}%) — considerar fuzzy match'))
@@ -421,6 +450,9 @@ try:
         'prioridade': 'normal', 'estrategia': 'vocabulario'
     })
 
+    # ── Organ groups: mapa de grupos (já carregado acima como _organ_groups_cfg) ─
+    # Reutiliza _organ_groups_cfg, _siglas_expandidas, _n_orgaos_meta definidos na seção de métricas
+
     _por_orgao = []
     for _sig, _g in _raw.groupby('sigla'):
         _ext = _g['extrator'].mode()[0] if 'extrator' in _g.columns and len(_g) else None
@@ -633,7 +665,9 @@ try:
         'branch':               os.environ.get('GITHUB_REF_NAME', 'local'),
         'stage':                _stage,
         'stage_label':          _stage_labels[_stage],
-        'n_orgaos':             int(n_orgaos),
+        'n_orgaos':             int(n_orgaos),             # siglas distintas no corpus (leads)
+        'n_orgaos_expandido':   int(n_orgaos_expandido),   # inclui sub-órgãos de grupos
+        'n_orgaos_meta':        int(_n_orgaos_meta),        # total oficial do portal (91)
         'n_registros_raw':      int(len(_raw)),
         'n_registros_v21':      int(len(corpus)),
         'pct_ok':               float(pct_ok),
@@ -654,6 +688,9 @@ try:
         'por_orgao':                 _por_orgao,
         # VSM Nível -1: órgãos excluídos por política S5 local
         'orgaos_excluidos':          sorted(_excluidos),
+        # Organ groups: siglas expandidas a partir do corpus
+        'siglas_corpus':             sorted(_siglas_corpus_set),
+        'siglas_expandidas':         sorted(_siglas_expandidas),
     }
     _summary_path = DIR_DB / 'ptd_run_summary.json'
     _summary_path.write_text(
