@@ -515,8 +515,7 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
 
         if len(df.columns) < 2 or len(df) < 1:  # threshold 3→2: aceita tabelas com 1 linha de dados (MD, MEC, FIOCRUZ)
             continue
-        all_text = ' '.join(df.values.flatten().astype(str))
-        if re.search(r'gestão de riscos|probabilidade.*ocorr', all_text, re.I):
+        if _is_risk_table(df):  # 9 padrões: prob + treat + impact (ver linha ~831)
             continue
 
         # Detectar mapeamento por header (FIX: column-aware extraction)
