@@ -1,0 +1,26 @@
+{
+  "AGU": {
+    "state": 2,
+    "type": "docling"
+  },
+  "FIOCRUZ": {
+    "state": 2,
+    "type": "docling"
+  },
+  "FUNAI": {
+    "state": 2,
+    "type": "docling"
+  },
+  "INCRA": {
+    "state": 2,
+    "type": "docling"
+  },
+  "ITI": {
+    "state": 2,
+    "type": "docling"
+  },
+  "SGPR": {
+    "state": 2,
+    "type": "docling"
+  }
+}

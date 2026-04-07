@@ -1,0 +1,415 @@
+sigla,eixo,texto,sha256
+ANATEL,1,Obter Dispensa de Autorização para Exploração de Serviço Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade ORLE/SOR jun/25,af7dc55c23a2
+ANATEL,1,Contribuir em Consultas Públicas ou Tomadas de Subsídios Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade PRRE/SPR jun/25,af7dc55c23a2
+ANATEL,1,Consultar débitos junto à Anatel Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25,af7dc55c23a2
+ANATEL,1,Solicitar restituição e compensação de débitos junto à Anatel Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25,af7dc55c23a2
+ANATEL,1,"Emitir boletos bancários para pagamento de taxas, multas e de outras receitas arrecadadas pela Anatel Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25",af7dc55c23a2
+ANATEL,1,Emitir certidão de regularidade fiscal e comprovante de pagamento Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25,af7dc55c23a2
+ANATEL,1,Solicitar parcelamento de débitos junto à Anatel Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25,af7dc55c23a2
+ANATEL,1,Efetuar declaração referente à contribuição para o FUST Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25,af7dc55c23a2
+ANATEL,1,Efetuar pagamento de GRU Eletrônica – Intra SIAFI (exclusivo para órgãos públicos) Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade AFFO/SAF jun/25,af7dc55c23a2
+ANATEL,1,Obter Dispensa de Autorização para Exploração de Serviço Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade ORLE/SOR dez/26,af7dc55c23a2
+ANATEL,1,Contribuir em Consultas Públicas ou Tomadas de Subsídios Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade PRRE/SPR dez/26,af7dc55c23a2
+ANATEL,1,Consultar débitos junto à Anatel Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade AFFO/SAF dez/26,af7dc55c23a2
+ANATEL,1,Solicitar restituição e compensação de débitos junto à Anatel Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade AFFO/SAF dez/26,af7dc55c23a2
+ANATEL,1,"Emitir boletos bancários para pagamento de taxas, multas e de outras receitas arrecadadas pela Anatel Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qu",af7dc55c23a2
+ANATEL,1,Emitir certidão de regularidade fiscal e comprovante de pagamento Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade AFFO/SAF dez/26,af7dc55c23a2
+ANATEL,1,Solicitar parcelamento de débitos junto à Anatel Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade AFFO/SAF dez/26,af7dc55c23a2
+ANATEL,1,Efetuar declaração referente à contribuição para o FUST Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade AFFO/SAF dez/26,af7dc55c23a2
+ANATEL,1,Efetuar pagamento de GRU Eletrônica – Intra SIAFI (exclusivo para órgãos públicos) Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade AFFO/SAF de,af7dc55c23a2
+ANATEL,1,Homologar produtos de telecomunicações - Sistema Certifica Implementação do VLIBRAS Serviços Digitais e Melhoria da Qualidade SGI/SOR dez/25,af7dc55c23a2
+ANATEL,1,Contribuir em Consultas Públicas ou Tomadas de Subsídios - Sistema Participa Implementação do VLIBRAS Serviços Digitais e Melhoria da Qualidade SGI/SPR dez/25,af7dc55c23a2
+ANATEL,1,"Emitir boletos bancários para pagamento de taxas, multas e de outras receitas arrecadadas pela Anatel - Sistema
+Boleto Implementação do VLIBRAS Serviços Digitais e Melhoria da Qualidade SGI/SAF dez/25",af7dc55c23a2
+ANATEL,1,"Registrar Reclamação, Denúncia, Sugestão ou Outras Manifestações - Implementação da autenticação única para
+acesso aos serviços públicos - Sistema Anatel Consumidor Integração ao Login Único Unificaçã",af7dc55c23a2
+ANATEL,1,Sistema Avalia Implantação do Design System Unificação de Canais Digitais SGI/SRC dez/25,af7dc55c23a2
+ANATEL,1,"Emitir boletos bancários para pagamento de taxas, multas e de outras receitas arrecadadas pela Anatel - Sistema
+Boleto Integração ao Pagtesouro Unificação de Canais Digitais SGI/SAF dez/25",af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 4 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU jan/25",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 4 Implementação do PPSI Segurança e Privacidade SGI/ARU jun/25,af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 5 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU jul/25",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 5 Implementação do PPSI Segurança e Privacidade SGI/ARU dez/25,af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 6 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU jan/26",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 6 Implementação do PPSI Segurança e Privacidade SGI/ARU jun/26,af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 7 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU jul/26",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 7 Implementação do PPSI Segurança e Privacidade SGI/ARU dez/26,af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 1 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU out/23",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 1 Implementação do PPSI Segurança e Privacidade SGI/ARU dez/23,af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 2 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU jan/24",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 2 Implementação do PPSI Segurança e Privacidade SGI/ARU jun/24,af7dc55c23a2
+ANATEL,4,"PPSI Ciclo 3 Auto-avaliação, análise de lacunas e planejamento do PPSI Segurança e Privacidade SGI/ARU jul/24",af7dc55c23a2
+ANATEL,4,PPSI Ciclo 3 Implementação do PPSI Segurança e Privacidade SGI/ARU dez/24,af7dc55c23a2
+ANATEL,2,"Implementar integrações com as APIs do ConectaGov para o Serviço ""Registrar reclamação, denúncia, pedido de
+informação e sugestão"" no Anatel Consumidor (API de Consulta CEP) Integração à base de dados",af7dc55c23a2
+ANATEL,1,"Serviço digital: Registrar reclamação, denúncia, pedido de informação e sugestão Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SRC",af7dc55c23a2
+ANATEL,1,"Serviço digital: Registrar reclamação, denúncia, pedido de informação e sugestão Realização de Autodiagnóstico de Qualidade Serviços Digitais e Melhoria da Qualidade SGI/SRC mai/24",af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização de Uso Temporário de Radiofrequências Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para acesso à Internet Fixa Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para prestar serviço de TV por Assinatura Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para Serviço Auxiliar de Radiodifusão e Correlatos (SARC) Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade S,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para Serviço de Radioamador Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para Serviço Limitado Móvel Aeronáutico ou Marítimo (SLMA e SLMM) Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qua,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para Serviço Limitado Privado (SLP) Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Obter autorização para Serviço Telefônico Fixo Comutado (STFC) Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Obter licenciamento para Estação do Serviço Móvel Pessoal (SMP) Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/2,af7dc55c23a2
+ANATEL,1,serviço digital: Prestar serviço de telefonia móvel via satélite Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,"serviço digital: Obter licenciamento em bloco para estações terrenas operando na
+banda Ku e Ka Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade",af7dc55c23a2
+ANATEL,1,serviço digital: Obter serviço Rádio do Cidadão Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+ANATEL,1,serviço digital: Homologar produtos de telecomunicações Integração à ferramenta de avaliação da satisfação dos usuários Serviços Digitais e Melhoria da Qualidade SGI/SOR set/24,af7dc55c23a2
+FUNARTE,1,"Inscrever-se para obter apoio financeiro e participar de editais de fomento à
+produção artística, memória e preservação de acervos, por meio de seleção
+pública. Integração à base de dados do
+Cadastro ",227d23b0b93a
+FUNARTE,1,"Solicitar cessão de espaço da FUNARTE para a realização de programação
+cultural por meio de seleção pública. Integração à base de dados do
+Cadastro Base do Cidadão (CBC -
+CPF) Governança e Gestão de
+D",227d23b0b93a
+FUNARTE,1,"Inscrever-se para obter apoio financeiro e participar de editais de fomento à
+produção artística, memória e preservação de acervos, por meio de seleção
+pública. Integração à base de dados do
+Cadastro ",227d23b0b93a
+FUNARTE,1,"Solicitar cessão de espaço da FUNARTE para a realização de programação
+cultural por meio de seleção pública. Integração à base de dados do
+Cadastro Nacional de Pessoas
+Jurídicas (CNPJ) Governança e Ge",227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 4 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC jan/25",227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 5 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC jul/25",227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 6 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC jan/26",227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 7 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC jul/26",227d23b0b93a
+FUNARTE,4,PPSI Ciclo 3 Implementação do PPSI Segurança e Privacidade COTIC dez/24,227d23b0b93a
+FUNARTE,4,PPSI Ciclo 4 Implementação do PPSI Segurança e Privacidade COTIC jun/25,227d23b0b93a
+FUNARTE,4,PPSI Ciclo 5 Implementação do PPSI Segurança e Privacidade COTIC dez/25,227d23b0b93a
+FUNARTE,4,PPSI Ciclo 6 Implementação do PPSI Segurança e Privacidade COTIC jun/26,227d23b0b93a
+FUNARTE,4,PPSI Ciclo 7 Implementação do PPSI Segurança e Privacidade COTIC dez/26,227d23b0b93a
+FUNARTE,1,"Inscrever-se no Cadastro nacional do Circo (FUNARTE) – Cadastrar
+profissionais do circo (artistas, técnicos, oficineiros, pareceristas) em todas
+as modalidades para atender demandas variadas de produç",227d23b0b93a
+FUNARTE,1,"Inscrever-se para obter apoio financeiro e participar de editais de fomento à
+produção artística, memória e preservação de acervos, por meio de seleção
+pública. Disponibilização em Acesso Digital Serv",227d23b0b93a
+FUNARTE,1,"Obter ingresso gratuito para acesso a eventos da FUNARTE. Disponibilização em Acesso Digital Serviços Digitais e Melhoria da
+Qualidade DACEN / DMUS /
+DAV abr/25",227d23b0b93a
+FUNARTE,1,"Solicitar a reprodução de acervo documental da FUNARTE. Disponibilização em Acesso Digital Serviços Digitais e Melhoria da
+Qualidade DPRO/CEDOC jun/25",227d23b0b93a
+FUNARTE,1,"Solicitar cessão de espaço da FUNARTE para a realização de programação
+cultural por meio de seleção pública. Disponibilização em Acesso Digital Serviços Digitais e Melhoria da
+Qualidade DACEN / DMUS /",227d23b0b93a
+FUNARTE,1,"Inscrever bandas de música tradicionais no cadastro de Bandas de Música
+da FUNARTE. Integração à ferramenta de
+avaliação da satisfação dos usuários Serviços Digitais e Melhoria da
+Qualidade DMUS mar/2",227d23b0b93a
+FUNARTE,1,"Inscrever-se no Cadastro Nacional de Dança Integração à ferramenta de
+avaliação da satisfação dos usuários Serviços Digitais e Melhoria da
+Qualidade COTIC dez/25",227d23b0b93a
+FUNARTE,1,"Inscrever-se no Cadastro nacional do Circo (FUNARTE) – Cadastrar
+profissionais do circo (artistas, técnicos, oficineiros, pareceristas) em todas
+as modalidades para atender demandas variadas de produç",227d23b0b93a
+FUNARTE,1,"Inscrever-se para obter apoio financeiro e participar de editais de fomento à
+produção artística, memória e preservação de acervos, por meio de seleção
+pública. Integração à ferramenta de
+avaliação da",227d23b0b93a
+FUNARTE,1,"Obter ingresso gratuito para acesso a eventos da FUNARTE. Integração à ferramenta de
+avaliação da satisfação dos usuários Serviços Digitais e Melhoria da
+Qualidade COTIC dez/25",227d23b0b93a
+FUNARTE,1,"Solicitar a reprodução de acervo documental da FUNARTE. Integração à ferramenta de
+avaliação da satisfação dos usuários Serviços Digitais e Melhoria da
+Qualidade DPRO/CEDOC jun/25",227d23b0b93a
+FUNARTE,1,"Solicitar cessão de espaço da FUNARTE para a realização de programação
+cultural por meio de seleção pública. Integração à ferramenta de
+avaliação da satisfação dos usuários Serviços Digitais e Melhori",227d23b0b93a
+FUNARTE,1,"Inscrever bandas de música tradicionais no cadastro de Bandas de Música
+da FUNARTE. Integração ao Login Único Unificação de Canais Digitais DMUS mar/25",227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 1 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC out/23",227d23b0b93a
+FUNARTE,4,PPSI Ciclo 1 Implementação do PPSI Segurança e Privacidade COTIC dez/23,227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 2 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC jan/24",227d23b0b93a
+FUNARTE,4,PPSI Ciclo 2 Implementação do PPSI Segurança e Privacidade COTIC jun/24,227d23b0b93a
+FUNARTE,4,"PPSI Ciclo 3 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COTIC jul/24",227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Disponibilização em Acesso Digital,227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Evolução do Serviço,227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Implantação da Área Logada,227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Implantação da Experiência LabQ,227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Implementação das recomendações do autodiagnóstico de qualidade,227d23b0b93a
+FUNARTE,1,"Serviços Digitais e Melhoria da Qualidade
+Serviços Digitais e Melhoria da Qualidade Integração à ferramenta de avaliação da satisfação dos usuários",227d23b0b93a
+FUNARTE,1,nan Realização de Autodiagnóstico de Qualidade,227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Revisão da descrição dos serviços,227d23b0b93a
+FUNARTE,1,Serviços Digitais e Melhoria da Qualidade Implementação do VLIBRAS,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Implantação do Design System,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Integração ao Login Único,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Integração ao Pagtesouro,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Integração com Assinatura Digital Gov.br,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Migração de APPs móveis para a loja do Gov.br,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Migração de Portal Institucional,227d23b0b93a
+FUNARTE,1,Unificação de Canais Digitais Migração de Serviço para Plataforma Unificada,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados do CadÚnico Serviços,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados do Cadastro Base de Endereço (CEP),227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados do Cadastro Nacional de Pessoas Jurídicas (CNPJ),227d23b0b93a
+FUNARTE,1,Governança e Gestão de Dados Integração à base de dados do Cadastro Base do Cidadão (CBC - CPF),227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados de Benefícios Previdenciários,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Disponibilização de Base de Dados,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados da Certidão Negativa de Débitos (CND),227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados (OUTROS),227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Construção de diagnóstico/planejamento,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração entre Sistemas,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados de Pessoa com Deficiência,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados do Registro de Referência dos Servidores Civis do Poder Executivo,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados de Situação Militar,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração à base de dados de Relação Trabalhista,227d23b0b93a
+FUNARTE,3,Governança e Gestão de Dados Integração ao SEI,227d23b0b93a
+FUNARTE,4,"Segurança e Privacidade Auto-avaliação, análise de lacunas e planejamento do PPSI",227d23b0b93a
+FUNARTE,4,Segurança e Privacidade Implementação do PPSI,227d23b0b93a
+FUNARTE,4,Projetos Especiais Startup Gov.br,227d23b0b93a
+FUNARTE,4,Projetos Especiais Outros,227d23b0b93a
+IPHAN,1,"Solicitar informações sobre Ações de Promoção
+e Sustentabilidade para bens registrados Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DPI/CGPS jan/25",81d2cfacf289
+IPHAN,1,"Solicitar informações sobre serviços ao público
+oferecidos pelo Centro Nacional de Folclore e
+Cultura Popular (CNFCP) Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DPI/C",81d2cfacf289
+IPHAN,1,"Matricular-se em Mestrado Profissional em
+Preservação do Patrimônio Cultural (PEP-MP) -
+IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DAFE/Coord. do mestrado CLC mar/26",81d2cfacf289
+IPHAN,1,"Solicitar autorização para movimentação de
+bens arqueológicos no território nacional -
+IPHAN Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,"Solicitar autorização para remessa de bens
+arqueológicos para o exterior -IPHAN Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,"Obter autorização para Realização de Pesquisas
+Arqueológicas -IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,Cadastrar bem arqueológico -IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DAEI/CNA dez/25,81d2cfacf289
+IPHAN,1,"Cadastrar Instituições de Guarda e Pesquisa de
+Bens Arqueológicos (CNIGP) -IPHAN Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DAEI/CNA dez/25",81d2cfacf289
+IPHAN,1,"Inscrever-se no Prêmio Rodrigo Melo Franco de
+Andrade - IPHAN Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DAFE/CGFE dez/24",81d2cfacf289
+IPHAN,1,"Requerer avaliação de impacto a Bens Culturais
+no âmbito de Licenciamento Ambiental -IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DAEI/CNL dez/24",81d2cfacf289
+IPHAN,1,"Consultar Informações sobre Bens Tombados
+pelo IPHAN e processos de tombamento Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,1,Pesquisar Bem Material – SICG Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DAFE/Coordenação-Geral do SNPC dez/24,81d2cfacf289
+IPHAN,1,"Iniciar processo de tombamento de Bens
+Culturais de Natureza Material -IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,1,Inscrever-se em editais do IPHAN Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DAFE/CGFE dez/25,81d2cfacf289
+IPHAN,1,Realizar cadastro de pessoa física – CNART Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DEPAM/CGAF ago/25,81d2cfacf289
+IPHAN,1,Realizar cadastro de pessoa Juridica – CNART Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DEPAM/CGAF set/25,81d2cfacf289
+IPHAN,1,Comunicar bem cultural procurado Disponibilização em Acesso Digital Serviços Digitais e Melhoria da Qualidade DEPAM/CGAF jan/25,81d2cfacf289
+IPHAN,1,"Solicitar autorização para utilizar a metodologia
+INRC Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DPI/CGIR jan/25",81d2cfacf289
+IPHAN,1,"Solicitar informações sobre Plano de
+Salvaguarda para bens registrados (IPHAN) Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DPI/CGPS jun/25",81d2cfacf289
+IPHAN,1,"Inventariar Línguas como referência cultural
+brasileira (INDL) Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DPI/CGIR jan/25",81d2cfacf289
+IPHAN,1,"Candidatar bem cultural registrado à Lista
+Representativa do Patrimônio Cultural Imaterial
+da Humanidade -UNESCO -IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DPI/CGIR mar/25",81d2cfacf289
+IPHAN,1,"Instaurar processo para registro de bem cultural
+de Natureza Imaterial Evolução do Serviço Serviços Digitais e Melhoria da Qualidade DPI/CGIR jun/25",81d2cfacf289
+IPHAN,1,"Consultar sobre a existência de restrição legal
+para saída de obras de arte do país (DSBC-
+Declaração de Saída de Bens Culturais) - IPHAN Evolução do Serviço Serviços Digitais e Melhoria da Qualidade ",81d2cfacf289
+IPHAN,1,"Concluir a migração do portal do IPHAN para o
+portal gov.br Migração de Portal Institucional Unificação de Canais Digitais PRESI/CGCOM dez/25",81d2cfacf289
+IPHAN,6,"Solicitar informações sobre Ações de Promoção
+e Sustentabilidade para bens registrados Integração ao Login Único Unificação de Canais Digitais DPI/CGPS jan/25",81d2cfacf289
+IPHAN,1,"Matricular-se em Mestrado Profissional em
+Preservação do Patrimônio Cultural (PEP-MP) -
+IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade ",81d2cfacf289
+IPHAN,1,"Matricular-se em Mestrado Profissional em
+Preservação do Patrimônio Cultural (PEP-MP) -
+IPHAN Integração ao Login Único Unificação de Canais Digitais DAFE/Coord. do mestrado CLC abr/26",81d2cfacf289
+IPHAN,1,"Solicitar autorização para movimentação de
+bens arqueológicos no território nacional -
+IPHAN Integração ao Login Único Unificação de Canais Digitais DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,"Solicitar autorização para remessa de bens
+arqueológicos para o exterior -IPHAN Integração ao Login Único Unificação de Canais Digitais DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,"Obter autorização para Realização de Pesquisas
+Arqueológicas -IPHAN Integração ao Login Único Unificação de Canais Digitais DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,Cadastrar bem arqueológico -IPHAN Integração ao Login Único Unificação de Canais Digitais DAEI/CNA dez/25,81d2cfacf289
+IPHAN,1,"Cadastrar Instituições de Guarda e Pesquisa de
+Bens Arqueológicos (CNIGP) -IPHAN Integração ao Login Único Unificação de Canais Digitais DAEI/CNA dez/25",81d2cfacf289
+IPHAN,1,"Inscrever-se no Prêmio Rodrigo Melo Franco de
+Andrade - IPHAN Integração ao Login Único Unificação de Canais Digitais DAFE/CGFE dez/24",81d2cfacf289
+IPHAN,1,"Requerer avaliação de impacto a Bens Culturais
+no âmbito de Licenciamento Ambiental -IPHAN Integração ao Login Único Unificação de Canais Digitais DAEI/CNL dez/24",81d2cfacf289
+IPHAN,1,"Consultar Dados de Bens Culturais Procurados
+(BCP)-IPHAN Integração ao Login Único Unificação de Canais Digitais DEPAM/CGAF mar/25",81d2cfacf289
+IPHAN,1,"Consultar Informações sobre Bens Tombados
+pelo IPHAN e processos de tombamento Integração ao Login Único Unificação de Canais Digitais DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,1,Pesquisar Bem Material – SICG Integração ao Login Único Unificação de Canais Digitais DAFE/Coordenação-Geral do SNPC dez/24,81d2cfacf289
+IPHAN,1,"Iniciar processo de tombamento de Bens
+Culturais de Natureza Material -IPHAN Integração ao Login Único Unificação de Canais Digitais DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,1,Inscrever-se em editais do IPHAN Integração ao Login Único Unificação de Canais Digitais DAFE/CGFE dez/25,81d2cfacf289
+IPHAN,1,Realizar cadastro de pessoa física – CNART Integração ao Login Único Unificação de Canais Digitais DEPAM/CGAF ago/25,81d2cfacf289
+IPHAN,1,Realizar cadastro de pessoa Juridica – CNART Integração ao Login Único Unificação de Canais Digitais DEPAM/CGAF set/25,81d2cfacf289
+IPHAN,1,"Matricular-se em Mestrado Profissional em
+Preservação do Patrimônio Cultural (PEP-MP) -
+IPHAN Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DAFE/Coord",81d2cfacf289
+IPHAN,1,"Obter autorização para Realização de Pesquisas
+Arqueológicas -IPHAN Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DAEI/CNA jan/25",81d2cfacf289
+IPHAN,3,"Obter autorização para Realização de Pesquisas
+Arqueológicas -IPHAN Integração à base de dados do Cadastro
+Base de Endereço (CEP) Governança e Gestão de Dados DAEI/CNA jan/25",81d2cfacf289
+IPHAN,1,"Iniciar processo de tombamento de Bens
+Culturais de Natureza Material -IPHAN Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,3,"Iniciar processo de tombamento de Bens
+Culturais de Natureza Material -IPHAN Integração à base de dados do Cadastro
+Nacional de Pessoas Jurídicas (CNPJ) Governança e Gestão de Dados DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,3,"Iniciar processo de tombamento de Bens
+Culturais de Natureza Material -IPHAN Integração à base de dados do Cadastro
+Base de Endereço (CEP) Governança e Gestão de Dados DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,1,"Inscrever-se em editais do IPHAN Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DAFE/CGFE dez/25",81d2cfacf289
+IPHAN,3,"Inscrever-se em editais do IPHAN Integração à base de dados do Cadastro
+Nacional de Pessoas Jurídicas (CNPJ) Governança e Gestão de Dados DAFE/CGFE dez/25",81d2cfacf289
+IPHAN,3,"Inscrever-se em editais do IPHAN Integração à base de dados do Cadastro
+Base de Endereço (CEP) Governança e Gestão de Dados DAFE/CGFE dez/25",81d2cfacf289
+IPHAN,1,"Realizar cadastro de pessoa física – CNART Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,3,"Realizar cadastro de pessoa física – CNART Integração à base de dados do Cadastro
+Nacional de Pessoas Jurídicas (CNPJ) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,3,"Realizar cadastro de pessoa física – CNART Integração à base de dados do Cadastro
+Base de Endereço (CEP) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,1,"Realizar cadastro de pessoa Juridica – CNART Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,3,"Realizar cadastro de pessoa Juridica – CNART Integração à base de dados do Cadastro
+Base de Endereço (CEP) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,1,"Comunicar bem cultural procurado Integração à base de dados do Cadastro
+Base do Cidadão (CBC - CPF) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,3,"Comunicar bem cultural procurado Integração à base de dados do Cadastro
+Nacional de Pessoas Jurídicas (CNPJ) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,3,"Comunicar bem cultural procurado Integração à base de dados do Cadastro
+Base de Endereço (CEP) Governança e Gestão de Dados DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,3,"Realizar Diagnóstico com base nos ciclos de
+integrações do Catálogo do Conectagov Construção de
+diagnóstico/planejamento Governança e Gestão de Dados IPHAN jan/25",81d2cfacf289
+IPHAN,3,"Realizar Diagnóstico com base nos ciclos de
+integrações do Catálogo do Conectagov Construção de
+diagnóstico/planejamento Governança e Gestão de Dados IPHAN fev/25",81d2cfacf289
+IPHAN,3,"Propor Plano de Ação de implantação das
+integrações após o Diagnóstico Construção de
+diagnóstico/planejamento Governança e Gestão de Dados IPHAN mar/25",81d2cfacf289
+IPHAN,3,"Propor Plano de Ação de implantação das
+integrações após o Diagnóstico Construção de
+diagnóstico/planejamento Governança e Gestão de Dados IPHAN abr/25",81d2cfacf289
+IPHAN,3,"Propor Plano de Ação de implantação das
+integrações após o Diagnóstico Construção de
+diagnóstico/planejamento Governança e Gestão de Dados IPHAN mai/25",81d2cfacf289
+IPHAN,1,"Solicitar informações sobre Ações de Promoção
+e Sustentabilidade para bens registrados Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DPI/CGP",81d2cfacf289
+IPHAN,1,"Solicitar informações sobre serviços ao público
+oferecidos pelo Centro Nacional de Folclore e
+Cultura Popular (CNFCP) Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais ",81d2cfacf289
+IPHAN,1,"Solicitar autorização para movimentação de
+bens arqueológicos no território nacional -
+IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade D",81d2cfacf289
+IPHAN,1,"Solicitar autorização para remessa de bens
+arqueológicos para o exterior -IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAEI/CNA jan/2",81d2cfacf289
+IPHAN,1,"Cadastrar bem arqueológico -IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAEI/CNA dez/25",81d2cfacf289
+IPHAN,1,"Cadastrar Instituições de Guarda e Pesquisa de
+Bens Arqueológicos (CNIGP) -IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAEI/CNA dez/",81d2cfacf289
+IPHAN,1,"Inscrever-se no Prêmio Rodrigo Melo Franco de
+Andrade - IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAFE/CGFE jan/25",81d2cfacf289
+IPHAN,1,"Requerer avaliação de impacto a Bens Culturais
+no âmbito de Licenciamento Ambiental -IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAE",81d2cfacf289
+IPHAN,1,"Consultar Dados de Bens Culturais Procurados
+(BCP)- IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DEPAM/CGAF abr/25",81d2cfacf289
+IPHAN,1,"Consultar Informações sobre Bens Tombados
+pelo IPHAN e processos de tombamento Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DEPAM/CGID dez/",81d2cfacf289
+IPHAN,1,"Pesquisar Bem Material – SICG Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAFE/Coordenação-Geral do SNPC jan/25",81d2cfacf289
+IPHAN,1,"Iniciar processo de tombamento de Bens
+Culturais de Natureza Material -IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DEPAM/CGID dez/25",81d2cfacf289
+IPHAN,1,"Inscrever-se em editais do IPHAN Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DAFE/CGFE dez/25",81d2cfacf289
+IPHAN,1,"Realizar cadastro de pessoa física – CNART Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,1,"Realizar cadastro de pessoa Juridica – CNART Integração à ferramenta de avaliação da
+satisfação dos usuários Serviços Digitais e Melhoria da Qualidade DEPAM/CGAF dez/25",81d2cfacf289
+IPHAN,1,"Consultar sobre a existência de restrição legal
+para saída de obras de arte do país (DSBC-
+Declaração de Saída de Bens Culturais) -IPHAN Realização de Autodiagnóstico de
+Qualidade Serviços Digitais e ",81d2cfacf289
+IPHAN,1,"Consultar sobre a existência de restrição legal
+para saída de obras de arte do país (DSBC-
+Declaração de Saída de Bens Culturais) -IPHAN Implementação das recomendações do
+autodiagnóstico de qualidade",81d2cfacf289
+IPHAN,1,"Consultar sobre a existência de restrição legal
+para saída de obras de arte do país (DSBC-
+Declaração de Saída de Bens Culturais) -IPHAN Revisão da descrição dos serviços Serviços Digitais e Melhoria ",81d2cfacf289
+IPHAN,4,PPSI Ciclo 3 Implementação do PPSI Segurança e Privacidade COINF/CGTI dez/24,81d2cfacf289
+IPHAN,4,"PPSI Ciclo 4 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COINF/CGTI jan/25",81d2cfacf289
+IPHAN,4,PPSI Ciclo 4 Implementação do PPSI Segurança e Privacidade COINF/CGTI jun/25,81d2cfacf289
+IPHAN,4,"PPSI Ciclo 5 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COINF/CGTI jul/25",81d2cfacf289
+IPHAN,4,PPSI Ciclo 5 Implementação do PPSI Segurança e Privacidade COINF/CGTI dez/25,81d2cfacf289
+IPHAN,4,"PPSI Ciclo 6 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COINF/CGTI jan/26",81d2cfacf289
+IPHAN,4,PPSI Ciclo 6 Implementação do PPSI Segurança e Privacidade COINF/CGTI jun/26,81d2cfacf289
+IPHAN,4,"PPSI Ciclo 7 Auto-avaliação, análise de lacunas e
+planejamento do PPSI Segurança e Privacidade COINF/CGTI jul/26",81d2cfacf289
+IPHAN,4,PPSI Ciclo 7 Implementação do PPSI Segurança e Privacidade COINF/CGTI dez/26,81d2cfacf289
+IPHAN,4,Servico/Acao Produto Eixo Area Responsavel DtEntrega,81d2cfacf289
+IPHAN,4,"PPSI Ciclo 1 Auto-avaliação, análise de lacunas e plan Segurança e Privacidade COINF/CGTI out/23",81d2cfacf289
+IPHAN,4,PPSI Ciclo 1 Implementação do PPSI Segurança e Privacidade COINF/CGTI dez/23,81d2cfacf289
+IPHAN,4,"PPSI Ciclo 2 Auto-avaliação, análise de lacunas e plan Segurança e Privacidade COINF/CGTI jan/24",81d2cfacf289
+IPHAN,4,"PPSI Ciclo 3 Auto-avaliação, análise de lacunas e plan Segurança e Privacidade COINF/CGTI jul/24",81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Disponibilização em Acesso Digital,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Evolução do Serviço,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Implantação da Área Logada,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Implantação da Experiência LabQ,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Implementação das recomendações do autodiagnóstico de qualidade,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Integração à ferramenta de avaliação da satisfação dos usuários,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Realização de Autodiagnóstico de Qualidade,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Revisão da descrição dos serviços,81d2cfacf289
+IPHAN,1,Serviços Digitais e Melhoria da Qualidade Implementação do VLIBRAS,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Implantação do Design System,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Integração ao Login Único,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Integração ao Pagtesouro,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Integração com Assinatura Digital Gov.br,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Migração de APPs móveis para a loja do Gov.br,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Migração de Portal Institucional,81d2cfacf289
+IPHAN,1,Unificação de Canais Digitais Migração de Serviço para Plataforma Unificada,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados do CadÚnico Serviços,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados do Cadastro Base de Endereço (CEP),81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados do Cadastro Nacional de Pessoas Jurídicas (CNPJ),81d2cfacf289
+IPHAN,1,Governança e Gestão de Dados Integração à base de dados do Cadastro Base do Cidadão (CBC - CPF),81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados de Benefícios Previdenciários,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Disponibilização de Base de Dados,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados da Certidão Negativa de Débitos (CND),81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados (OUTROS),81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Construção de diagnóstico/planejamento,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração entre Sistemas,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados de Pessoa com Deficiência,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados do Registro de Referência dos Servidores Civis do Poder Executivo,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados de Situação Militar,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração à base de dados de Relação Trabalhista,81d2cfacf289
+IPHAN,3,Governança e Gestão de Dados Integração ao SEI,81d2cfacf289
+IPHAN,4,"Segurança e Privacidade Auto-avaliação, análise de lacunas e planejamento do PPSI",81d2cfacf289
+IPHAN,4,Segurança e Privacidade Implementação do PPSI,81d2cfacf289
+IPHAN,4,Projetos Especiais Startup Gov.br,81d2cfacf289
+IPHAN,4,Projetos Especiais Outros,81d2cfacf289

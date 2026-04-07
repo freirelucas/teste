@@ -1,0 +1,63 @@
+/* ── Tarot CiberQuilombola — Design Tokens ── */
+
+:root {
+  /* Palette — inspired by Cybersyn ops room */
+  --bg-deep:    #0A0E14;
+  --bg-panel:   #111620;
+  --bg-card:    #1A2030;
+  --bg-hover:   #222A3A;
+
+  --green:      #48B890;
+  --green-dim:  #2A7A5A;
+  --green-glow: rgba(72, 184, 144, 0.25);
+
+  --amber:      #F5A623;
+  --amber-dim:  #B07A1A;
+
+  --red:        #E05555;
+  --red-dim:    #A03333;
+
+  --cyan:       #5BC0DE;
+
+  --text:       #C8D0DC;
+  --text-dim:   #6B7A8D;
+  --text-bright:#F0F4FA;
+
+  --rule:       #2A3344;
+
+  /* Typography */
+  --font-mono:  'IBM Plex Mono', ui-monospace, 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --font-size-xs:   0.75rem;
+  --font-size-sm:   0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg:   1.25rem;
+  --font-size-xl:   1.5rem;
+  --font-size-2xl:  2rem;
+  --font-size-3xl:  2.5rem;
+
+  /* Spacing */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  /* Borders & Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --border-thin: 1px solid var(--rule);
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --duration-fast: 200ms;
+  --duration-normal: 400ms;
+  --duration-slow: 800ms;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px var(--green-glow);
+}

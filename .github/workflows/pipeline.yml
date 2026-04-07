@@ -1,0 +1,227 @@
+name: PTD Pipeline
+
+on:
+  push:
+    branches:
+      - claude/setup-docling-pipeline-g11gg
+    paths:
+      - '.trigger_debug'   # só dispara quando eu atualizo este arquivo sentinel
+
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "Modo de execução"
+        required: true
+        default: "debug"
+        type: choice
+        options:
+          - debug     # 10 órgãos problemáticos (~20min) — loop de iteração IA
+          - completo  # Todos os órgãos (~4h) — produção
+          - test      # 3 PDFs: CGU, ANPD, ITI — smoke test
+      force_download:
+        description: "Forçar re-download (ignorar cache)"
+        required: false
+        default: false
+        type: boolean
+      max_pdfs:
+        description: "Limite de PDFs (0 = sem limite, apenas modos completo/debug)"
+        required: false
+        default: "0"
+        type: string
+
+  schedule:
+    # Primeira segunda-feira de cada mês às 03:00 UTC
+    - cron: "0 3 1-7 * 1"
+
+# Stage 0 — órgãos com extração zero (image PDFs + text PDFs com 0 rows)
+# MD e MEC têm rows mas 0% pct_ok → Stage 1, não Stage 0 (não precisam de OCR fix)
+# FIOCRUZ: texto=True, inclusa para diagnóstico
+env:
+  DEBUG_SIGLAS: "AGU,FUNAI,ITI,SGPR,INCRA,FUNDACENTRO,MCOM,FIOCRUZ"
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300   # 5h — margem para modo completo
+    permissions:
+      contents: write       # necessário para commitar diagnóstico em pipeline-outputs
+
+    env:
+      MODO: ${{ github.event.inputs.modo || (github.event_name == 'push' && 'debug') || (github.event_name == 'schedule' && 'completo') || 'debug' }}
+      FORCE_DOWNLOAD: ${{ github.event.inputs.force_download || 'false' }}
+      MAX_PDFS: ${{ github.event.inputs.max_pdfs || '0' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Tesseract
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Healthcheck pré-execução
+        run: python ptd_healthcheck.py
+
+      - name: Executar Test Mode (3 PDFs)
+        if: env.MODO == 'test'
+        run: |
+          python ptd_test_pipeline.py --verbose
+          echo "TEST_OK=true" >> $GITHUB_ENV
+
+      - name: Layer 1-2 — Extração debug (10 órgãos problemáticos)
+        if: env.MODO == 'debug'
+        run: |
+          # Runner é ephemeral: sempre force-download no modo debug
+          EXTRA_ARGS="--siglas $DEBUG_SIGLAS --force-download"
+          if [ "$FORCE_DOWNLOAD" = "false" ]; then
+            EXTRA_ARGS="--siglas $DEBUG_SIGLAS"
+          fi
+          python ptd_pipeline_v30.py $EXTRA_ARGS 2>&1 | tee ptd_corpus/ptd_debug.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Layer 1-2 — Extração completa
+        if: env.MODO == 'completo'
+        run: |
+          EXTRA_ARGS=""
+          if [ "$FORCE_DOWNLOAD" = "true" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --force-download"
+          fi
+          if [ "$MAX_PDFS" != "0" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --max-pdfs $MAX_PDFS"
+          fi
+          python ptd_pipeline_v30.py $EXTRA_ARGS
+
+      - name: Layer 3 — Curadoria semântica
+        if: always() && (env.MODO == 'completo' || env.MODO == 'debug')
+        continue-on-error: true
+        run: python ptd_corpus_v21.py
+
+      - name: Gerar relatório HTML
+        if: always() && (env.MODO == 'completo' || env.MODO == 'debug')
+        continue-on-error: true
+        run: |
+          python gerar_relatorio.py --output ptd_relatorio_v30.html
+          echo "RELATORIO_OK=true" >> $GITHUB_ENV
+
+      - name: Upload corpus (modo completo)
+        if: env.MODO == 'completo'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptd-corpus-${{ github.run_id }}
+          path: |
+            ptd_corpus/03_database/ptd_corpus_v21.csv
+            ptd_corpus/03_database/ptd_corpus_raw.csv
+            ptd_corpus/03_database/ptd_riscos.csv
+            ptd_corpus/03_database/ptd_pivot_eixos.csv
+            ptd_corpus/03_database/ptd_cobertura_passos.csv
+            ptd_corpus/03_database/ptd_revisao_pendente.csv
+            ptd_corpus/03_database/proveniencia.json
+            ptd_corpus/03_database/pipeline_manifest.json
+            ptd_relatorio_v30.html
+          retention-days: 90
+
+      - name: Upload diagnóstico (modo debug)
+        if: env.MODO == 'debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptd-debug-${{ github.run_id }}
+          path: |
+            ptd_corpus/03_database/ptd_corpus_raw.csv
+            ptd_corpus/03_database/ptd_run_summary.json
+            ptd_corpus/03_database/ptd_cobertura_passos.csv
+            ptd_corpus/03_database/pipeline_manifest.json
+            ptd_corpus/ptd_debug.log
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Commit diagnóstico ao branch pipeline-outputs
+        if: always() && (env.MODO == 'completo' || env.MODO == 'debug')
+        continue-on-error: true   # não derrubar o run por falha de diagnóstico
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Salvar arquivos de diagnóstico antes de mudar de branch
+          TMPD=$(mktemp -d)
+          cp ptd_corpus/03_database/ptd_run_summary.json     "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/03_database/ptd_cobertura_passos.csv "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/03_database/pipeline_manifest.json   "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/03_database/proveniencia.json        "$TMPD/" 2>/dev/null || true
+          cp ptd_corpus/ptd_debug.log                        "$TMPD/" 2>/dev/null || true
+
+          # Criar ou atualizar branch pipeline-outputs (fix: fetch antes de checkout)
+          git stash --include-untracked 2>/dev/null || true
+          if git ls-remote --exit-code origin pipeline-outputs >/dev/null 2>&1; then
+            git fetch origin pipeline-outputs
+            git checkout -B pipeline-outputs origin/pipeline-outputs
+          else
+            git checkout --orphan pipeline-outputs
+            git rm -rf . --quiet 2>/dev/null || true
+          fi
+
+          cp "$TMPD"/*.json "$TMPD"/*.csv "$TMPD"/*.log . 2>/dev/null || true
+          # Registrar metadados do run para detecção pelo loop de iteração
+          echo "{\"run_id\":\"${{ github.run_id }}\",\"modo\":\"$MODO\",\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%S)\"}" > last_run.json
+          git add -A
+          git commit -m "run/${{ github.run_id }} [$MODO]: diagnóstico automático [$(date -u +%Y-%m-%dT%H:%M)]" \
+            --allow-empty
+          git push origin pipeline-outputs
+
+      - name: Upload corpus (modo test)
+        if: env.MODO == 'test'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ptd-test-${{ github.run_id }}
+          path: |
+            ptd_test_mode/test_corpus.csv
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Resumo
+        if: always()
+        run: |
+          echo "## PTD-BR Corpus — run ${{ github.run_id }} [$MODO]" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Modo** | $MODO |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Trigger** | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          if [ "$MODO" = "debug" ] && [ -f ptd_corpus/03_database/ptd_run_summary.json ]; then
+            N_ZERO=$(python3 -c "import json; d=json.load(open('ptd_corpus/03_database/ptd_run_summary.json')); print(len(d.get('orgaos_zero_entregas',[])))" 2>/dev/null || echo "?")
+            STAGE=$(python3 -c "import json; d=json.load(open('ptd_corpus/03_database/ptd_run_summary.json')); print(d.get('stage_label','?'))" 2>/dev/null || echo "?")
+            PCT_OK=$(python3 -c "import json; d=json.load(open('ptd_corpus/03_database/ptd_run_summary.json')); print(d.get('pct_ok','?'))" 2>/dev/null || echo "?")
+            echo "| **Estágio** | $STAGE |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Órgãos zerados** | $N_ZERO / 10 |" >> $GITHUB_STEP_SUMMARY
+            echo "| **pct_ok** | $PCT_OK% |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$MODO" = "completo" ] && [ -f ptd_corpus/03_database/ptd_corpus_v21.csv ]; then
+            NROWS=$(tail -n +2 ptd_corpus/03_database/ptd_corpus_v21.csv | wc -l)
+            NAGENCIAS=$(tail -n +2 ptd_corpus/03_database/ptd_corpus_v21.csv | cut -d',' -f1 | sort -u | wc -l)
+            echo "| **Registros** | $NROWS |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Órgãos** | $NAGENCIAS |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$MODO" = "completo" ] && [ -f ptd_corpus/03_database/ptd_cobertura_passos.csv ]; then
+            N_COMP=$(tail -n +2 ptd_corpus/03_database/ptd_cobertura_passos.csv | awk -F',' '$4>=2' | wc -l)
+            echo "| **Órgãos c/ entregas+riscos** | $N_COMP |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "$MODO" = "test" ] && [ -f ptd_test_mode/test_corpus.csv ]; then
+            NROWS=$(tail -n +2 ptd_test_mode/test_corpus.csv | wc -l)
+            echo "| **Registros (test)** | $NROWS |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$MODO" = "completo" ] || [ "$MODO" = "debug" ]; then
+            echo "📦 **[Baixar diagnóstico](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})** (90 dias)" >> $GITHUB_STEP_SUMMARY
+          fi

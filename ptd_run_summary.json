@@ -1,0 +1,110 @@
+{
+  "run_id": "23921408424",
+  "timestamp": "2026-04-02T21:15:19",
+  "branch": "claude/setup-docling-pipeline-g11gg",
+  "stage": 0,
+  "stage_label": "cobertura",
+  "n_orgaos": 6,
+  "n_registros_raw": 206,
+  "n_registros_v21": 206,
+  "pct_ok": 35.9,
+  "sem_produto_pct": 0.0,
+  "col_map_ok_rate": 68.5,
+  "extratores": {
+    "docling": 206
+  },
+  "orgaos_zero_entregas": [],
+  "orgaos_zero_ou_noise": [
+    "AGU",
+    "FIOCRUZ",
+    "FUNAI",
+    "INCRA",
+    "ITI",
+    "SGPR"
+  ],
+  "orgs_below_50pct": [
+    {
+      "sigla": "AGU",
+      "pct_ok": 0.0,
+      "n": 39
+    },
+    {
+      "sigla": "FIOCRUZ",
+      "pct_ok": 0.0,
+      "n": 62
+    },
+    {
+      "sigla": "FUNAI",
+      "pct_ok": 0.0,
+      "n": 30
+    },
+    {
+      "sigla": "ITI",
+      "pct_ok": 0.0,
+      "n": 37
+    }
+  ],
+  "top_unmatched_phrases": [],
+  "por_orgao": [
+    {
+      "sigla": "AGU",
+      "n_entregas": 39,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 69.2
+    },
+    {
+      "sigla": "FIOCRUZ",
+      "n_entregas": 62,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 100.0
+    },
+    {
+      "sigla": "FUNAI",
+      "n_entregas": 30,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 70.0
+    },
+    {
+      "sigla": "INCRA",
+      "n_entregas": 20,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 5.0
+    },
+    {
+      "sigla": "ITI",
+      "n_entregas": 37,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 83.8
+    },
+    {
+      "sigla": "SGPR",
+      "n_entregas": 18,
+      "extrator": "docling",
+      "status": "ok",
+      "pct_ok": 0.0,
+      "sem_produto_n": 0,
+      "sem_produto_pct": 0.0,
+      "col_map_ok_rate": 83.3
+    }
+  ]
+}

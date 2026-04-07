@@ -1,0 +1,332 @@
+name: PTD Watcher — Loop de Iteração Autônomo
+
+# Roda a cada 5 minutos e detecta runs de debug concluídos.
+# Quando encontra órgãos com 0 extrações, avança a state machine
+# de parâmetros OCR/Docling, commita fixes e dispara o próximo run.
+# Requer secret WORKFLOW_PAT com permissões Contents+Actions no repo.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # a cada 5 minutos
+  workflow_dispatch:         # execução manual para testar
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout pipeline-outputs
+        uses: actions/checkout@v4
+        with:
+          ref: pipeline-outputs
+          fetch-depth: 1
+        continue-on-error: true   # branch pode não existir ainda
+
+      - name: Verificar se há run novo com falhas
+        id: check
+        run: |
+          if [ ! -f last_run.json ] || [ ! -f ptd_run_summary.json ]; then
+            echo "status=waiting" >> $GITHUB_OUTPUT
+            echo "Aguardando primeiro run de debug..."
+            exit 0
+          fi
+
+          RUN_ID=$(jq -r '.run_id' last_run.json)
+          LAST=$(cat .last_processed 2>/dev/null || echo "")
+
+          if [ "$RUN_ID" = "$LAST" ]; then
+            echo "status=already_processed" >> $GITHUB_OUTPUT
+            echo "Run $RUN_ID já processado."
+            exit 0
+          fi
+
+          # Usar orgaos_zero_ou_noise: inclui orgs com rows mas 0% pct_ok (MD, MEC)
+          N_ZERO=$(jq '(.orgaos_zero_ou_noise // .orgaos_zero_entregas) | length' ptd_run_summary.json)
+          STAGE=$(jq -r '.stage // 0' ptd_run_summary.json)
+          STAGE_LABEL=$(jq -r '.stage_label // "cobertura"' ptd_run_summary.json)
+          PCT_OK=$(jq -r '.pct_ok // 0' ptd_run_summary.json)
+          echo "run_id=$RUN_ID"       >> $GITHUB_OUTPUT
+          echo "n_zero=$N_ZERO"       >> $GITHUB_OUTPUT
+          echo "stage=$STAGE"         >> $GITHUB_OUTPUT
+          echo "stage_label=$STAGE_LABEL" >> $GITHUB_OUTPUT
+          echo "pct_ok=$PCT_OK"       >> $GITHUB_OUTPUT
+
+          if [ "$STAGE" = "3" ] && [ "$N_ZERO" = "0" ]; then
+            echo "status=done" >> $GITHUB_OUTPUT
+            echo "✅ Pipeline convergiu — todos os estágios completos!"
+          elif [ "$STAGE" != "0" ] && [ "$N_ZERO" = "0" ] && \
+               python3 -c "import sys; sys.exit(0 if float('$PCT_OK') >= 80 else 1)" 2>/dev/null; then
+            # Estágio 2+ com pct_ok≥80%: precisa de revisão humana antes de avançar
+            echo "status=needs_human_review" >> $GITHUB_OUTPUT
+            echo "⚠ Estágio $STAGE ($STAGE_LABEL) requer revisão humana antes de continuar."
+          else
+            echo "status=needs_fix" >> $GITHUB_OUTPUT
+            echo "⚠ Estágio $STAGE ($STAGE_LABEL) — $N_ZERO zerados, pct_ok=$PCT_OK% — aplicando fix..."
+          fi
+
+      - name: Checkout branch de trabalho
+        if: steps.check.outputs.status == 'needs_fix' || steps.check.outputs.status == 'needs_human_review'
+        uses: actions/checkout@v4
+        with:
+          ref: claude/setup-docling-pipeline-g11gg
+          token: ${{ secrets.WORKFLOW_PAT }}
+          fetch-depth: 1
+
+      - name: Setup Python (para state machine)
+        if: steps.check.outputs.status == 'needs_fix' || steps.check.outputs.status == 'needs_human_review'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Aplicar próximo fix da state machine
+        if: steps.check.outputs.status == 'needs_fix'
+        env:
+          RUN_SUMMARY: ${{ steps.check.outputs.run_id }}
+        run: |
+          # Baixar diagnóstico do branch pipeline-outputs
+          git fetch origin pipeline-outputs
+          git checkout origin/pipeline-outputs -- ptd_run_summary.json 2>/dev/null || true
+          git checkout origin/pipeline-outputs -- ocr_states.json 2>/dev/null || true
+
+          python3 << 'PYEOF'
+          import json, re
+          from pathlib import Path
+
+          # ── Carregar estado atual ────────────────────────────────────
+          states_path = Path('ocr_states.json')
+          if states_path.exists():
+              states = json.loads(states_path.read_text())
+          else:
+              states = {}
+
+          summary_path = Path('ptd_run_summary.json')
+          if not summary_path.exists():
+              print("ptd_run_summary.json não encontrado"); exit(0)
+          summary = json.loads(summary_path.read_text())
+
+          # Incluir orgs noise-only (rows > 0 mas pct_ok == 0) como ainda não resolvidas
+          zero_orgs = summary.get('orgaos_zero_ou_noise',
+                                  summary.get('orgaos_zero_entregas', []))
+          por_orgao = {o['sigla']: o for o in summary.get('por_orgao', [])}
+
+          if not zero_orgs:
+              print("Nenhum órgão zerado ou noise-only — Stage 0 concluído."); exit(0)
+
+          # ── State machine de parâmetros ──────────────────────────────
+          # Para PDFs-imagem (OCR): variações de DPI e rotação
+          OCR_STATES = [
+              {'dpi': 200, 'rot': 0},
+              {'dpi': 300, 'rot': 0},
+              {'dpi': 200, 'rot': 90},
+              {'dpi': 200, 'rot': 180},
+              {'dpi': 200, 'rot': 270},
+              {'dpi': 300, 'rot': 90},
+              {'dpi': 300, 'rot': 270},
+          ]
+          # Para PDFs-texto (Docling): variações de threshold e OCR forçado
+          DOCLING_STATES = [
+              {'table_min_rows': 2, 'force_ocr': False},
+              {'table_min_rows': 1, 'force_ocr': False},
+              {'table_min_rows': 2, 'force_ocr': True},
+              {'table_min_rows': 1, 'force_ocr': True},
+          ]
+
+          # ── Avanço de estado para cada órgão zerado ──────────────────
+          changed = False
+          for sig in zero_orgs:
+              org = por_orgao.get(sig, {})
+              extrator = org.get('extrator', '')
+              is_ocr = extrator == 'pytesseract_ocr' or org.get('is_img', False)
+
+              cur = states.get(sig, {'state': 0, 'type': 'ocr' if is_ocr else 'docling'})
+              next_state = cur['state'] + 1
+              states[sig] = {'state': next_state, 'type': cur['type']}
+              changed = True
+              print(f"  {sig}: state {cur['state']} → {next_state} ({cur['type']})")
+
+          # ── Gerar ocr_config.json atualizado ─────────────────────────
+          ocr_config = {}
+          docling_config = {}
+          for sig, st in states.items():
+              if st['type'] == 'ocr':
+                  idx = min(st['state'], len(OCR_STATES) - 1)
+                  ocr_config[sig] = OCR_STATES[idx]
+              else:
+                  idx = min(st['state'], len(DOCLING_STATES) - 1)
+                  docling_config[sig] = DOCLING_STATES[idx]
+
+          # Salvar
+          states_path.write_text(json.dumps(states, indent=2, ensure_ascii=False))
+          Path('ocr_config_dynamic.json').write_text(
+              json.dumps(ocr_config, indent=2, ensure_ascii=False))
+          Path('docling_config_dynamic.json').write_text(
+              json.dumps(docling_config, indent=2, ensure_ascii=False))
+
+          print(f"OCR config: {ocr_config}")
+          print(f"Docling config: {docling_config}")
+          PYEOF
+
+      - name: Atualizar ptd_ocr_fallback.py com config dinâmico
+        if: steps.check.outputs.status == 'needs_fix'
+        run: |
+          if [ ! -f ocr_config_dynamic.json ]; then exit 0; fi
+
+          python3 << 'PYEOF'
+          import json, re
+          from pathlib import Path
+
+          ocr = json.loads(Path('ocr_config_dynamic.json').read_text())
+          docling = json.loads(Path('docling_config_dynamic.json').read_text())
+
+          # Atualizar OCR_CONFIG em ptd_ocr_fallback.py
+          fb = Path('ptd_ocr_fallback.py').read_text()
+          new_cfg = 'OCR_CONFIG: dict[str, dict] = ' + json.dumps(
+              {k: {'rot': v['rot'], 'dpi': v['dpi']} for k, v in ocr.items()},
+              indent=4).replace('true','True').replace('false','False') + '\n'
+
+          # Substituir bloco OCR_CONFIG
+          # Regex com suporte a dicts aninhados: \{(?:[^{}]|\{[^{}]*\})*\}
+          fb = re.sub(
+              r'OCR_CONFIG: dict\[str, dict\] = \{(?:[^{}]|\{[^{}]*\})*\}',
+              new_cfg.rstrip(),
+              fb, flags=re.DOTALL)
+          Path('ptd_ocr_fallback.py').write_text(fb)
+
+          # Atualizar DPI padrão em extrair_ocr
+          # (o DPI vem agora do config dinâmico, não fixo em 200)
+          fb = Path('ptd_ocr_fallback.py').read_text()
+          fb = re.sub(
+              r"rot = OCR_CONFIG\.get\(sigla\.upper\(\), \{\}\)\.get\('rot', 0\)",
+              "cfg = OCR_CONFIG.get(sigla.upper(), {})\n"
+              "    rot = cfg.get('rot', 0)\n"
+              "    dpi = cfg.get('dpi', dpi)",
+              fb)
+          Path('ptd_ocr_fallback.py').write_text(fb)
+          print("ptd_ocr_fallback.py atualizado com config dinâmico")
+
+          # Atualizar threshold Docling em ptd_pipeline_v30.py
+          if docling:
+              pl = Path('ptd_pipeline_v30.py').read_text()
+              # Ajustar o threshold mínimo de linhas para o mais permissivo dos estados ativos
+              min_rows = min(v['table_min_rows'] for v in docling.values())
+              pl = re.sub(
+                  r'if len\(df\.columns\) < 2 or len\(df\) < \d',
+                  f'if len(df.columns) < 2 or len(df) < {min_rows}',
+                  pl)
+              Path('ptd_pipeline_v30.py').write_text(pl)
+              print(f"ptd_pipeline_v30.py: table_min_rows → {min_rows}")
+          PYEOF
+
+      - name: Gravar stage_status.json e checkpoint humano
+        if: steps.check.outputs.status == 'needs_human_review' || steps.check.outputs.status == 'done'
+        run: |
+          git fetch origin pipeline-outputs
+          git checkout -B pipeline-outputs origin/pipeline-outputs 2>/dev/null || \
+            (git checkout --orphan pipeline-outputs && git rm -rf . --quiet)
+
+          python3 << 'PYEOF'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path('ptd_run_summary.json').read_text()) \
+              if Path('ptd_run_summary.json').exists() else {}
+
+          # Gerar lista de candidatos para revisão humana por estágio
+          stage = summary.get('stage', 0)
+          review_items = []
+          if stage == 1:
+              # Stage 1: listar orgs com maior taxa sem_produto
+              for o in sorted(summary.get('por_orgao', []),
+                              key=lambda x: x.get('sem_produto_n', 0), reverse=True)[:15]:
+                  if o.get('sem_produto_n', 0) > 0:
+                      review_items.append({
+                          'sigla': o['sigla'],
+                          'sem_produto_n': o['sem_produto_n'],
+                          'sem_produto_pct': o.get('sem_produto_pct'),
+                          'acao': 'adicionar produtos em config/produtos_sgd_v23.json'
+                      })
+          elif stage == 2:
+              # Stage 2: listar orgs com menor col_map_ok_rate
+              for o in sorted(summary.get('por_orgao', []),
+                              key=lambda x: x.get('col_map_ok_rate') or 100)[:10]:
+                  if (o.get('col_map_ok_rate') or 100) < 70:
+                      review_items.append({
+                          'sigla': o['sigla'],
+                          'col_map_ok_rate': o.get('col_map_ok_rate'),
+                          'acao': 'adicionar keywords em config/col_keys_extra.json'
+                      })
+
+          status = {
+              'stage':       stage,
+              'stage_label': summary.get('stage_label', ''),
+              'pct_ok':      summary.get('pct_ok', 0),
+              'n_zero':      len(summary.get('orgaos_zero_entregas', [])),
+              'needs_human_review': stage in (1, 2),
+              'review_items': review_items,
+              'run_id':      summary.get('run_id', ''),
+              'timestamp':   summary.get('timestamp', ''),
+          }
+          Path('stage_status.json').write_text(
+              json.dumps(status, indent=2, ensure_ascii=False))
+          print(f"stage_status.json: estágio {stage}, {len(review_items)} itens para revisão")
+          PYEOF
+
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+          git add stage_status.json
+          git commit -m "watcher: stage_status atualizado — estágio ${{ steps.check.outputs.stage }} (${{ steps.check.outputs.stage_label }})" \
+            --allow-empty
+          git push origin pipeline-outputs
+
+      - name: Commit fixes e disparar próximo run
+        if: steps.check.outputs.status == 'needs_fix'
+        env:
+          WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
+        run: |
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+
+          # Ler iteration atual
+          ITER=$(grep 'iteration:' .trigger_debug | awk '{print $2}')
+          NEXT_ITER=$((ITER + 1))
+
+          # Atualizar .trigger_debug
+          sed -i "s/last_trigger:.*/last_trigger: $(date -u +%Y-%m-%dT%H:%M:%SZ)/" .trigger_debug
+          sed -i "s/iteration:.*/iteration: $NEXT_ITER/" .trigger_debug
+
+          git add ptd_ocr_fallback.py ptd_pipeline_v30.py \
+                  ocr_states.json ocr_config_dynamic.json docling_config_dynamic.json \
+                  .trigger_debug
+
+          N_ZERO="${{ steps.check.outputs.n_zero }}"
+          git commit -m "watcher: iteration $NEXT_ITER — fix para $N_ZERO órgãos zerados
+
+          State machine avançada para: $(jq -r '.orgaos_zero_entregas | join(\", \")' ptd_run_summary.json)
+
+          https://claude.ai/code/session_01VMgXMT3uZP2cLZPxUjvR8C"
+
+          # Push com PAT → dispara push trigger do debug workflow
+          git remote set-url origin "https://x-access-token:${WORKFLOW_PAT}@github.com/freirelucas/teste.git"
+          git push origin claude/setup-docling-pipeline-g11gg
+
+      - name: Marcar run como processado
+        if: steps.check.outputs.status == 'needs_fix' || steps.check.outputs.status == 'done'
+        run: |
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+          git fetch origin pipeline-outputs
+          git checkout pipeline-outputs
+          echo "${{ steps.check.outputs.run_id }}" > .last_processed
+          git add .last_processed
+          git commit -m "watcher: marcado run/${{ steps.check.outputs.run_id }} como processado" \
+            --allow-empty
+          git push origin pipeline-outputs
+
+      - name: Resumo
+        if: always()
+        run: |
+          echo "## PTD Watcher — $(date -u +%Y-%m-%dT%H:%M)" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ steps.check.outputs.status || 'waiting' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Órgãos zerados | ${{ steps.check.outputs.n_zero || '—' }} |" >> $GITHUB_STEP_SUMMARY

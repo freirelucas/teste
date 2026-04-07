@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+message: "Se você usar este corpus ou pipeline, por favor cite conforme abaixo."
+type: software
+title: "PTD-BR: Corpus de Planos de Transformação Digital do Governo Federal Brasileiro"
+abstract: >
+  Pipeline de coleta, extração e estruturação dos Planos de Transformação Digital (PTDs)
+  da Administração Pública Federal Brasileira, publicados pelo Ministério da Gestão e
+  Inovação em Serviços Públicos (MGI/SGD) para o ciclo 2025–2027.
+  Produz corpus estruturado de 5.825+ comprometimentos digitais (serviço × produto)
+  e matrizes de gestão de risco de 90 órgãos, organizados pelos 6 eixos da
+  Estratégia Federal de Governo Digital (EFGD 2024–2027).
+authors:
+  - family-names: "Direito"
+    given-names: "Denise do Carmo"
+    affiliation: "COGIT/DIEST/IPEA"
+  - family-names: "Silva"
+    given-names: "Lucas Freire"
+    affiliation: "COGIT/DIEST/IPEA"
+institution:
+  name: "Instituto de Pesquisa Econômica Aplicada (IPEA)"
+  address: "SBS Quadra 01 Bloco J — Ed. BNDES"
+  city: "Brasília"
+  region: "DF"
+  country: "BR"
+version: "3.0"
+date-released: "2026-03-31"
+license: "CC-BY-4.0"
+repository-code: "https://github.com/freirelucas/teste"
+keywords:
+  - "governo digital"
+  - "transformação digital"
+  - "administração pública federal"
+  - "corpus"
+  - "ciência aberta"
+  - "EFGD"
+  - "PTD"
+  - "MGI"
+  - "IPEA"
+references:
+  - type: legal-case
+    title: "Decreto nº 12.198, de 17 de setembro de 2024"
+    authors:
+      - name: "Presidência da República"
+    year: 2024
+    notes: "Institui a Estratégia Federal de Governo Digital 2024-2027"
+  - type: legal-case
+    title: "Portaria SGD/MGI nº 6.618, de 7 de novembro de 2024"
+    authors:
+      - name: "Secretaria de Governo Digital / MGI"
+    year: 2024
+    notes: "Regulamenta os Planos de Transformação Digital dos órgãos da APF"

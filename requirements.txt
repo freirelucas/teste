@@ -1,0 +1,39 @@
+# PTD-BR Corpus Pipeline — Dependências
+# IPEA / COGIT / DIEST
+# Testado em Python 3.10+
+# Instalar: pip install -r requirements.txt
+
+# ── Extração de PDFs ──────────────────────────────────────────────────
+docling>=2.5.0
+docling-ibm-models>=2.0.0
+PyMuPDF>=1.23.0          # fitz — fallback e sanity checks
+
+# ── OCR (PDFs tarjados/imagem) ────────────────────────────────────────
+# Requer instalação do sistema: apt-get install tesseract-ocr tesseract-ocr-por
+# O pacote Python é instalado como dependência do docling
+
+# ── Dados e análise ───────────────────────────────────────────────────
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=12.0.0          # export Parquet
+openpyxl>=3.1.0          # export Excel
+
+# ── Rede e scraping ───────────────────────────────────────────────────
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# ── Apresentação ─────────────────────────────────────────────────────
+python-pptx>=1.0.0
+
+# ── Visualizações (ETAPA 7) ───────────────────────────────────────────
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# ── Compatibilidade CLI Docling ───────────────────────────────────────
+typer==0.21.0
+
+# ── Testes unitários ──────────────────────────────────────────────────
+pytest>=7.4.0
+
+# ── Parser Aho-Corasick (Layer 3 — M8) ───────────────────────────────
+pyahocorasick>=2.0.0     # automato de Aho-Corasick para matching O(n) de produtos

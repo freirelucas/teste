@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "nota": "Regras de correção de eixo por auditoria manual. Generalizado para qualquer órgão/ciclo.",
+    "ultima_auditoria": "2026-03-23",
+    "auditores": ["Denise do Carmo Direito", "Lucas Freire Silva"]
+  },
+  "regras": [
+    {
+      "id": "PGFN-E3-PAG8-2025",
+      "ciclo": "2025-2027",
+      "sigla": "PGFN",
+      "pagina": 8,
+      "eixo_errado": 3,
+      "eixo_correto": 1,
+      "causa": "state_machine_contaminacao",
+      "diagnostico": "Token SAJ/IA na linha 1 da página 8 dispara E3; state machine persiste E3 para 21 registros subsequentes que são serviços E1 padrão.",
+      "excecoes_manter_e3": [
+        "sumariza",
+        "SAJ.*IA",
+        "intelig.*artificial"
+      ],
+      "n_registros_afetados": 21,
+      "referencias_pdf": "PGFN pág 8 — Certidão CND, Dívida Ativa, APP Dívida Aberta"
+    }
+  ],
+  "nota_generalizacao": "Para novos ciclos: auditar órgãos com E3 > 10 registros. Verificar se há serviços de IA genuínos (chatbot, ML, sumarização) ou contaminação por state machine."
+}

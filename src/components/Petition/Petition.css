@@ -1,0 +1,342 @@
+/* ── Petition Component ── */
+
+.petition {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Sub-tabs */
+.petition__tabs {
+  display: flex;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-6);
+  border-bottom: var(--border-thin);
+  padding-bottom: var(--sp-2);
+}
+
+.petition__tab {
+  padding: var(--sp-2) var(--sp-4);
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  color: var(--text-dim);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.petition__tab:hover {
+  color: var(--green);
+  background: var(--bg-card);
+}
+
+.petition__tab--active {
+  color: var(--green);
+  background: var(--bg-card);
+  border-color: var(--rule);
+  box-shadow: none;
+}
+
+/* Content */
+.petition__content {
+  line-height: 1.8;
+}
+
+.petition__title {
+  font-size: var(--font-size-lg);
+  color: var(--green);
+  margin-bottom: var(--sp-6);
+  line-height: 1.4;
+}
+
+.petition__title em {
+  color: var(--amber);
+  font-style: italic;
+}
+
+/* Price comparison */
+.petition__comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+
+.petition__price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.petition__price--beer {
+  border-left: 3px solid var(--red);
+}
+
+.petition__price--bispo {
+  border-left: 3px solid var(--green);
+}
+
+.petition__price-label {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-bright);
+  font-style: italic;
+}
+
+.petition__price-author {
+  font-size: var(--font-size-xs);
+  color: var(--text-dim);
+}
+
+.petition__price-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: var(--sp-2) 0;
+}
+
+.petition__price-value--high {
+  color: var(--red);
+}
+
+.petition__price-value--low {
+  color: var(--green);
+}
+
+.petition__price-note {
+  font-size: var(--font-size-xs);
+  color: var(--text-dim);
+}
+
+/* Text body */
+.petition__text {
+  margin-bottom: var(--sp-6);
+}
+
+.petition__text p {
+  margin-bottom: var(--sp-4);
+  color: var(--text);
+  font-size: var(--font-size-sm);
+}
+
+.petition__text em {
+  color: var(--amber);
+}
+
+.petition__text strong {
+  color: var(--text-bright);
+}
+
+.petition__text h3 {
+  font-size: var(--font-size-sm);
+  color: var(--cyan);
+  margin: var(--sp-6) 0 var(--sp-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.petition__text ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: var(--sp-4);
+}
+
+.petition__text li {
+  font-size: var(--font-size-xs);
+  color: var(--text-dim);
+  padding: var(--sp-2) 0;
+  padding-left: var(--sp-4);
+  border-left: 2px solid var(--rule);
+  margin-bottom: var(--sp-2);
+  line-height: 1.6;
+}
+
+/* Form */
+.petition__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
+  background: var(--bg-card);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--sp-6);
+}
+
+.petition__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.petition__field label {
+  font-size: var(--font-size-xs);
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.petition__field input {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-deep);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  color: var(--text-bright);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.petition__field input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green-glow);
+}
+
+.petition__field input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+.petition__submit {
+  align-self: flex-start;
+  background: var(--green-glow);
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 700;
+  padding: var(--sp-3) var(--sp-6);
+}
+
+.petition__submit:hover {
+  background: var(--green);
+  color: var(--bg-deep);
+}
+
+/* Thanks */
+.petition__thanks {
+  padding: var(--sp-4);
+  background: var(--bg-card);
+  border: 1px solid var(--green);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--sp-6);
+}
+
+.petition__thanks p {
+  color: var(--green);
+  font-size: var(--font-size-sm);
+}
+
+/* Signatures */
+.petition__signatures {
+  padding-top: var(--sp-4);
+  border-top: var(--border-thin);
+}
+
+.petition__signatures h3 {
+  font-size: var(--font-size-sm);
+  color: var(--text-dim);
+  margin-bottom: var(--sp-3);
+}
+
+.petition__signatures ul {
+  list-style: none;
+  padding: 0;
+}
+
+.petition__signatures li {
+  font-size: var(--font-size-xs);
+  color: var(--text);
+  padding: var(--sp-1) 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.petition__signatures li:last-child {
+  border-bottom: none;
+}
+
+.petition__sig-date {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* ── Manifesto ── */
+
+.petition__manifesto-sub {
+  font-size: var(--font-size-sm);
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-bottom: var(--sp-6);
+  font-style: italic;
+}
+
+.petition__quote {
+  padding: var(--sp-4) var(--sp-6);
+  margin-bottom: var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+
+.petition__quote--beer {
+  border-left: 3px solid var(--cyan);
+}
+
+.petition__quote--bispo {
+  border-left: 3px solid var(--amber);
+}
+
+.petition__quote p {
+  font-size: var(--font-size-sm);
+  color: var(--text-bright);
+  font-style: italic;
+  margin-bottom: var(--sp-1);
+}
+
+.petition__quote cite {
+  font-size: var(--font-size-xs);
+  color: var(--text-dim);
+  font-style: normal;
+}
+
+.petition__manifesto-body {
+  margin-top: var(--sp-6);
+}
+
+.petition__manifesto-body p {
+  font-size: var(--font-size-sm);
+  color: var(--text);
+  margin-bottom: var(--sp-4);
+  line-height: 1.8;
+}
+
+.petition__manifesto-body strong {
+  color: var(--text-bright);
+}
+
+.petition__manifesto-body em {
+  color: var(--amber);
+}
+
+.petition__manifesto-close {
+  margin-top: var(--sp-6);
+  padding: var(--sp-4);
+  border: 1px solid var(--green-dim);
+  border-radius: var(--radius-md);
+  text-align: center;
+  color: var(--green) !important;
+  font-weight: 700;
+  line-height: 1.8;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .petition__comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .petition__price-value {
+    font-size: var(--font-size-lg);
+  }
+}

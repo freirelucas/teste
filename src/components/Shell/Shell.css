@@ -1,0 +1,145 @@
+/* ── Shell Component ── */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: var(--sp-4);
+}
+
+/* Header */
+.shell__header {
+  text-align: center;
+  padding: var(--sp-8) 0 var(--sp-4);
+  border-bottom: var(--border-thin);
+}
+
+.shell__title {
+  font-size: var(--font-size-2xl);
+  letter-spacing: 0.15em;
+  color: var(--green);
+  margin-bottom: var(--sp-2);
+}
+
+.shell__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Navigation */
+.shell__nav {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-4) 0;
+  overflow-x: auto;
+  border-bottom: var(--border-thin);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.shell__nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-4);
+  min-width: 120px;
+  background: var(--bg-card);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.shell__nav-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--green-dim);
+  color: var(--green);
+}
+
+.shell__nav-btn--active {
+  background: var(--bg-hover);
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: var(--shadow-glow);
+}
+
+.shell__nav-count {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.shell__nav-label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.shell__nav-btn--manifesto {
+  border-style: dashed;
+}
+
+.shell__nav-btn--manifesto .shell__nav-count {
+  font-weight: 400;
+}
+
+/* Main */
+.shell__main {
+  flex: 1;
+  padding: var(--sp-6) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Footer */
+.shell__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  padding: var(--sp-6) 0 var(--sp-4);
+  border-top: var(--border-thin);
+  flex-wrap: wrap;
+}
+
+.shell__quote {
+  flex: 1;
+  min-width: 200px;
+}
+
+.shell__quote p {
+  font-size: var(--font-size-xs);
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.shell__quote cite {
+  font-size: var(--font-size-xs);
+  color: var(--green-dim);
+  font-style: normal;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .shell {
+    padding: var(--sp-2);
+  }
+
+  .shell__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .shell__nav-btn {
+    min-width: 90px;
+    padding: var(--sp-2) var(--sp-3);
+  }
+
+  .shell__footer {
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+}
