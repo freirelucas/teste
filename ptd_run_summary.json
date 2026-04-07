@@ -1,6 +1,6 @@
 {
-  "run_id": "24061414379",
-  "timestamp": "2026-04-07T03:00:44",
+  "run_id": "24063073255",
+  "timestamp": "2026-04-07T04:06:30",
   "branch": "claude/setup-docling-pipeline-g11gg",
   "stage": 1,
   "stage_label": "parse_quality",
@@ -12,6 +12,13 @@
   "col_map_ok_rate": 74.4,
   "extratores": {
     "docling": 273
+  },
+  "risco_coverage": {
+    "cobertura_riscos_pct": 100.0,
+    "n_orgaos_com_riscos": 7,
+    "n_riscos_total": 81,
+    "meta_cobertura_riscos": 80.0,
+    "abaixo_meta": false
   },
   "doc_coverage": {
     "cobertura_documental_pct": 100.0,
@@ -138,7 +145,12 @@
       "vsm_s5_meta": 80.0,
       "vsm_gap_pp": -18.5,
       "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "media"
+      "vsm_prioridade": "media",
+      "triple_actuality": 61.5,
+      "triple_capability": 69.2,
+      "triple_potentiality": 80.0,
+      "triple_gap_type": "ruido",
+      "n_riscos": 7
     },
     {
       "sigla": "FIOCRUZ",
@@ -157,7 +169,12 @@
       "vsm_s5_meta": 90.0,
       "vsm_gap_pp": -1.9,
       "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "normal"
+      "vsm_prioridade": "normal",
+      "triple_actuality": 88.1,
+      "triple_capability": 97.0,
+      "triple_potentiality": 90.0,
+      "triple_gap_type": "ruido",
+      "n_riscos": 6
     },
     {
       "sigla": "FUNAI",
@@ -176,7 +193,12 @@
       "vsm_s5_meta": 70.0,
       "vsm_gap_pp": -35.5,
       "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "alta"
+      "vsm_prioridade": "alta",
+      "triple_actuality": 34.5,
+      "triple_capability": 72.4,
+      "triple_potentiality": 70.0,
+      "triple_gap_type": "vocabulario",
+      "n_riscos": 15
     },
     {
       "sigla": "INCRA",
@@ -196,7 +218,12 @@
       "vsm_s5_meta": 70.0,
       "vsm_gap_pp": -60.5,
       "vsm_estrategia": "col_keys",
-      "vsm_prioridade": "alta"
+      "vsm_prioridade": "alta",
+      "triple_actuality": 9.5,
+      "triple_capability": 23.8,
+      "triple_potentiality": 70.0,
+      "triple_gap_type": "col_keys",
+      "n_riscos": 15
     },
     {
       "sigla": "ITI",
@@ -214,7 +241,12 @@
       "vsm_s5_meta": 75.0,
       "vsm_gap_pp": -32.5,
       "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "alta"
+      "vsm_prioridade": "alta",
+      "triple_actuality": 42.5,
+      "triple_capability": 85.0,
+      "triple_potentiality": 75.0,
+      "triple_gap_type": "vocabulario",
+      "n_riscos": 14
     },
     {
       "sigla": "MCOM",
@@ -232,7 +264,12 @@
       "vsm_s5_meta": 90.0,
       "vsm_gap_pp": 1.4,
       "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "normal"
+      "vsm_prioridade": "normal",
+      "triple_actuality": 91.4,
+      "triple_capability": 94.8,
+      "triple_potentiality": 90.0,
+      "triple_gap_type": "ruido",
+      "n_riscos": 14
     },
     {
       "sigla": "SGPR",
@@ -250,7 +287,12 @@
       "vsm_s5_meta": 80.0,
       "vsm_gap_pp": -22.1,
       "vsm_estrategia": "vocabulario",
-      "vsm_prioridade": "media"
+      "vsm_prioridade": "media",
+      "triple_actuality": 57.9,
+      "triple_capability": 78.9,
+      "triple_potentiality": 80.0,
+      "triple_gap_type": "vocabulario",
+      "n_riscos": 10
     }
   ],
   "orgaos_excluidos": []
