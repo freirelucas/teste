@@ -6,10 +6,8 @@ name: PTD Watcher — Loop de Iteração Autônomo
 # Requer secret WORKFLOW_PAT com permissões Contents+Actions no repo.
 
 on:
-  # schedule:                   # ← PAUSADO (2026-04-07): revisão ViableOS em andamento
-  #   - cron: '*/5 * * * *'     # reativar só após: (1) s3_meta_parameters.json corrigido,
-  #                              #   (2) pipeline full run com ≥80 órgãos confirmado (total: ~90),
-  #                              #   (3) Vollzug Protocol implementado
+  schedule:
+    - cron: '*/5 * * * *'   # loop controlado: para automaticamente em max_iteration (ver .trigger_debug)
   workflow_dispatch:         # execução manual para testar
 
 jobs:
@@ -62,6 +60,21 @@ jobs:
           if [ "$RUN_ID" = "$LAST" ]; then
             echo "status=already_processed" >> $GITHUB_OUTPUT
             echo "Run $RUN_ID já processado."
+            exit 0
+          fi
+
+          # Verificar teto de iterações (max_iteration em .trigger_debug)
+          git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+          CURR_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+            | grep '^iteration:' | awk '{print $2}' || echo 0)
+          MAX_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+            | grep '^max_iteration:' | awk '{print $2}' || echo "")
+          if [ -n "$MAX_ITER" ] && [ "$CURR_ITER" -ge "$MAX_ITER" ]; then
+            echo "status=max_reached" >> $GITHUB_OUTPUT
+            echo "iter_atual=$CURR_ITER" >> $GITHUB_OUTPUT
+            echo "iter_max=$MAX_ITER" >> $GITHUB_OUTPUT
+            echo "🛑 TETO DE ITERAÇÕES: $CURR_ITER >= $MAX_ITER — parando loop controlado."
+            echo "Execute gerar_validacao_manual.py para exportar itens de revisão."
             exit 0
           fi
 
