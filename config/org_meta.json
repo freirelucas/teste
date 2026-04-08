@@ -109,6 +109,13 @@
     "status": "excluir",
     "motivo": "Sigla truncada de 'mda-anexo-entregas-assinado_ptd-...' (bug _sigla_de_fn, corrigido em 2026-04-07). Após fix, sigla será MDA."
   },
+  "MMULHERES": {
+    "status": "ativo",
+    "motivo": "0% pct_ok mas col_map_ok=100% — estrutura ok, vocabulário específico de políticas para mulheres não coberto. Watcher deve tratar como vocab (não OCR).",
+    "s5_pct_ok_meta": 70.0,
+    "prioridade": "alta",
+    "estrategia": "vocabulario"
+  },
   "_default": {
     "status": "ativo",
     "motivo": "Órgão sem política explícita. Aplica configuração padrão global.",

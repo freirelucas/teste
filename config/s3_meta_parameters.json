@@ -5,12 +5,12 @@
   "parada_automatica": {
     "_descricao": "Critérios S5 de parada controlada. O watcher para quando QUALQUER condição for atingida.",
     "ativo": true,
-    "deadline_iso": "2026-04-08T19:30:40Z",
+    "deadline_iso": "2026-05-01T00:00:00Z",
     "min_slope_para_continuar": 0.05,
     "slope_window": 20,
     "pct_ok_sucesso": 90.0,
     "motivos": {
-      "prazo": "48h a partir de 2026-04-06T19:30:40Z",
+      "prazo": "Meta: 2026-05-01. Renovar se necessário (anterior: 2026-04-08T19:30:40Z).",
       "estagnacao": "slope < 0.05pp/iter nas últimas 20 iterações — aprendizado não vale mais a pena",
       "sucesso": "pct_ok ≥ 90% — meta S5 atingida"
     }
