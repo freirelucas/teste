@@ -87,6 +87,28 @@
     "prioridade": "media",
     "estrategia": "vocabulario"
   },
+  "ASSINADO": {
+    "status": "excluir",
+    "motivo": "Sigla falsa: linha de assinatura do documento MDA extraída como órgão pelo _sigla_de_fn (bug corrigido em 2026-04-07). Após fix, 'MDA' será extraído corretamente. Entradas 'ASSINADO' são resquícios do bug.",
+    "s5_pct_ok_meta": null,
+    "prioridade": "nenhuma",
+    "estrategia": null
+  },
+  "21": {
+    "status": "excluir",
+    "motivo": "Sigla falsa: número '21' extraído de 'ptd_21_24_mcom-copia_tarjada.pdf' antes de chegar ao candidato MCOM (bug corrigido em 2026-04-07). Após fix, MCOM será extraído.",
+    "s5_pct_ok_meta": null,
+    "prioridade": "nenhuma",
+    "estrategia": null
+  },
+  "MDA-DOCUME": {
+    "status": "excluir",
+    "motivo": "Sigla truncada de 'mda-documento-diretivo-assinado_ptd-...' (bug _sigla_de_fn, corrigido em 2026-04-07). Após fix, sigla será MDA."
+  },
+  "MDA-ANEXO-": {
+    "status": "excluir",
+    "motivo": "Sigla truncada de 'mda-anexo-entregas-assinado_ptd-...' (bug _sigla_de_fn, corrigido em 2026-04-07). Após fix, sigla será MDA."
+  },
   "_default": {
     "status": "ativo",
     "motivo": "Órgão sem política explícita. Aplica configuração padrão global.",

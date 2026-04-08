@@ -406,19 +406,32 @@ def _sigla_de_fn(fn: str) -> str:
     """
     from urllib.parse import unquote as _uq
     # palavras genéricas que não são siglas de órgão
-    _NON_SIGLA = frozenset({'PTD', 'ANEXO', 'DOC', 'PLANO', 'COPIA', 'TARJADA',
-                             'PLANOS', 'DOCS', 'ARQUIVO', 'FILE', 'FORM', 'VERSAO'})
+    # FIX 2026-04-07: adicionados ASSINADO, DIRETIVO, DOCUMENTO, APROVADO, ENTREGAS
+    # para evitar que "mda-documento-diretivo-assinado_ptd-..." → 'ASSINADO' (bug)
+    # e "ptd_21_24_mcom-..." → '21' (número, não sigla)
+    _NON_SIGLA = frozenset({
+        'PTD', 'ANEXO', 'DOC', 'PLANO', 'COPIA', 'TARJADA',
+        'PLANOS', 'DOCS', 'ARQUIVO', 'FILE', 'FORM', 'VERSAO',
+        'ASSINADO', 'DIRETIVO', 'DOCUMENTO', 'APROVADO', 'ENTREGAS',
+        'REPACTUACAO', 'NOVO', 'FINAL', 'PUBLICADO', 'VIGENTE',
+        'ORGAO', 'TEMP', 'CGREP', 'SEI',
+    })
     parts = _uq(fn).split('_')
-    # Padrão ptd_SIGLA_... (mais comum)
+    # Padrão ptd_SIGLA_... (mais comum): ptd_aneel_... → ANEEL
     if parts[0].lower() == 'ptd' and len(parts) > 1:
         raw   = parts[1]
         clean = re.sub(r'[-].*', '', raw).upper()
-        m = re.match(r'^[A-Z0-9]+', clean)
-        return (m.group(0) if m else clean)[:10]
-    # Padrão prefixo-SIGLA_ptd-... (ex: anexo-de-entregas-mcom_ptd-25_27-...)
-    # Varrer até 4 parts procurando candidato a sigla válido
+        # Guardar: candidato deve ter letras e não ser só dígitos
+        if re.match(r'^[A-Z]{2,12}$', clean) and clean not in _NON_SIGLA:
+            return clean[:10]
+        # ptd_21_24_mcom → pular '21', tentar próximo candidato
+        for p in parts[2:5]:
+            c = re.sub(r'[-].*', '', p).upper()
+            if re.match(r'^[A-Z]{2,12}$', c) and c not in _NON_SIGLA:
+                return c[:10]
+    # Padrão prefixo-SIGLA_ptd-... (ex: mda-documento-diretivo-assinado_ptd-...)
+    # Varrer até 4 parts procurando candidato a sigla válido (de trás pra frente)
     for part in parts[:4]:
-        # cada part pode ter sub-partes separadas por '-'; testar de trás pra frente
         subparts = part.split('-')
         for sub in reversed(subparts):
             candidate = sub.upper()
@@ -427,7 +440,7 @@ def _sigla_de_fn(fn: str) -> str:
     # Fallback original
     raw   = parts[0]
     clean = re.sub(r'[-].*', '', raw).upper()
-    m = re.match(r'^[A-Z0-9]+', clean)
+    m = re.match(r'^[A-Z]{2,12}', clean)
     return (m.group(0) if m else clean)[:10]
 
 # ── Estrutura CGREP: tipo_doc e passo_ptd ────────────────────────────────────

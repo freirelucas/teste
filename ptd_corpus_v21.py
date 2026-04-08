@@ -104,9 +104,9 @@ PAT_ID_GOVBR = re.compile(r'^\d{3,6}\s+(?:Servi[çc]o\s+)?')
 PAT_RISCO = re.compile(
     r'(\bprov[aá]vel\b|\bimprov[aá]vel\b|\braro\b|\bpouco\s+prov[aá]vel\b'
     r'|\bpraticamente\s+certo\b)'
-    r'|(\bmitigar\b|\btransferir\b|\baceitar\b|\bevitar\b|\beliminar\b)'
+    r'|(\bmitigar\b|\btransferir\b)'
     r'|(\brisco\b.*\b(alto|baixo|m[eé]dio)\b|\b(alto|baixo|m[eé]dio)\b.*\brisco\b)'
-    r'|(^\d{1,3}\s*\|.*\b(raro|alto|baixo|m[eé]dio|mitigar|aceitar)\b)',
+    r'|(^\d{1,3}\s*\|.*\b(raro|alto|baixo|m[eé]dio|mitigar|aceitar|evitar|eliminar)\b)',
     re.I
 )
 PAT_SIGNATARIO = re.compile(

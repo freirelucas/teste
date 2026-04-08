@@ -85,10 +85,26 @@ jobs:
           echo "n_riscos=$N_RISCOS"               >> $GITHUB_OUTPUT
 
           # Classificar tipo de problema dominante ANTES de decidir tratamento
-          # Triple Index: usar gap_type se disponível para distinguir col_keys vs. vocab
+          # FIX 2026-04-07: distinguir zeros por OCR vs. vocabulário vs. col_keys
+          # N_ZERO>0 NÃO implica cobertura/OCR — verificar triple_gap_type por órgão
           N_COL_KEYS=$(jq '[.por_orgao // [] | .[] | select(.triple_gap_type == "col_keys")] | length' ptd_run_summary.json 2>/dev/null || echo 0)
-          if [ "$N_ZERO" -gt 0 ]; then
-            PROBLEM_TYPE="cobertura"      # Stage 0: sem extração → OCR/Docling params
+          # Zeros genuinamente de OCR: col_map_ok_rate < 30 (headers ilegíveis) ou triple=ocr
+          N_ZERO_OCR=$(jq '[.por_orgao // [] | .[] |
+            select(.pct_ok == 0) |
+            select((.triple_gap_type == "ocr") or ((.col_map_ok_rate // 100) < 30))
+          ] | length' ptd_run_summary.json 2>/dev/null || echo 0)
+          # Zeros de vocabulário: col_map ok mas sem produto no vocab
+          N_ZERO_VOCAB=$(jq '[.por_orgao // [] | .[] |
+            select(.pct_ok == 0) |
+            select((.col_map_ok_rate // 0) >= 60)
+          ] | length' ptd_run_summary.json 2>/dev/null || echo 0)
+
+          if [ "$N_ZERO_OCR" -gt 0 ]; then
+            PROBLEM_TYPE="cobertura"      # Zeros genuínos de OCR/extração → OCR params
+          elif [ "$N_ZERO_VOCAB" -gt 0 ]; then
+            PROBLEM_TYPE="vocabulario"    # Zeros com col_map ok → é vocab, não OCR
+          elif [ "$N_ZERO" -gt 0 ]; then
+            PROBLEM_TYPE="col_keys"       # Zeros com col_map parcial → col_keys fix
           elif [ "$N_COL_KEYS" -gt 0 ] && python3 -c "import sys; sys.exit(0 if float('$SEM_PROD_PCT') > 20 else 1)" 2>/dev/null; then
             PROBLEM_TYPE="col_keys"       # Triple Index: órgãos com cap. baixa → col_keys fix
           elif python3 -c "import sys; sys.exit(0 if float('$SEM_PROD_PCT') > 20 else 1)" 2>/dev/null; then

@@ -99,6 +99,15 @@ flag_dist = corpus['parse_flag'].value_counts().to_dict() if 'parse_flag' in cor
 n_ok      = flag_dist.get('ok', 0)
 pct_ok    = round(n_ok / len(corpus) * 100, 1) if corpus is not None and len(corpus) else 0
 
+# pct_ok_entregas: métrica limpa — apenas linhas de anexo_entregas (exclui diretivo, riscos)
+# FIX 2026-04-07: tipo_doc separa o conteúdo real de entregas do restante do PDF
+if 'tipo_doc' in corpus.columns:
+    _corpus_entregas = corpus[corpus['tipo_doc'] == 'anexo_entregas']
+    _n_ok_e = (_corpus_entregas['parse_flag'] == 'ok').sum() if len(_corpus_entregas) else 0
+    pct_ok_entregas = round(_n_ok_e / len(_corpus_entregas) * 100, 1) if len(_corpus_entregas) else pct_ok
+else:
+    pct_ok_entregas = pct_ok  # fallback: corpus sem tipo_doc (run antigo)
+
 # ── Organ groups: expande lead siglas para contar sub-órgãos ─────────
 def _load_organ_groups() -> dict:
     p = Path('config/organ_groups.json')
@@ -505,9 +514,12 @@ try:
             'triple_capability':   _col_ok_rate,   # max atingível sem mudar estrutura
             'triple_potentiality': float(_s5_meta_org) if _s5_meta_org else 80.0,
             'triple_gap_type': (
+                # FIX 2026-04-07: usar fallback 100 quando _col_ok_rate é None
+                # para não retornar null/ruido em órgãos com col_map não rastreado
                 'ocr'         if (_g['texto'].isna().mean() > 0.5 if 'texto' in _g.columns else False) else
-                'col_keys'    if (_col_ok_rate is not None and _col_ok_rate < 60) else
-                'vocabulario' if (_col_ok_rate is not None and (_col_ok_rate - _pct_ok_org) > 20) else
+                'col_keys'    if ((_col_ok_rate if _col_ok_rate is not None else 100) < 60) else
+                'vocabulario' if ((_col_ok_rate if _col_ok_rate is not None else 0) >= 60
+                                  and _pct_ok_org < 80) else
                 'ruido'
             ),
         })
@@ -671,6 +683,7 @@ try:
         'n_registros_raw':      int(len(_raw)),
         'n_registros_v21':      int(len(corpus)),
         'pct_ok':               float(pct_ok),
+        'pct_ok_entregas':      float(pct_ok_entregas),  # só linhas de anexo_entregas
         'sem_produto_pct':      _sem_prod_global,
         'col_map_ok_rate':      _col_ok_global,
         'extratores':           {str(k): int(v) for k, v in _extratores.items()},
