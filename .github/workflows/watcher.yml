@@ -1044,12 +1044,14 @@ print('algedonico_signal.json gerado')
           git config user.name  "ptd-watcher[bot]"
           git config user.email "ptd-watcher[bot]@users.noreply.github.com"
 
-          # Atualizar .trigger_debug atomicamente via Python
-          # FIX: usar ^iteration: para não capturar max_iteration
-          ITER=$(grep '^iteration:' .trigger_debug | awk '{print $2}')
-          MAX_ITER=$(grep '^max_iteration:' .trigger_debug | awk '{print $2}')
-          ITER=${ITER:-0}   # fallback: 0 se vazio
+          # Ler iteration e max_iteration SEMPRE via git show (branch correto)
+          # NUNCA ler arquivo local: checkout é pipeline-outputs, .trigger_debug não existe lá
+          TRIGGER_CONTENT=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null || echo "")
+          ITER=$(echo "$TRIGGER_CONTENT" | grep '^iteration:' | awk '{print $2}')
+          MAX_ITER=$(echo "$TRIGGER_CONTENT" | grep '^max_iteration:' | awk '{print $2}')
+          ITER=${ITER:-0}   # fallback se vazio
           NEXT_ITER=$((ITER + 1))
+          echo "iter atual=$ITER → próximo=$NEXT_ITER (max=$MAX_ITER)"
           python3 -c "
           from datetime import datetime
           from pathlib import Path
