@@ -8,7 +8,24 @@ name: PTD Watcher — Loop de Iteração Autônomo
 on:
   schedule:
     - cron: '*/5 * * * *'   # loop controlado: para automaticamente em max_iteration (ver .trigger_debug)
-  workflow_dispatch:         # execução manual para testar
+  workflow_dispatch:
+    inputs:
+      acao:
+        description: 'Ação de controle'
+        required: false
+        default: 'monitorar'
+        type: choice
+        options:
+          - monitorar          # só verifica estado, não aplica fix
+          - rodar_N_vezes      # define novo teto: iter_atual + n_runs
+          - pausar             # seta max_iteration = iter_atual (para agora)
+          - continuar_5        # +5 runs a partir do teto atual
+          - continuar_20       # +20 runs
+      n_runs:
+        description: 'Número de runs (só para rodar_N_vezes)'
+        required: false
+        default: '5'
+        type: string
 
 jobs:
   watch:
@@ -24,7 +41,67 @@ jobs:
           fetch-depth: 1
         continue-on-error: true   # branch pode não existir ainda
 
+      - name: "[Controle] Aplicar ação manual do operador (S5)"
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ACAO: ${{ github.event.inputs.acao }}
+          N_RUNS: ${{ github.event.inputs.n_runs }}
+          WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
+        run: |
+          echo "Ação solicitada: $ACAO"
+          if [ "$ACAO" = "monitorar" ]; then
+            echo "Modo monitorar: apenas reporta estado, não aplica fix."
+            echo "acao_resultado=monitorar" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # Ler estado atual do trigger_debug
+          git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+          git checkout origin/claude/setup-docling-pipeline-g11gg -- .trigger_debug 2>/dev/null || true
+          CURR_ITER=$(grep '^iteration:' .trigger_debug | awk '{print $2}' || echo 0)
+          CURR_ITER=${CURR_ITER:-0}
+          MAX_ITER=$(grep '^max_iteration:' .trigger_debug | awk '{print $2}' || echo "")
+
+          if [ "$ACAO" = "pausar" ]; then
+            NEW_MAX=$CURR_ITER
+            echo "⏸ PAUSAR: max_iteration → $NEW_MAX (igual ao atual)"
+          elif [ "$ACAO" = "continuar_5" ]; then
+            BASE=${MAX_ITER:-$CURR_ITER}
+            NEW_MAX=$((BASE + 5))
+            echo "▶ CONTINUAR +5: max_iteration → $NEW_MAX"
+          elif [ "$ACAO" = "continuar_20" ]; then
+            BASE=${MAX_ITER:-$CURR_ITER}
+            NEW_MAX=$((BASE + 20))
+            echo "▶ CONTINUAR +20: max_iteration → $NEW_MAX"
+          elif [ "$ACAO" = "rodar_N_vezes" ]; then
+            N=${N_RUNS:-5}
+            NEW_MAX=$((CURR_ITER + N))
+            echo "▶ RODAR $N VEZES: max_iteration → $NEW_MAX"
+          fi
+
+          # Escrever novo .trigger_debug e commitar
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+          git checkout origin/claude/setup-docling-pipeline-g11gg
+          git checkout -b ctrl-patch
+          python3 -c "
+          from pathlib import Path
+          lines = Path('.trigger_debug').read_text().splitlines()
+          out = []
+          for l in lines:
+              if l.startswith('max_iteration:'): continue
+              out.append(l)
+          out.append(f'max_iteration: $NEW_MAX')
+          Path('.trigger_debug').write_text('\n'.join(out)+'\n')
+          "
+          git add .trigger_debug
+          git commit -m "watcher[controle]: acao=$ACAO max_iteration=$NEW_MAX"
+          git remote set-url origin "https://x-access-token:${WORKFLOW_PAT}@github.com/freirelucas/teste.git"
+          git push origin ctrl-patch:claude/setup-docling-pipeline-g11gg
+          echo "acao_resultado=$ACAO nova_max=$NEW_MAX" >> $GITHUB_ENV
+
       - name: "[Step A] Salvar learning signals e summary do pipeline-outputs"
+        if: github.event.inputs.acao != 'monitorar'
         run: |
           # Preserva dados do pipeline-outputs em /tmp antes de trocar de branch
           cp ptd_run_summary.json    /tmp/ptd_run_summary_po.json    2>/dev/null || echo '{}' > /tmp/ptd_run_summary_po.json
