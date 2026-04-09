@@ -50,7 +50,129 @@ jobs:
         run: |
           echo "Ação solicitada: $ACAO"
           if [ "$ACAO" = "monitorar" ]; then
-            echo "Modo monitorar: apenas reporta estado, não aplica fix."
+            echo "Modo monitorar: gerando relatório de ciclos..."
+
+            # Ler estado do trigger_debug
+            git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+            git fetch origin pipeline-outputs --depth=50 2>/dev/null || true
+
+            CURR_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+              | grep '^iteration:' | awk '{print $2}' || echo '?')
+            MAX_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+              | grep '^max_iteration:' | awk '{print $2}' || echo '∞')
+            RESTANTES=$((${MAX_ITER:-9999} - ${CURR_ITER:-0})) 2>/dev/null || RESTANTES='?'
+
+            # Ler run_summary atual
+            PCT_OK=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('pct_ok','?'))" 2>/dev/null || echo '?')
+            SEM_PROD=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('sem_produto_pct','?'))" 2>/dev/null || echo '?')
+            N_ORGAOS=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('n_orgaos','?'))" 2>/dev/null || echo '?')
+            ZEROS=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(', '.join(d.get('orgaos_zero_ou_noise',[])))" 2>/dev/null || echo '?')
+            STAGE=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(str(d.get('stage','?'))+' — '+d.get('stage_label',''))" 2>/dev/null || echo '?')
+            RUN_TS=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('timestamp','?'))" 2>/dev/null || echo '?')
+
+            # Gerar tabela ciclo-a-ciclo a partir do learning_signals
+            CICLOS=$(git show origin/pipeline-outputs:ptd_learning_signals.json 2>/dev/null \
+              | python3 - <<'PYEOF'
+import json, sys
+from pathlib import Path
+
+try:
+    data = json.loads(sys.stdin.read())
+    history = data.get('run_history', [])
+    if not history:
+        print("| — | — | — | — | — |")
+        sys.exit(0)
+    rows = []
+    prev_pct = None
+    for i, h in enumerate(history[-30:]):  # últimas 30 iterações
+        it   = h.get('iteration', '?')
+        pct  = h.get('pct_ok')
+        prob = h.get('problem_type', '?')
+        ts   = str(h.get('timestamp', ''))[:10]
+        if pct is None:
+            continue
+        delta = ''
+        arrow = ''
+        if prev_pct is not None:
+            d = round(pct - prev_pct, 1)
+            arrow = '🟢' if d > 0 else ('🔴' if d < 0 else '⚪')
+            delta = f'{d:+.1f}pp'
+        prev_pct = pct
+        rows.append(f'| {it} | {pct:.1f}% | {arrow} {delta} | {prob} | {ts} |')
+    print('\n'.join(rows[-20:]))  # últimas 20
+except Exception as e:
+    print(f'| erro: {e} | | | | |')
+PYEOF
+            )
+
+            # Slope das últimas 10 iterações
+            SLOPE=$(git show origin/pipeline-outputs:ptd_learning_signals.json 2>/dev/null \
+              | python3 - <<'PYEOF'
+import json, sys
+try:
+    data = json.loads(sys.stdin.read())
+    history = [h for h in data.get('run_history', []) if h.get('pct_ok') is not None]
+    recent = history[-10:]
+    if len(recent) < 3:
+        print('insuficiente')
+        sys.exit(0)
+    xs = list(range(len(recent)))
+    ys = [h['pct_ok'] for h in recent]
+    xm, ym = sum(xs)/len(xs), sum(ys)/len(ys)
+    num = sum((x-xm)*(y-ym) for x,y in zip(xs,ys))
+    den = sum((x-xm)**2 for x in xs)
+    slope = round(num/den, 3) if den else 0
+    badge = '🟢 forte' if slope > 0.3 else ('🟡 fraco' if slope > 0.05 else '🔴 estagnado')
+    print(f'{slope:+.3f} pp/iter ({badge})')
+except Exception as e:
+    print(f'erro: {e}')
+PYEOF
+            )
+
+            # Escrever Step Summary (aparece na aba da run no Actions)
+            cat >> $GITHUB_STEP_SUMMARY << SUMMARY
+# 📊 PTD-BR — Relatório de Controle S5
+
+## Estado atual
+
+| Métrica | Valor | Meta S5 |
+|---------|-------|---------|
+| **pct_ok** | ${PCT_OK}% | 90% |
+| sem_produto | ${SEM_PROD}% | <20% |
+| Órgãos | ${N_ORGAOS} | ~90 |
+| Stage | ${STAGE} | 3 |
+| Iteração | ${CURR_ITER} / ${MAX_ITER} | — |
+| Runs restantes | ${RESTANTES} | — |
+| Zeros | \`${ZEROS}\` | 0 |
+| Último run | ${RUN_TS} | — |
+| Slope (10 iters) | ${SLOPE} | >0.3 |
+
+## Ciclo a ciclo (últimas 20 iterações)
+
+| Iter | pct_ok | Delta | Problema | Data |
+|------|--------|-------|----------|------|
+${CICLOS}
+
+## Ações disponíveis
+
+| Ação | Efeito |
+|------|--------|
+| \`pausar\` | Para agora (max_iteration = iter_atual) |
+| \`continuar_5\` | +5 runs além do teto |
+| \`continuar_20\` | +20 runs |
+| \`rodar_N_vezes\` | Define N exato (campo n_runs) |
+| \`monitorar\` | Este relatório |
+
+---
+*Gerado em $(date -u '+%Y-%m-%dT%H:%M:%SZ') por watcher[controle]*
+SUMMARY
+
             echo "acao_resultado=monitorar" >> $GITHUB_ENV
             exit 0
           fi
