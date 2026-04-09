@@ -846,16 +846,21 @@ print('algedonico_signal.json gerado')
           git config user.email "ptd-watcher[bot]@users.noreply.github.com"
 
           # Atualizar .trigger_debug atomicamente via Python
-          ITER=$(grep 'iteration:' .trigger_debug | awk '{print $2}')
+          # FIX: usar ^iteration: para não capturar max_iteration
+          ITER=$(grep '^iteration:' .trigger_debug | awk '{print $2}')
+          MAX_ITER=$(grep '^max_iteration:' .trigger_debug | awk '{print $2}')
+          ITER=${ITER:-0}   # fallback: 0 se vazio
           NEXT_ITER=$((ITER + 1))
           python3 -c "
           from datetime import datetime
           from pathlib import Path
+          max_line = f'max_iteration: $MAX_ITER\n' if '$MAX_ITER' else ''
           Path('.trigger_debug').write_text(
               '# Atualizado pelo ptd-watcher[bot]\n'
               '# Não editar manualmente\n'
               f'last_trigger: {datetime.utcnow().strftime(\"%Y-%m-%dT%H:%M:%SZ\")}\n'
               f'iteration: $NEXT_ITER\n'
+              + max_line
           )"
 
           # Adicionar arquivos conforme tipo de problema
