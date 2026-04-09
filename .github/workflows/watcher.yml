@@ -6,8 +6,8 @@ name: PTD Watcher — Loop de Iteração Autônomo
 # Requer secret WORKFLOW_PAT com permissões Contents+Actions no repo.
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'   # loop controlado: para automaticamente em max_iteration (ver .trigger_debug)
+  # schedule:                 # ← PAUSADO para estabilização (2026-04-09)
+  #   - cron: '*/5 * * * *'  # reativar via Actions UI: rodar_N_vezes ou continuar_5
   workflow_dispatch:
     inputs:
       acao:
