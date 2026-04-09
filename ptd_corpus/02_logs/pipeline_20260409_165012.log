@@ -1,0 +1,5 @@
+16:50:16 INFO     Docling disponível
+16:50:16 WARNING  ptd_ocr_fallback: dependências ausentes (No module named 'pytesseract') — OCR fallback desativado
+16:50:16 WARNING  OCR fallback indisponível (NameError: name 'Image' is not defined)
+16:50:18 INFO     Ignorado (guia/template/norma): ABNT-NBR-17225-Acessibilidade-Digital.pdf
+16:50:18 INFO     Ignorado (guia/template/norma): cgrep-guia10passos-ptd-orgao.pdf
