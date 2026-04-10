@@ -6,6 +6,16 @@
     "nota": "Ordem: mais específico/longo primeiro para evitar match parcial. Atualizar a cada novo ciclo PTD."
   },
   "produtos": [
+    "Tratamento de Incidente",
+    "Diagnóstico de Conformidade",
+    "Inscrição Digital",
+    "Acesso Digital",
+    "Cadastro Digital",
+    "Produto Controlado pelo Exército",
+    "Controle de Produto Controlado",
+    "Soldado Cidadão",
+    "Projeto Soldado Cidadão",
+    "Login Único",
     "Léia Maria da Silva",
     "Integração à ferramenta de avaliação da satisfação dos usuários",
     "Auto-avaliação, análise de lacunas e planejamento do PPSI",

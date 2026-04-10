@@ -99,12 +99,50 @@ flag_dist = corpus['parse_flag'].value_counts().to_dict() if 'parse_flag' in cor
 n_ok      = flag_dist.get('ok', 0)
 pct_ok    = round(n_ok / len(corpus) * 100, 1) if corpus is not None and len(corpus) else 0
 
+# pct_ok_entregas: métrica limpa — apenas linhas de anexo_entregas (exclui diretivo, riscos)
+# FIX 2026-04-07: tipo_doc separa o conteúdo real de entregas do restante do PDF
+if 'tipo_doc' in corpus.columns:
+    _corpus_entregas = corpus[corpus['tipo_doc'] == 'anexo_entregas']
+    _n_ok_e = (_corpus_entregas['parse_flag'] == 'ok').sum() if len(_corpus_entregas) else 0
+    pct_ok_entregas = round(_n_ok_e / len(_corpus_entregas) * 100, 1) if len(_corpus_entregas) else pct_ok
+else:
+    pct_ok_entregas = pct_ok  # fallback: corpus sem tipo_doc (run antigo)
+
+# ── Organ groups: expande lead siglas para contar sub-órgãos ─────────
+def _load_organ_groups() -> dict:
+    p = Path('config/organ_groups.json')
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding='utf-8'))
+        except Exception:
+            pass
+    return {}
+
+def _expand_siglas(siglas_corpus: 'set', organ_groups: dict) -> set:
+    """Dado o conjunto de siglas do corpus, expande para incluir todos os
+    membros de cada grupo. Ex: {'MEC'} → {'MEC','CAPES','EBSERH',...}"""
+    lead_to_members = {
+        g: set(d['membros'].keys())
+        for g, d in organ_groups.get('grupos', {}).items()
+    }
+    expanded = set(siglas_corpus)
+    for sigla in list(siglas_corpus):
+        if str(sigla).upper() in lead_to_members:
+            expanded |= lead_to_members[str(sigla).upper()]
+    return expanded
+
+_organ_groups_cfg  = _load_organ_groups()
+_n_orgaos_meta     = _organ_groups_cfg.get('_meta', {}).get('total_orgaos', 91)
+_siglas_corpus_set = set(corpus['sigla'].dropna().unique()) if 'sigla' in corpus.columns else set()
+_siglas_expandidas = _expand_siglas(_siglas_corpus_set, _organ_groups_cfg)
+n_orgaos_expandido = len(_siglas_expandidas)  # conta sub-órgãos de grupos
+
 # Alertas
 alertas = []
 if pct_ok < 50:
     alertas.append(('WARN', f'Cobertura parse OK baixa: {pct_ok}% — revisar parser ou PRODUTOS'))
-if n_orgaos < 60:
-    alertas.append(('WARN', f'Apenas {n_orgaos}/90 órgãos com dados — verificar scraping e downloads'))
+if n_orgaos < 80:
+    alertas.append(('WARN', f'Apenas {n_orgaos_expandido}/{_n_orgaos_meta} órgãos com dados — verificar scraping e downloads'))
 sem_prod = flag_dist.get('sem_produto', 0)
 if sem_prod / len(corpus) > 0.3 if len(corpus) else False:
     alertas.append(('WARN', f'{sem_prod} linhas sem produto identificado ({sem_prod/len(corpus)*100:.0f}%) — considerar fuzzy match'))
@@ -407,6 +445,23 @@ try:
         _raw_path = DIR_DB / 'ptd_corpus_raw.csv'  # fallback: raw tem parse_flag='raw' para todos
     _raw = pd.read_csv(_raw_path) if _raw_path.exists() else corpus
 
+    # ── Carregar política S5 por órgão (Nível -1 de recursão VSM) ────────
+    _org_meta_path = Path('config/org_meta.json')
+    _org_meta: dict = {}
+    if _org_meta_path.exists():
+        try:
+            _om_raw = json.loads(_org_meta_path.read_text())
+            _org_meta = {k: v for k, v in _om_raw.items() if not k.startswith('_')}
+        except Exception:
+            pass
+    _OM_DEFAULT = _org_meta.get('_default', {
+        'status': 'ativo', 's5_pct_ok_meta': 80.0,
+        'prioridade': 'normal', 'estrategia': 'vocabulario'
+    })
+
+    # ── Organ groups: mapa de grupos (já carregado acima como _organ_groups_cfg) ─
+    # Reutiliza _organ_groups_cfg, _siglas_expandidas, _n_orgaos_meta definidos na seção de métricas
+
     _por_orgao = []
     for _sig, _g in _raw.groupby('sigla'):
         _ext = _g['extrator'].mode()[0] if 'extrator' in _g.columns and len(_g) else None
@@ -430,6 +485,12 @@ try:
                          ['col_headers_raw'].unique().tolist())
             _unrecognized_headers = [h for h in _raw_hdrs if h][:5]
 
+        # VSM Nível -1: política S5 por órgão
+        _om = _org_meta.get(str(_sig), _OM_DEFAULT)
+        _vsm_status_org = _om.get('status', 'ativo')
+        _s5_meta_org    = _om.get('s5_pct_ok_meta', _OM_DEFAULT.get('s5_pct_ok_meta', 80.0))
+        _vsm_gap        = round(_pct_ok_org - float(_s5_meta_org), 1) if _s5_meta_org is not None else None
+
         _por_orgao.append({
             'sigla':          _sig,
             'n_entregas':     int(len(_g)),
@@ -442,6 +503,25 @@ try:
             # Stage 2 — field recognition
             'col_map_ok_rate':       _col_ok_rate,
             'unrecognized_headers':  _unrecognized_headers,
+            # VSM Nível -1: S5 por órgão
+            'vsm_status':     _vsm_status_org,
+            'vsm_s5_meta':    _s5_meta_org,
+            'vsm_gap_pp':     _vsm_gap,
+            'vsm_estrategia': _om.get('estrategia'),
+            'vsm_prioridade': _om.get('prioridade', 'normal'),
+            # Triple Index (Beer/ViableOS): Actuality / Capability / Potentiality
+            'triple_actuality':    _pct_ok_org,
+            'triple_capability':   _col_ok_rate,   # max atingível sem mudar estrutura
+            'triple_potentiality': float(_s5_meta_org) if _s5_meta_org else 80.0,
+            'triple_gap_type': (
+                # FIX 2026-04-07: usar fallback 100 quando _col_ok_rate é None
+                # para não retornar null/ruido em órgãos com col_map não rastreado
+                'ocr'         if (_g['texto'].isna().mean() > 0.5 if 'texto' in _g.columns else False) else
+                'col_keys'    if ((_col_ok_rate if _col_ok_rate is not None else 100) < 60) else
+                'vocabulario' if ((_col_ok_rate if _col_ok_rate is not None else 0) >= 60
+                                  and _pct_ok_org < 80) else
+                'ruido'
+            ),
         })
 
     _cob_path = DIR_DB / 'ptd_cobertura_passos.csv'
@@ -452,9 +532,11 @@ try:
                    if 'extrator' in _raw.columns else {})
 
     # ── Orgs "noise-only": têm rows mas pct_ok == 0 → ainda no Stage 0 ──
-    _zero_or_noise = list(_zero_sig) + [
+    # Órgãos com status=excluir (ex: ABNT-NBR-1) NÃO bloqueiam Stage 0
+    _excluidos = {o['sigla'] for o in _por_orgao if o.get('vsm_status') == 'excluir'}
+    _zero_or_noise = [s for s in list(_zero_sig) if s not in _excluidos] + [
         o['sigla'] for o in _por_orgao
-        if o['n_entregas'] > 0 and o['pct_ok'] == 0
+        if o['n_entregas'] > 0 and o['pct_ok'] == 0 and o.get('vsm_status') != 'excluir'
     ]
 
     # ── Top frases não-identificadas (sinal para S1 vocab fix) ─────────
@@ -526,19 +608,89 @@ try:
     _stage_labels = {0: 'cobertura', 1: 'parse_quality',
                      2: 'field_recognition', 3: 'riscos_coverage'}
 
+    # ── Cobertura documental: preservação raw → v21 por sha256 ───────────
+    # Verifica que os textos originais foram preservados no corpus final
+    _doc_coverage: dict = {
+        'cobertura_documental_pct': None,
+        'texto_nao_nulo_pct': None,
+        'pdfs_com_perda': [],
+        'pdfs_analisados': 0,
+    }
+    try:
+        _manifest_path = DIR_DB / 'pipeline_manifest.json'
+        if _manifest_path.exists():
+            _manifest = json.loads(_manifest_path.read_text())
+            _rows_por_sha_raw = _manifest.get('rows_por_sha256', {})
+            _texto_nao_nulo_raw = _manifest.get('texto_nao_nulo_pct', None)
+            if _rows_por_sha_raw and not corpus.empty and 'pdf_sha256' in corpus.columns:
+                _rows_v21 = corpus.groupby('pdf_sha256').size().to_dict()
+                _preservacoes = []
+                _pdfs_com_perda = []
+                for sha, n_raw in _rows_por_sha_raw.items():
+                    n_v21 = _rows_v21.get(sha, 0)
+                    pct_pres = round(n_v21 / n_raw * 100, 1) if n_raw else 100.0
+                    _preservacoes.append(pct_pres)
+                    if pct_pres < 95.0:
+                        # Encontrar nome do arquivo para este sha
+                        _fname = next((k for k, v in _manifest.get('pdfs_sha256', {}).items()
+                                       if v == sha), sha[:12])
+                        _pdfs_com_perda.append({'arquivo': _fname, 'sha256': sha[:12],
+                                                'n_raw': n_raw, 'n_v21': n_v21,
+                                                'preservacao_pct': pct_pres})
+                _doc_coverage = {
+                    'cobertura_documental_pct': round(sum(_preservacoes) / len(_preservacoes), 1)
+                        if _preservacoes else None,
+                    'texto_nao_nulo_pct': _texto_nao_nulo_raw,
+                    'pdfs_com_perda': sorted(_pdfs_com_perda, key=lambda x: x['preservacao_pct']),
+                    'pdfs_analisados': len(_preservacoes),
+                }
+    except Exception as _e_cov:
+        _doc_coverage['erro'] = str(_e_cov)
+
+    # ── Cobertura de riscos (segundo corpus do propósito: entregas + riscos) ─
+    _riscos_path = DIR_DB / 'ptd_riscos.csv'
+    _risco_coverage: dict = {'cobertura_riscos_pct': None, 'n_orgaos_com_riscos': 0, 'n_riscos_total': 0}
+    try:
+        if _riscos_path.exists():
+            _df_riscos = pd.read_csv(_riscos_path)
+            _n_org_risco = int(_df_riscos['sigla'].nunique()) if 'sigla' in _df_riscos.columns else 0
+            _n_riscos    = int(len(_df_riscos))
+            _cobertura_r = round(_n_org_risco / max(n_orgaos, 1) * 100, 1) if n_orgaos > 0 else 0.0
+            # Por sigla: n_riscos
+            _riscos_por_sigla = _df_riscos.groupby('sigla').size().to_dict() if 'sigla' in _df_riscos.columns else {}
+            # Adicionar n_riscos ao por_orgao
+            for _o in _por_orgao:
+                _o['n_riscos'] = int(_riscos_por_sigla.get(_o['sigla'], 0))
+            _risco_coverage = {
+                'cobertura_riscos_pct': _cobertura_r,
+                'n_orgaos_com_riscos':  _n_org_risco,
+                'n_riscos_total':       _n_riscos,
+                'meta_cobertura_riscos': 80.0,
+                'abaixo_meta':          _cobertura_r < 80.0,
+            }
+    except Exception as _e_r:
+        _risco_coverage['erro'] = str(_e_r)
+
     _summary = {
         'run_id':               os.environ.get('GITHUB_RUN_ID', 'local'),
         'timestamp':            datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
         'branch':               os.environ.get('GITHUB_REF_NAME', 'local'),
         'stage':                _stage,
         'stage_label':          _stage_labels[_stage],
-        'n_orgaos':             int(n_orgaos),
+        'n_orgaos':             int(n_orgaos),             # siglas distintas no corpus (leads)
+        'n_orgaos_expandido':   int(n_orgaos_expandido),   # inclui sub-órgãos de grupos
+        'n_orgaos_meta':        int(_n_orgaos_meta),        # total oficial do portal (91)
         'n_registros_raw':      int(len(_raw)),
         'n_registros_v21':      int(len(corpus)),
         'pct_ok':               float(pct_ok),
+        'pct_ok_entregas':      float(pct_ok_entregas),  # só linhas de anexo_entregas
         'sem_produto_pct':      _sem_prod_global,
         'col_map_ok_rate':      _col_ok_global,
         'extratores':           {str(k): int(v) for k, v in _extratores.items()},
+        # Corpus de riscos (segundo componente do propósito)
+        'risco_coverage':       _risco_coverage,
+        # Preservação documental
+        'doc_coverage':         _doc_coverage,
         # Stage 0: zero ou noise-only
         'orgaos_zero_entregas': _zero_sig,
         'orgaos_zero_ou_noise': _zero_or_noise,
@@ -547,6 +699,11 @@ try:
         'top_unmatched_phrases':     _top_unmatched,
         'top_unmatched_por_sigla':   _top_unmatched_por_sigla,
         'por_orgao':                 _por_orgao,
+        # VSM Nível -1: órgãos excluídos por política S5 local
+        'orgaos_excluidos':          sorted(_excluidos),
+        # Organ groups: siglas expandidas a partir do corpus
+        'siglas_corpus':             sorted(_siglas_corpus_set),
+        'siglas_expandidas':         sorted(_siglas_expandidas),
     }
     _summary_path = DIR_DB / 'ptd_run_summary.json'
     _summary_path.write_text(

@@ -6,9 +6,26 @@ name: PTD Watcher — Loop de Iteração Autônomo
 # Requer secret WORKFLOW_PAT com permissões Contents+Actions no repo.
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'   # a cada 5 minutos
-  workflow_dispatch:         # execução manual para testar
+  # schedule:                 # ← PAUSADO para estabilização (2026-04-09)
+  #   - cron: '*/5 * * * *'  # reativar via Actions UI: rodar_N_vezes ou continuar_5
+  workflow_dispatch:
+    inputs:
+      acao:
+        description: 'Ação de controle'
+        required: false
+        default: 'monitorar'
+        type: choice
+        options:
+          - monitorar          # só verifica estado, não aplica fix
+          - rodar_N_vezes      # define novo teto: iter_atual + n_runs
+          - pausar             # seta max_iteration = iter_atual (para agora)
+          - continuar_5        # +5 runs a partir do teto atual
+          - continuar_20       # +20 runs
+      n_runs:
+        description: 'Número de runs (só para rodar_N_vezes)'
+        required: false
+        default: '5'
+        type: string
 
 jobs:
   watch:
@@ -24,12 +41,208 @@ jobs:
           fetch-depth: 1
         continue-on-error: true   # branch pode não existir ainda
 
+      - name: "[Controle] Aplicar ação manual do operador (S5)"
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ACAO: ${{ github.event.inputs.acao }}
+          N_RUNS: ${{ github.event.inputs.n_runs }}
+          WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
+        run: |
+          echo "Ação solicitada: $ACAO"
+          if [ "$ACAO" = "monitorar" ]; then
+            echo "Modo monitorar: gerando relatório de ciclos..."
+
+            # Ler estado do trigger_debug
+            git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+            git fetch origin pipeline-outputs --depth=50 2>/dev/null || true
+
+            CURR_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+              | grep '^iteration:' | awk '{print $2}' || echo '?')
+            MAX_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+              | grep '^max_iteration:' | awk '{print $2}' || echo '∞')
+            RESTANTES=$((${MAX_ITER:-9999} - ${CURR_ITER:-0})) 2>/dev/null || RESTANTES='?'
+
+            # Ler run_summary atual
+            PCT_OK=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('pct_ok','?'))" 2>/dev/null || echo '?')
+            SEM_PROD=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('sem_produto_pct','?'))" 2>/dev/null || echo '?')
+            N_ORGAOS=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('n_orgaos','?'))" 2>/dev/null || echo '?')
+            ZEROS=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(', '.join(d.get('orgaos_zero_ou_noise',[])))" 2>/dev/null || echo '?')
+            STAGE=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(str(d.get('stage','?'))+' — '+d.get('stage_label',''))" 2>/dev/null || echo '?')
+            RUN_TS=$(git show origin/pipeline-outputs:ptd_run_summary.json 2>/dev/null \
+              | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('timestamp','?'))" 2>/dev/null || echo '?')
+
+            # Gerar tabela ciclo-a-ciclo a partir do learning_signals
+            CICLOS=$(git show origin/pipeline-outputs:ptd_learning_signals.json 2>/dev/null \
+              | python3 - <<'PYEOF'
+import json, sys
+from pathlib import Path
+
+try:
+    data = json.loads(sys.stdin.read())
+    history = data.get('run_history', [])
+    if not history:
+        print("| — | — | — | — | — |")
+        sys.exit(0)
+    rows = []
+    prev_pct = None
+    for i, h in enumerate(history[-30:]):  # últimas 30 iterações
+        it   = h.get('iteration', '?')
+        pct  = h.get('pct_ok')
+        prob = h.get('problem_type', '?')
+        ts   = str(h.get('timestamp', ''))[:10]
+        if pct is None:
+            continue
+        delta = ''
+        arrow = ''
+        if prev_pct is not None:
+            d = round(pct - prev_pct, 1)
+            arrow = '🟢' if d > 0 else ('🔴' if d < 0 else '⚪')
+            delta = f'{d:+.1f}pp'
+        prev_pct = pct
+        rows.append(f'| {it} | {pct:.1f}% | {arrow} {delta} | {prob} | {ts} |')
+    print('\n'.join(rows[-20:]))  # últimas 20
+except Exception as e:
+    print(f'| erro: {e} | | | | |')
+PYEOF
+            )
+
+            # Slope das últimas 10 iterações
+            SLOPE=$(git show origin/pipeline-outputs:ptd_learning_signals.json 2>/dev/null \
+              | python3 - <<'PYEOF'
+import json, sys
+try:
+    data = json.loads(sys.stdin.read())
+    history = [h for h in data.get('run_history', []) if h.get('pct_ok') is not None]
+    recent = history[-10:]
+    if len(recent) < 3:
+        print('insuficiente')
+        sys.exit(0)
+    xs = list(range(len(recent)))
+    ys = [h['pct_ok'] for h in recent]
+    xm, ym = sum(xs)/len(xs), sum(ys)/len(ys)
+    num = sum((x-xm)*(y-ym) for x,y in zip(xs,ys))
+    den = sum((x-xm)**2 for x in xs)
+    slope = round(num/den, 3) if den else 0
+    badge = '🟢 forte' if slope > 0.3 else ('🟡 fraco' if slope > 0.05 else '🔴 estagnado')
+    print(f'{slope:+.3f} pp/iter ({badge})')
+except Exception as e:
+    print(f'erro: {e}')
+PYEOF
+            )
+
+            # Escrever Step Summary (aparece na aba da run no Actions)
+            cat >> $GITHUB_STEP_SUMMARY << SUMMARY
+# 📊 PTD-BR — Relatório de Controle S5
+
+## Estado atual
+
+| Métrica | Valor | Meta S5 |
+|---------|-------|---------|
+| **pct_ok** | ${PCT_OK}% | 90% |
+| sem_produto | ${SEM_PROD}% | <20% |
+| Órgãos | ${N_ORGAOS} | ~90 |
+| Stage | ${STAGE} | 3 |
+| Iteração | ${CURR_ITER} / ${MAX_ITER} | — |
+| Runs restantes | ${RESTANTES} | — |
+| Zeros | \`${ZEROS}\` | 0 |
+| Último run | ${RUN_TS} | — |
+| Slope (10 iters) | ${SLOPE} | >0.3 |
+
+## Ciclo a ciclo (últimas 20 iterações)
+
+| Iter | pct_ok | Delta | Problema | Data |
+|------|--------|-------|----------|------|
+${CICLOS}
+
+## Ações disponíveis
+
+| Ação | Efeito |
+|------|--------|
+| \`pausar\` | Para agora (max_iteration = iter_atual) |
+| \`continuar_5\` | +5 runs além do teto |
+| \`continuar_20\` | +20 runs |
+| \`rodar_N_vezes\` | Define N exato (campo n_runs) |
+| \`monitorar\` | Este relatório |
+
+---
+*Gerado em $(date -u '+%Y-%m-%dT%H:%M:%SZ') por watcher[controle]*
+SUMMARY
+
+            echo "acao_resultado=monitorar" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # Ler estado atual do trigger_debug
+          git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+          git checkout origin/claude/setup-docling-pipeline-g11gg -- .trigger_debug 2>/dev/null || true
+          CURR_ITER=$(grep '^iteration:' .trigger_debug | awk '{print $2}' || echo 0)
+          CURR_ITER=${CURR_ITER:-0}
+          MAX_ITER=$(grep '^max_iteration:' .trigger_debug | awk '{print $2}' || echo "")
+
+          if [ "$ACAO" = "pausar" ]; then
+            NEW_MAX=$CURR_ITER
+            echo "⏸ PAUSAR: max_iteration → $NEW_MAX (igual ao atual)"
+          elif [ "$ACAO" = "continuar_5" ]; then
+            BASE=${MAX_ITER:-$CURR_ITER}
+            NEW_MAX=$((BASE + 5))
+            echo "▶ CONTINUAR +5: max_iteration → $NEW_MAX"
+          elif [ "$ACAO" = "continuar_20" ]; then
+            BASE=${MAX_ITER:-$CURR_ITER}
+            NEW_MAX=$((BASE + 20))
+            echo "▶ CONTINUAR +20: max_iteration → $NEW_MAX"
+          elif [ "$ACAO" = "rodar_N_vezes" ]; then
+            N=${N_RUNS:-5}
+            NEW_MAX=$((CURR_ITER + N))
+            echo "▶ RODAR $N VEZES: max_iteration → $NEW_MAX"
+          fi
+
+          # Escrever novo .trigger_debug e commitar
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+          git checkout origin/claude/setup-docling-pipeline-g11gg
+          git checkout -b ctrl-patch
+          python3 -c "
+          from pathlib import Path
+          lines = Path('.trigger_debug').read_text().splitlines()
+          out = []
+          for l in lines:
+              if l.startswith('max_iteration:'): continue
+              out.append(l)
+          out.append(f'max_iteration: $NEW_MAX')
+          Path('.trigger_debug').write_text('\n'.join(out)+'\n')
+          "
+          git add .trigger_debug
+          git commit -m "watcher[controle]: acao=$ACAO max_iteration=$NEW_MAX"
+          git remote set-url origin "https://x-access-token:${WORKFLOW_PAT}@github.com/freirelucas/teste.git"
+          git push origin ctrl-patch:claude/setup-docling-pipeline-g11gg
+          echo "acao_resultado=$ACAO nova_max=$NEW_MAX" >> $GITHUB_ENV
+
       - name: "[Step A] Salvar learning signals e summary do pipeline-outputs"
+        if: github.event.inputs.acao != 'monitorar'
         run: |
           # Preserva dados do pipeline-outputs em /tmp antes de trocar de branch
           cp ptd_run_summary.json    /tmp/ptd_run_summary_po.json    2>/dev/null || echo '{}' > /tmp/ptd_run_summary_po.json
           cp ptd_learning_signals.json /tmp/ptd_learning_signals.json 2>/dev/null || echo '{"schema_version":1,"run_history":[],"meta_insights":[],"current_strategy":{"focus":"vocabulario","auto_add_threshold":8,"review_threshold":3,"priority_siglas":[]}}' > /tmp/ptd_learning_signals.json
           echo "[Step A] learning signals: $(jq '.run_history | length' /tmp/ptd_learning_signals.json) entradas"
+
+          # Buscar metaparâmetros e política S5 por órgão da branch de trabalho
+          git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+          git show origin/claude/setup-docling-pipeline-g11gg:config/s3_meta_parameters.json \
+            > /tmp/s3_meta_parameters.json 2>/dev/null \
+            || echo '{"parada_automatica":{"ativo":false}}' > /tmp/s3_meta_parameters.json
+          echo "[Step A] parada_automatica.ativo: $(jq -r '.parada_automatica.ativo // false' /tmp/s3_meta_parameters.json)"
+
+          # org_meta.json — S5 por órgão (Nível -1 VSM)
+          git show origin/claude/setup-docling-pipeline-g11gg:config/org_meta.json \
+            > /tmp/org_meta.json 2>/dev/null \
+            || echo '{"_default":{"status":"ativo"}}' > /tmp/org_meta.json
+          N_EXCLUIDOS=$(jq '[to_entries[] | select(.key | startswith("_") | not) | select(.value.status=="excluir")] | length' /tmp/org_meta.json 2>/dev/null || echo 0)
+          echo "[Step A] org_meta: $N_EXCLUIDOS órgão(s) com status=excluir (não bloqueiam Stage 0)"
 
       - name: Verificar se há run novo com falhas
         id: check
@@ -49,6 +262,21 @@ jobs:
             exit 0
           fi
 
+          # Verificar teto de iterações (max_iteration em .trigger_debug)
+          git fetch origin claude/setup-docling-pipeline-g11gg --depth=1 2>/dev/null || true
+          CURR_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+            | grep '^iteration:' | awk '{print $2}' || echo 0)
+          MAX_ITER=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null \
+            | grep '^max_iteration:' | awk '{print $2}' || echo "")
+          if [ -n "$MAX_ITER" ] && [ "$CURR_ITER" -ge "$MAX_ITER" ]; then
+            echo "status=max_reached" >> $GITHUB_OUTPUT
+            echo "iter_atual=$CURR_ITER" >> $GITHUB_OUTPUT
+            echo "iter_max=$MAX_ITER" >> $GITHUB_OUTPUT
+            echo "🛑 TETO DE ITERAÇÕES: $CURR_ITER >= $MAX_ITER — parando loop controlado."
+            echo "Execute gerar_validacao_manual.py para exportar itens de revisão."
+            exit 0
+          fi
+
           # Usar orgaos_zero_ou_noise: inclui orgs com rows mas 0% pct_ok (MD, MEC)
           N_ZERO=$(jq '(.orgaos_zero_ou_noise // .orgaos_zero_entregas) | length' ptd_run_summary.json)
           STAGE=$(jq -r '.stage // 0' ptd_run_summary.json)
@@ -62,11 +290,39 @@ jobs:
           echo "pct_ok=$PCT_OK"             >> $GITHUB_OUTPUT
           echo "sem_prod_pct=$SEM_PROD_PCT" >> $GITHUB_OUTPUT
 
+          # Cobertura de riscos (segundo componente do propósito: entregas + riscos)
+          COB_RISCOS=$(jq -r '.risco_coverage.cobertura_riscos_pct // "null"' ptd_run_summary.json)
+          N_RISCOS=$(jq -r '.risco_coverage.n_riscos_total // 0' ptd_run_summary.json)
+          echo "cobertura_riscos_pct=$COB_RISCOS" >> $GITHUB_OUTPUT
+          echo "n_riscos=$N_RISCOS"               >> $GITHUB_OUTPUT
+
           # Classificar tipo de problema dominante ANTES de decidir tratamento
-          if [ "$N_ZERO" -gt 0 ]; then
-            PROBLEM_TYPE="cobertura"      # Stage 0: sem extração → OCR/Docling params
+          # FIX 2026-04-07: distinguir zeros por OCR vs. vocabulário vs. col_keys
+          # N_ZERO>0 NÃO implica cobertura/OCR — verificar triple_gap_type por órgão
+          N_COL_KEYS=$(jq '[.por_orgao // [] | .[] | select(.triple_gap_type == "col_keys")] | length' ptd_run_summary.json 2>/dev/null || echo 0)
+          # Zeros genuinamente de OCR: col_map_ok_rate < 30 (headers ilegíveis) ou triple=ocr
+          N_ZERO_OCR=$(jq '[.por_orgao // [] | .[] |
+            select(.pct_ok == 0) |
+            select((.triple_gap_type == "ocr") or ((.col_map_ok_rate // 100) < 30))
+          ] | length' ptd_run_summary.json 2>/dev/null || echo 0)
+          # Zeros de vocabulário: col_map ok mas sem produto no vocab
+          N_ZERO_VOCAB=$(jq '[.por_orgao // [] | .[] |
+            select(.pct_ok == 0) |
+            select((.col_map_ok_rate // 0) >= 60)
+          ] | length' ptd_run_summary.json 2>/dev/null || echo 0)
+
+          if [ "$N_ZERO_OCR" -gt 0 ]; then
+            PROBLEM_TYPE="cobertura"      # Zeros genuínos de OCR/extração → OCR params
+          elif [ "$N_ZERO_VOCAB" -gt 0 ]; then
+            PROBLEM_TYPE="vocabulario"    # Zeros com col_map ok → é vocab, não OCR
+          elif [ "$N_ZERO" -gt 0 ]; then
+            PROBLEM_TYPE="col_keys"       # Zeros com col_map parcial → col_keys fix
+          elif [ "$N_COL_KEYS" -gt 0 ] && python3 -c "import sys; sys.exit(0 if float('$SEM_PROD_PCT') > 20 else 1)" 2>/dev/null; then
+            PROBLEM_TYPE="col_keys"       # Triple Index: órgãos com cap. baixa → col_keys fix
           elif python3 -c "import sys; sys.exit(0 if float('$SEM_PROD_PCT') > 20 else 1)" 2>/dev/null; then
             PROBLEM_TYPE="vocabulario"    # Stage 1: sem_produto alto → expandir vocab
+          elif [ "$COB_RISCOS" != "null" ] && python3 -c "import sys; sys.exit(0 if float('$COB_RISCOS') < 80 else 1)" 2>/dev/null; then
+            PROBLEM_TYPE="riscos"         # Stage 3: entregas OK mas cobertura de riscos baixa
           else
             PROBLEM_TYPE="qualidade"      # Stage 1b/2+: pct_ok baixo → revisar pipeline
           fi
@@ -78,13 +334,145 @@ jobs:
             echo "✅ Pipeline convergiu — todos os estágios completos!"
           elif [ "$STAGE" != "0" ] && [ "$N_ZERO" = "0" ] && \
                python3 -c "import sys; sys.exit(0 if float('$PCT_OK') >= 80 else 1)" 2>/dev/null; then
-            # Estágio 2+ com pct_ok≥80%: precisa de revisão humana antes de avançar
             echo "status=needs_human_review" >> $GITHUB_OUTPUT
             echo "⚠ Estágio $STAGE ($STAGE_LABEL) requer revisão humana antes de continuar."
           else
-            echo "status=needs_fix" >> $GITHUB_OUTPUT
-            echo "⚠ Estágio $STAGE ($STAGE_LABEL) — $N_ZERO zerados, pct_ok=$PCT_OK%, problema=$PROBLEM_TYPE — aplicando fix..."
+            # ── Verificar critérios de parada automática (S5) ────────────────
+            PARADA_ATIVO=$(jq -r '.parada_automatica.ativo // false' /tmp/s3_meta_parameters.json 2>/dev/null || echo 'false')
+            PARADA_MOTIVO=""
+
+            if [ "$PARADA_ATIVO" = "true" ]; then
+              DEADLINE=$(jq -r '.parada_automatica.deadline_iso // ""' /tmp/s3_meta_parameters.json 2>/dev/null || echo "")
+              MIN_SLOPE=$(jq -r '.parada_automatica.min_slope_para_continuar // 0.05' /tmp/s3_meta_parameters.json 2>/dev/null || echo "0.05")
+              SLOPE_WIN=$(jq -r '.parada_automatica.slope_window // 20' /tmp/s3_meta_parameters.json 2>/dev/null || echo "20")
+
+              # Critério 1: prazo de 48h
+              if [ -n "$DEADLINE" ]; then
+                NOW_EPOCH=$(date -u +%s)
+                DEAD_EPOCH=$(date -u -d "$DEADLINE" +%s 2>/dev/null || python3 -c "from datetime import datetime,timezone; print(int(datetime.fromisoformat('$DEADLINE'.replace('Z','+00:00')).timestamp()))" 2>/dev/null || echo "9999999999")
+                if [ "$NOW_EPOCH" -ge "$DEAD_EPOCH" ]; then
+                  PARADA_MOTIVO="PRAZO: deadline $DEADLINE atingido após 48h"
+                fi
+              fi
+
+              # Critério 2: slope < min_slope (aprendizado estagnado)
+              if [ -z "$PARADA_MOTIVO" ]; then
+                SLOPE=$(python3 - <<PYEOF
+import json, sys
+from pathlib import Path
+signals = json.loads(Path('/tmp/ptd_learning_signals.json').read_text()) if Path('/tmp/ptd_learning_signals.json').exists() else {}
+history = signals.get('run_history', [])
+window = int('$SLOPE_WIN')
+recent = [e['pct_ok'] for e in history[-window:] if e.get('pct_ok') is not None]
+if len(recent) < 5:
+    print('0.99')  # dados insuficientes — não pausar
+    sys.exit(0)
+n = len(recent); xs = list(range(n)); xm = sum(xs)/n; ym = sum(recent)/n
+num = sum((x-xm)*(y-ym) for x,y in zip(xs,recent))
+den = sum((x-xm)**2 for x in xs)
+print(round(num/den, 4) if den else 0.0)
+PYEOF
+                )
+                if python3 -c "import sys; sys.exit(0 if float('$SLOPE') < float('$MIN_SLOPE') else 1)" 2>/dev/null; then
+                  PARADA_MOTIVO="ESTAGNAÇÃO: slope=$SLOPE pp/iter < $MIN_SLOPE (aprendizado não vale a pena)"
+                fi
+              fi
+
+              # Critério 3: meta S5 atingida
+              if [ -z "$PARADA_MOTIVO" ]; then
+                PCT_META=$(jq -r '.parada_automatica.pct_ok_sucesso // 90' /tmp/s3_meta_parameters.json 2>/dev/null || echo "90")
+                if python3 -c "import sys; sys.exit(0 if float('$PCT_OK') >= float('$PCT_META') else 1)" 2>/dev/null; then
+                  PARADA_MOTIVO="SUCESSO: pct_ok=$PCT_OK% ≥ meta=$PCT_META%"
+                fi
+              fi
+            fi
+
+            if [ -n "$PARADA_MOTIVO" ]; then
+              echo "status=paused_auto"  >> $GITHUB_OUTPUT
+              echo "parada_motivo=$PARADA_MOTIVO" >> $GITHUB_OUTPUT
+              echo "🛑 PARADA AUTOMÁTICA S5: $PARADA_MOTIVO"
+            else
+              echo "status=needs_fix" >> $GITHUB_OUTPUT
+              echo "⚠ Estágio $STAGE ($STAGE_LABEL) — $N_ZERO zerados, pct_ok=$PCT_OK%, problema=$PROBLEM_TYPE — aplicando fix..."
+            fi
           fi
+
+      - name: "[Step S5] Parada automática — registrar e notificar"
+        if: steps.check.outputs.status == 'paused_auto'
+        env:
+          WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
+          MOTIVO:       ${{ steps.check.outputs.parada_motivo }}
+          PCT_OK:       ${{ steps.check.outputs.pct_ok }}
+          ITERATION:    ${{ steps.check.outputs.run_id }}
+        run: |
+          git config user.name  "ptd-watcher[bot]"
+          git config user.email "ptd-watcher[bot]@users.noreply.github.com"
+          git fetch origin claude/setup-docling-pipeline-g11gg --depth=1
+          git checkout origin/claude/setup-docling-pipeline-g11gg -b work-paused
+
+          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          ITER=$(grep 'iteration:' .trigger_debug 2>/dev/null | awk '{print $2}' || echo '?')
+
+          python3 - <<PYEOF
+import json
+from datetime import datetime
+from pathlib import Path
+
+# Gerar PAUSA_AUTO.md
+motivo = "$MOTIVO"
+pct_ok = "$PCT_OK"
+iteration = "$ITER"
+ts = "$TS"
+
+doc = f"""# 🛑 Pausa Automática — PTD-BR Pipeline
+
+**Timestamp**: {ts}
+**Iteração**: {iteration}
+**pct_ok no momento da parada**: {pct_ok}%
+
+## Motivo da parada
+
+{motivo}
+
+## O que fazer agora
+
+1. Avaliar se a meta S5 (pct_ok ≥ 90%) está próxima — se sim, ajustar parâmetros e reativar
+2. Para **reativar**: editar `config/s3_meta_parameters.json`, campo `parada_automatica`:
+   - Mudar `"ativo": true` para `"ativo": false`, ou
+   - Atualizar `"deadline_iso"` para nova data, ou
+   - Ajustar `"min_slope_para_continuar"` para valor menor
+3. Para **encerrar definitivamente**: verificar se corpus é suficiente para os objetivos de análise
+
+## Métricas no momento da parada
+
+Ver `ptd_run_summary.json` no branch `pipeline-outputs`.
+
+---
+*Gerado automaticamente pelo watcher (Step S5) — VSM S5 Política*
+"""
+Path('PAUSA_AUTO.md').write_text(doc, encoding='utf-8')
+print(doc[:400])
+
+# Atualizar stage_status.json
+status = {
+    "stage": "paused_auto",
+    "motivo": motivo,
+    "pct_ok": pct_ok,
+    "iteration": iteration,
+    "timestamp": ts
+}
+Path('stage_status.json').write_text(json.dumps(status, indent=2, ensure_ascii=False))
+print("stage_status.json atualizado")
+PYEOF
+
+          git add PAUSA_AUTO.md stage_status.json
+          git commit -m "watcher: PAUSA AUTOMÁTICA S5 — iter $ITER pct_ok=${PCT_OK}%
+
+$MOTIVO
+
+https://claude.ai/code/session_01VMgXMT3uZP2cLZPxUjvR8C"
+          git remote set-url origin "https://x-access-token:${WORKFLOW_PAT}@github.com/freirelucas/teste.git"
+          git push origin work-paused:claude/setup-docling-pipeline-g11gg
 
       - name: Checkout branch de trabalho
         if: steps.check.outputs.status == 'needs_fix' || steps.check.outputs.status == 'needs_human_review'
@@ -267,7 +655,24 @@ jobs:
                   p, c = str(entry), 1
               if p: all_phrases[p] = all_phrases.get(p, 0) + c
 
+          # Carregar órgãos excluídos por política S5 (org_meta.json) — não usar suas frases
+          import os
+          _org_meta_raw = {}
+          _org_meta_path = Path('/tmp/org_meta.json')
+          if _org_meta_path.exists():
+              try:
+                  _org_meta_raw = json.loads(_org_meta_path.read_text())
+              except Exception:
+                  pass
+          _excluidos_vocab = {k for k, v in _org_meta_raw.items()
+                              if not k.startswith('_') and isinstance(v, dict)
+                              and v.get('status') == 'excluir'}
+          if _excluidos_vocab:
+              print(f"[org_meta] Excluindo frases de {_excluidos_vocab} (status=excluir)")
+
           for sig, entries in unmatched_por_sigla.items():
+              if str(sig) in _excluidos_vocab:
+                  continue  # não alimentar vocab com frases de órgãos excluídos
               for entry in entries:
                   p = entry.get('phrase', entry.get('frase', ''))
                   c = entry.get('count', 1)
@@ -319,6 +724,29 @@ jobs:
           if para_revisao:
               pending_path.write_text(json.dumps(existing, indent=2, ensure_ascii=False))
               print(f"{len(para_revisao)} frases registradas em vocab_pending_review.json")
+
+          # ── Vollzug Protocol (ViableOS): gravar evidência da ação em /tmp ────
+          from datetime import datetime
+          _top_phrase = list(all_phrases.keys())[0] if all_phrases else None
+          _filtradas = []
+          for fp, fc in sorted(all_phrases.items(), key=lambda x: -x[1]):
+              if fp.lower() in {p.lower() for p in produtos_lower if fp.lower() != fp.lower()} or \
+                 any(x in fp.lower() for x in _IGNORAR):
+                  _filtradas.append({'frase': fp, 'motivo': 'em _IGNORAR'})
+          vollzug = {
+              'problem_type':        'vocabulario',
+              'quittung_ts':         datetime.utcnow().isoformat(timespec='seconds') + 'Z',
+              'top_phrase':          _top_phrase,
+              'n_frases_candidatas': len(all_phrases),
+              'vollzug_acoes':       [f"adicionado '{a['frase']}' (count={a['count']})" for a in auto_added]
+                                     or ['nenhuma adição (sem frases acima do threshold ou todas filtradas)'],
+              'vollzug_filtradas':   _filtradas[:5],
+              'vollzug_ts':          datetime.utcnow().isoformat(timespec='seconds') + 'Z',
+              'bestätigung_pendente': True,
+          }
+          Path('/tmp/vollzug_current.json').write_text(
+              json.dumps(vollzug, ensure_ascii=False, indent=2))
+          print(f"[Vollzug] Quittung+Vollzug gravados: {len(auto_added)} adições, {len(_filtradas)} filtradas")
           PYEOF
 
       - name: Gravar stage_status.json e checkpoint humano
@@ -502,6 +930,25 @@ jobs:
                   try: iteration = int(line.split(':')[1].strip())
                   except: pass
 
+          # ── Vollzug Protocol: ler evidência da ação + calcular Bestätigung ──
+          vollzug_path = Path('/tmp/vollzug_current.json')
+          vollzug_data = json.loads(vollzug_path.read_text()) if vollzug_path.exists() else None
+
+          # Bestätigung: se último entry tinha vollzug pendente, calcular delta por sigla
+          if history and history[-1].get('vollzug', {}).get('bestätigung_pendente'):
+              prev_entry = history[-1]
+              prev_per_sigla = prev_entry.get('per_sigla_ok', {})
+              bestätigung_deltas = {
+                  sig: round(curr_ok - prev_per_sigla[sig], 1)
+                  for sig, curr_ok in per_sigla.items()
+                  if sig in prev_per_sigla
+              }
+              prev_entry['vollzug']['bestätigung'] = bestätigung_deltas
+              prev_entry['vollzug']['bestätigung_pendente'] = False
+              prev_entry['vollzug']['bestätigung_ts'] = datetime.utcnow().isoformat(timespec='seconds') + 'Z'
+              n_improved = sum(1 for d in bestätigung_deltas.values() if d > 0)
+              print(f"[Vollzug] Bestätigung: {n_improved}/{len(bestätigung_deltas)} siglas melhoraram após ação anterior")
+
           entry = {
               'iteration':       iteration,
               'run_id':          summary.get('run_id', os.environ.get('ITERATION', '')),
@@ -514,6 +961,7 @@ jobs:
               'action_type':     os.environ.get('PROBLEM_TYPE', 'desconhecido'),
               'delta_pct_ok':    delta,
               'per_sigla_ok':    per_sigla,
+              'vollzug':         vollzug_data,   # None se nenhuma ação executada
           }
           signals['run_history'].append(entry)
 
@@ -535,6 +983,57 @@ jobs:
           print(f"[Step D] iter={iteration} pct_ok={curr_pct}% delta={delta} n_vocab={n_vocab}")
           PYEOF
 
+      - name: "[Step E] Sinal algedônico — escalação S5 se sem progresso"
+        if: steps.check.outputs.status == 'needs_fix'
+        run: |
+          # Lê metaparâmetros do s3_meta_parameters.json (S2 → S3)
+          MAX_ITERS=$(jq -r '.algedonico.max_iters_sem_progresso // 15' config/s3_meta_parameters.json 2>/dev/null || echo '15')
+          MIN_PROG=$(jq -r '.algedonico.progresso_minimo_pp // 0.5' config/s3_meta_parameters.json 2>/dev/null || echo '0.5')
+          JANELA=$(jq -r '.algedonico.janela_verificacao // 10' config/s3_meta_parameters.json 2>/dev/null || echo '10')
+
+          # Contar iterações consecutivas sem progresso >= MIN_PROG (desde a cauda do histórico)
+          ITERS_SEM=$(python3 - <<PYEOF
+import json, sys
+from pathlib import Path
+p = Path('/tmp/ptd_learning_signals_updated.json')
+if not p.exists():
+    p = Path('/tmp/ptd_learning_signals.json')
+signals = json.loads(p.read_text()) if p.exists() else {}
+history = signals.get('run_history', [])
+min_prog = float('$MIN_PROG')
+iters_sem = 0
+for entry in reversed(history):
+    if (entry.get('delta') or 0) < min_prog:
+        iters_sem += 1
+    else:
+        break
+print(iters_sem)
+PYEOF
+          )
+
+          echo "[Step E] Iterações sem progresso ≥ ${MIN_PROG}pp: ${ITERS_SEM} / ${MAX_ITERS}"
+
+          if [ "${ITERS_SEM}" -ge "${MAX_ITERS}" ]; then
+            echo "🚨 SINAL ALGEDÔNICO ATIVADO: ${ITERS_SEM} iterações sem melhoria ≥ ${MIN_PROG}pp"
+            echo "Escalando para S5 (operador humano)..."
+            python3 -c "
+import json
+from datetime import datetime
+from pathlib import Path
+signal = {
+    'tipo': 'algedonico',
+    'iters_sem_progresso': $ITERS_SEM,
+    'threshold': $MAX_ITERS,
+    'timestamp': datetime.utcnow().isoformat(),
+    'acao_recomendada': 'revisao_humana — inspecionar top 5 siglas estagnadas e config/s3_meta_parameters.json'
+}
+Path('algedonico_signal.json').write_text(json.dumps(signal, indent=2, ensure_ascii=False))
+print('algedonico_signal.json gerado')
+"
+          else
+            echo "✅ Algedônico inativo (${ITERS_SEM}/${MAX_ITERS})"
+          fi
+
       - name: Commit fixes e disparar próximo run
         if: steps.check.outputs.status == 'needs_fix'
         env:
@@ -545,17 +1044,24 @@ jobs:
           git config user.name  "ptd-watcher[bot]"
           git config user.email "ptd-watcher[bot]@users.noreply.github.com"
 
-          # Atualizar .trigger_debug atomicamente via Python
-          ITER=$(grep 'iteration:' .trigger_debug | awk '{print $2}')
+          # Ler iteration e max_iteration SEMPRE via git show (branch correto)
+          # NUNCA ler arquivo local: checkout é pipeline-outputs, .trigger_debug não existe lá
+          TRIGGER_CONTENT=$(git show origin/claude/setup-docling-pipeline-g11gg:.trigger_debug 2>/dev/null || echo "")
+          ITER=$(echo "$TRIGGER_CONTENT" | grep '^iteration:' | awk '{print $2}')
+          MAX_ITER=$(echo "$TRIGGER_CONTENT" | grep '^max_iteration:' | awk '{print $2}')
+          ITER=${ITER:-0}   # fallback se vazio
           NEXT_ITER=$((ITER + 1))
+          echo "iter atual=$ITER → próximo=$NEXT_ITER (max=$MAX_ITER)"
           python3 -c "
           from datetime import datetime
           from pathlib import Path
+          max_line = f'max_iteration: $MAX_ITER\n' if '$MAX_ITER' else ''
           Path('.trigger_debug').write_text(
               '# Atualizado pelo ptd-watcher[bot]\n'
               '# Não editar manualmente\n'
               f'last_trigger: {datetime.utcnow().strftime(\"%Y-%m-%dT%H:%M:%SZ\")}\n'
               f'iteration: $NEXT_ITER\n'
+              + max_line
           )"
 
           # Adicionar arquivos conforme tipo de problema
@@ -573,8 +1079,9 @@ jobs:
             COMMIT_DETAIL="qualidade — aguardando revisão humana"
           fi
 
-          # Sempre adicionar aprendizado contínuo (Steps B e D)
+          # Sempre adicionar aprendizado contínuo (Steps B, D, E)
           [ -f config/col_keys_extra.json ] && git add config/col_keys_extra.json || true
+          [ -f algedonico_signal.json ] && git add algedonico_signal.json || true
           NEXT_META=$(grep 'iteration:' .trigger_debug | awk '{print $2+1}')
           if [ $(( NEXT_META % 10 )) -eq 0 ] && [ -f meta_learning.py ]; then
             git add meta_learning.py
@@ -614,7 +1121,13 @@ jobs:
         if: always()
         run: |
           echo "## PTD Watcher — $(date -u +%Y-%m-%dT%H:%M)" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | ${{ steps.check.outputs.status || 'waiting' }} |" >> $GITHUB_STEP_SUMMARY
+          STATUS="${{ steps.check.outputs.status || 'waiting' }}"
+          if [ "$STATUS" = "paused_auto" ]; then
+            echo "| 🛑 Status | **PARADA AUTOMÁTICA** |" >> $GITHUB_STEP_SUMMARY
+            echo "| Motivo | ${{ steps.check.outputs.parada_motivo }} |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Status | $STATUS |" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "| Problema | ${{ steps.check.outputs.problem_type || '—' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Órgãos zerados | ${{ steps.check.outputs.n_zero || '—' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| pct_ok | ${{ steps.check.outputs.pct_ok || '—' }}% |" >> $GITHUB_STEP_SUMMARY
@@ -626,3 +1139,13 @@ jobs:
           echo "| Histórico L-C | ${N_HIST} entradas |" >> $GITHUB_STEP_SUMMARY
           echo "| Estratégia L-B | ${STRATEGY} |" >> $GITHUB_STEP_SUMMARY
           echo "| Meta-insights | ${N_META} |" >> $GITHUB_STEP_SUMMARY
+          # Sinal algedônico
+          if [ -f algedonico_signal.json ]; then
+            ALGD_ITERS=$(jq -r '.iters_sem_progresso // "?"' algedonico_signal.json 2>/dev/null || echo '?')
+            echo "| 🚨 Algedônico | ATIVO — ${ALGD_ITERS} iters sem progresso |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| ✅ Algedônico | Inativo |" >> $GITHUB_STEP_SUMMARY
+          fi
+          # Doc coverage (se disponível no summary)
+          DOC_COV=$(jq -r '.doc_coverage.cobertura_documental_pct // "—"' /tmp/ptd_run_summary_po.json 2>/dev/null || echo '—')
+          echo "| Doc coverage | ${DOC_COV}% |" >> $GITHUB_STEP_SUMMARY

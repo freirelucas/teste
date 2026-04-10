@@ -162,12 +162,19 @@ def scrape_catalogo(url: str = PORTAL_BASE) -> 'pd.DataFrame':
                 parent_text = t
                 break
 
+        # Extrai todas as siglas mencionadas no contexto (ex: "MEC / CAPES / EBSERH / ...")
+        _ctx_siglas_raw = re.findall(r'\b([A-ZÁÀÃÂ-Z]{2,10}(?:-[A-Z]+)?)\b', parent_text)
+        _IGNORAR_SIGLAS = {'PTD', 'PLANO', 'DIGITAL', 'DOCUMENTO', 'DIRETIVO', 'ANEXO',
+                           'ENTREGAS', 'VIGENTE', 'DE', 'DO', 'DA', 'E', 'EM', 'COM'}
+        _ctx_siglas = [s for s in _ctx_siglas_raw if s not in _IGNORAR_SIGLAS]
+
         rows.append({
             'url': download_url,
             'filename': fn,
             'tipo': 'entregas' if 'entrega' in txt or 'entrega' in fn else
                     ('diretivo' if 'diretivo' in txt or 'diretivo' in fn or 'dcd' in fn else 'desconhecido'),
             'contexto': parent_text[:100],
+            'siglas_grupo': '/'.join(_ctx_siglas),  # ex: "MEC/CAPES/EBSERH/FNDE/FUNDAJ/IBC/INEP/INES"
         })
 
     df = pd.DataFrame(rows).drop_duplicates(subset=['filename'])
@@ -399,19 +406,32 @@ def _sigla_de_fn(fn: str) -> str:
     """
     from urllib.parse import unquote as _uq
     # palavras genéricas que não são siglas de órgão
-    _NON_SIGLA = frozenset({'PTD', 'ANEXO', 'DOC', 'PLANO', 'COPIA', 'TARJADA',
-                             'PLANOS', 'DOCS', 'ARQUIVO', 'FILE', 'FORM', 'VERSAO'})
+    # FIX 2026-04-07: adicionados ASSINADO, DIRETIVO, DOCUMENTO, APROVADO, ENTREGAS
+    # para evitar que "mda-documento-diretivo-assinado_ptd-..." → 'ASSINADO' (bug)
+    # e "ptd_21_24_mcom-..." → '21' (número, não sigla)
+    _NON_SIGLA = frozenset({
+        'PTD', 'ANEXO', 'DOC', 'PLANO', 'COPIA', 'TARJADA',
+        'PLANOS', 'DOCS', 'ARQUIVO', 'FILE', 'FORM', 'VERSAO',
+        'ASSINADO', 'DIRETIVO', 'DOCUMENTO', 'APROVADO', 'ENTREGAS',
+        'REPACTUACAO', 'NOVO', 'FINAL', 'PUBLICADO', 'VIGENTE',
+        'ORGAO', 'TEMP', 'CGREP', 'SEI',
+    })
     parts = _uq(fn).split('_')
-    # Padrão ptd_SIGLA_... (mais comum)
+    # Padrão ptd_SIGLA_... (mais comum): ptd_aneel_... → ANEEL
     if parts[0].lower() == 'ptd' and len(parts) > 1:
         raw   = parts[1]
         clean = re.sub(r'[-].*', '', raw).upper()
-        m = re.match(r'^[A-Z0-9]+', clean)
-        return (m.group(0) if m else clean)[:10]
-    # Padrão prefixo-SIGLA_ptd-... (ex: anexo-de-entregas-mcom_ptd-25_27-...)
-    # Varrer até 4 parts procurando candidato a sigla válido
+        # Guardar: candidato deve ter letras e não ser só dígitos
+        if re.match(r'^[A-Z]{2,12}$', clean) and clean not in _NON_SIGLA:
+            return clean[:10]
+        # ptd_21_24_mcom → pular '21', tentar próximo candidato
+        for p in parts[2:5]:
+            c = re.sub(r'[-].*', '', p).upper()
+            if re.match(r'^[A-Z]{2,12}$', c) and c not in _NON_SIGLA:
+                return c[:10]
+    # Padrão prefixo-SIGLA_ptd-... (ex: mda-documento-diretivo-assinado_ptd-...)
+    # Varrer até 4 parts procurando candidato a sigla válido (de trás pra frente)
     for part in parts[:4]:
-        # cada part pode ter sub-partes separadas por '-'; testar de trás pra frente
         subparts = part.split('-')
         for sub in reversed(subparts):
             candidate = sub.upper()
@@ -420,7 +440,7 @@ def _sigla_de_fn(fn: str) -> str:
     # Fallback original
     raw   = parts[0]
     clean = re.sub(r'[-].*', '', raw).upper()
-    m = re.match(r'^[A-Z0-9]+', clean)
+    m = re.match(r'^[A-Z]{2,12}', clean)
     return (m.group(0) if m else clean)[:10]
 
 # ── Estrutura CGREP: tipo_doc e passo_ptd ────────────────────────────────────
@@ -506,10 +526,9 @@ def _extrair_docling(path: Path, sigla: str, is_img: bool, pdf_sha256: str,
             eixo_atual = None
             last_page  = pag
 
-        if len(df.columns) < 2 or len(df) < 2:  # threshold 3→2: aceita tabelas com 1 linha de dados (MD, MEC, FIOCRUZ)
+        if len(df.columns) < 2 or len(df) < 1:  # threshold 3→2: aceita tabelas com 1 linha de dados (MD, MEC, FIOCRUZ)
             continue
-        all_text = ' '.join(df.values.flatten().astype(str))
-        if re.search(r'gestão de riscos|probabilidade.*ocorr', all_text, re.I):
+        if _is_risk_table(df):  # 9 padrões: prob + treat + impact (ver linha ~831)
             continue
 
         # Detectar mapeamento por header (FIX: column-aware extraction)
@@ -822,10 +841,26 @@ def _extract_codes(text: str, tmpl: str) -> list:
     return [f'N{n}' for n in dict.fromkeys(nums)]
 
 def _is_risk_table(df: pd.DataFrame) -> bool:
+    """Detecta se um DataFrame é tabela de riscos (vs. tabela de entregas).
+
+    Expandido com padrões observados em INCRA, ANS-PLANO, MDA-DOCUME onde
+    tabelas de risco não eram detectadas e entravam no pipeline de entregas.
+    """
     all_text = ' '.join(df.values.flatten().astype(str)).lower()
-    return (3 <= len(df.columns) <= 8) and (
-        bool(re.search(r'provável|certo|improvável|raro', all_text)) or
-        bool(re.search(r'mitigar|transferir|aceitar|evitar', all_text)))
+    # Termos de probabilidade (originais + expandidos)
+    prob_match = bool(re.search(
+        r'provável|certo|improvável|raro|pouco provável|muito provável'
+        r'|praticamente certo|alta probabilidade|baixa probabilidade', all_text))
+    # Termos de tratamento/mitigação (originais + expandidos)
+    treat_match = bool(re.search(
+        r'mitigar|transferir|aceitar|evitar|eliminar|compartilhar'
+        r'|ações de mitigação|ações sugeridas|plano de resposta'
+        r'|ação corretiva|aceitar o risco', all_text))
+    # Termos de impacto/severidade
+    impact_match = bool(re.search(
+        r'impacto|severidade|criticidade|risco identificado'
+        r'|probabilidade.*ocorr|gestão de risco', all_text))
+    return (3 <= len(df.columns) <= 10) and (prob_match or treat_match or impact_match)
 
 def _detect_tmpl(df: pd.DataFrame) -> str:
     t = ' '.join(df.values.flatten().astype(str))
@@ -1162,12 +1197,27 @@ PROVENIENCIA.update({
     json.dumps(PROVENIENCIA, indent=2, ensure_ascii=False))
 
 # ── Manifesto final ───────────────────────────────────────────────────
+# Métrica de preservação documental: n_rows_extraidas por sha256
+# Permite verificar se todas as linhas chegaram ao corpus final (cobertura_documental)
+_rows_por_sha: dict = {}
+if not df_corpus.empty and 'pdf_sha256' in df_corpus.columns:
+    _rows_por_sha = df_corpus.groupby('pdf_sha256').size().to_dict()
+
+# Texto não-nulo: % de linhas com campo 'texto' preenchido
+_texto_nao_nulo = 0
+if not df_corpus.empty and 'texto' in df_corpus.columns:
+    _texto_nao_nulo = round(
+        df_corpus['texto'].notna().mean() * 100, 1
+    ) if len(df_corpus) else 100.0
+
 manifesto = {
     'versao_pipeline':          '3.0-melhorado',
     'data_execucao':            datetime.now().isoformat(),
     'total_pdfs_baixados':      int(df_dl.ok.sum()) if not df_dl.empty else 0,
     'total_registros_extraidos': len(df_corpus),
     'total_riscos':             len(df_riscos),
+    'texto_nao_nulo_pct':       _texto_nao_nulo,
+    'rows_por_sha256':          _rows_por_sha,  # {sha256: n_rows} — base da cobertura_documental
     'outputs': {
         'ptd_corpus_raw.csv':        'corpus bruto de entregas com sha256',
         'ptd_pivot_eixos.csv':       'pivot sigla × eixo — input ptd_corpus_v21',

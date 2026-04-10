@@ -101,6 +101,21 @@ PAT_DATA = re.compile(
 )
 PAT_RUIDO    = re.compile(r'^(Servi[çc]o|Produto|Eixo|[AÁ]rea\s|Entregas|DtPact|DtEntrega)', re.I)
 PAT_ID_GOVBR = re.compile(r'^\d{3,6}\s+(?:Servi[çc]o\s+)?')
+PAT_RISCO = re.compile(
+    r'(\bprov[aá]vel\b|\bimprov[aá]vel\b|\braro\b|\bpouco\s+prov[aá]vel\b'
+    r'|\bpraticamente\s+certo\b)'
+    r'|(\bmitigar\b|\btransferir\b)'
+    r'|(\brisco\b.*\b(alto|baixo|m[eé]dio)\b|\b(alto|baixo|m[eé]dio)\b.*\brisco\b)'
+    r'|(^\d{1,3}\s*\|.*\b(raro|alto|baixo|m[eé]dio|mitigar|aceitar|evitar|eliminar)\b)',
+    re.I
+)
+PAT_SIGNATARIO = re.compile(
+    r'^(signat[aá]ri[oa]s?\b|representante\s+da\s+ouvidoria'
+    r'|gerente\s+de\s+relacionamento|coordenador[ae]?\s+de\s+relacionamento'
+    r'|ouvidora?\s+d[ao]\b)',
+    re.I
+)
+PAT_SVC_PREFIX = re.compile(r'^servi[çc]o\s+digital\s*:\s*', re.I)
 PAT_IA_REAL  = re.compile(
     r'chatbot|intelig[eê]ncia artificial|machine learning'
     r'|IA generativa|sumariza[çc][aã]o inteligente|Safety Intelligence',
@@ -191,6 +206,9 @@ def parse_linha(txt) -> Tuple[Optional[str], Optional[str], Optional[str], Optio
     if pd.isna(txt):
         return None, None, None, None, None, 'vazio'
     t = str(txt).replace('\n', ' ').strip()
+    t = PAT_SVC_PREFIX.sub('', t).strip()  # strip "Serviço digital: X" (ANATEL)
+    if PAT_RISCO.search(t) or PAT_SIGNATARIO.match(t):
+        return None, None, None, None, None, 'ruido'
     if PAT_RUIDO.match(t) or len(t) < 10:
         return None, None, None, None, None, 'ruido'
 

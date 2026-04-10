@@ -1,0 +1,89 @@
+{
+  "_schema_version": "1.0",
+  "_descricao": "Metaparâmetros do Sistema 3 (Gestão). Lidos por watcher.yml, meta_learning.py e gerar_dashboard_s3.py. Editar aqui para ajustar comportamento do loop autônomo sem tocar no código.",
+  "_ultima_edicao": "2026-04-07",
+  "parada_automatica": {
+    "_descricao": "Critérios S5 de parada controlada. O watcher para quando QUALQUER condição for atingida.",
+    "ativo": true,
+    "deadline_iso": "2026-05-01T00:00:00Z",
+    "min_slope_para_continuar": 0.05,
+    "slope_window": 20,
+    "pct_ok_sucesso": 90.0,
+    "motivos": {
+      "prazo": "Meta: 2026-05-01. Renovar se necessário (anterior: 2026-04-08T19:30:40Z).",
+      "estagnacao": "slope < 0.05pp/iter nas últimas 20 iterações — aprendizado não vale mais a pena",
+      "sucesso": "pct_ok ≥ 90% — meta S5 atingida"
+    }
+  },
+  "vocab_expansion": {
+    "auto_add_threshold": 8,
+    "review_threshold": 3,
+    "min_len_frase": 10,
+    "min_freq": 2,
+    "ignorar_frases": ["eixo", "diretriz", "segurança", "privacidade", "serviço", "produto", "entrega", "área", "data", "prazo", "indicador", "meta"]
+  },
+  "qualidade": {
+    "pct_ok_meta": 90.0,
+    "pct_ok_alerta_humano": 50.0,
+    "sem_produto_max_pct": 20.0,
+    "ruido_max_pct": 10.0
+  },
+  "doc_coverage": {
+    "preservacao_minima_pct": 95.0,
+    "texto_nao_nulo_min_pct": 98.0,
+    "perda_critica_pct": 80.0
+  },
+  "aprendizado": {
+    "janela_meta_learning": 10,
+    "slope_forte": 0.3,
+    "slope_fraco": 0.1,
+    "janela_stall_sigla": 5,
+    "stall_threshold_pp": 1.0,
+    "estrategia_ordem": ["vocabulario", "col_keys", "eixo_regex", "human_review"]
+  },
+  "algedonico": {
+    "max_iters_sem_progresso": 15,
+    "progresso_minimo_pp": 0.5,
+    "janela_verificacao": 10
+  },
+  "ocr": {
+    "estados": [
+      {"dpi": 200, "rot": 0},
+      {"dpi": 300, "rot": 0},
+      {"dpi": 200, "rot": 90},
+      {"dpi": 200, "rot": 180},
+      {"dpi": 200, "rot": 270},
+      {"dpi": 300, "rot": 90},
+      {"dpi": 300, "rot": 270}
+    ]
+  },
+  "vsm": {
+    "s5_pct_ok_meta": 90.0,
+    "s5_cobertura_riscos_meta": 80.0,
+    "s5_eixos_min_pct": 5.0,
+    "s4_slope_minimo_para_acao": 0.1,
+    "s3_ciclo_minutos": 5
+  },
+  "operational_modes": {
+    "_descricao": "Modos operacionais do watcher (ViableOS). Normal → Elevated → Crisis.",
+    "normal": {
+      "trigger": "padrão",
+      "autonomia_s1": "full",
+      "acoes_permitidas": ["vocab_expansion", "ocr_advance", "col_keys_fix"],
+      "reporting_frequency": "cada_run"
+    },
+    "elevated": {
+      "trigger": "3+ iters sem efeito mensurável (Bestätigung ≈ 0) OU pct_ok caiu >5pp",
+      "autonomia_s1": "restricted",
+      "acoes_permitidas": ["diagnostico_triple_index", "algedonico_report"],
+      "acoes_bloqueadas": ["vocab_expansion"],
+      "reporting_frequency": "cada_run_com_diagnostico"
+    },
+    "crisis": {
+      "trigger": "pct_ok caiu >10pp vs máximo histórico OU corpus <20 órgãos OU S5 inacessível",
+      "autonomia_s1": "none",
+      "acoes_permitidas": ["github_issue", "parada_automatica"],
+      "reativacao": "confirmacao_humana_obrigatoria"
+    }
+  }
+}

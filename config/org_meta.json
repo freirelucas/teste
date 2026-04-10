@@ -1,0 +1,136 @@
+{
+  "_descricao": "S5 por órgão (Nível -1 de recursão VSM). Define política, prioridade e estratégia individual de cada S1. Lido por gerar_relatorio.py, watcher.yml e meta_learning.py.",
+  "_schema_version": "1.0",
+  "_ultima_edicao": "2026-04-06",
+  "_principio": "Beer: cada sistema viável contém sistemas viáveis. Cada S1 (órgão) tem seu próprio S5 local definido aqui.",
+  "ABNT-NBR-1": {
+    "status": "excluir",
+    "motivo": "Norma ABNT NBR-17225 — não é órgão federal, não tem PTD. Documento de padronização técnica extraído por engano do corpus. Remover do corpus e das métricas.",
+    "s5_pct_ok_meta": null,
+    "prioridade": "nenhuma",
+    "estrategia": null
+  },
+  "ANS-PLANO": {
+    "status": "ativo",
+    "motivo": "Extrator captura tabela de riscos como entregas. Estrutura da tabela não reconhecida pelo col_map. Necessita fix de col_keys.",
+    "s5_pct_ok_meta": 70.0,
+    "prioridade": "alta",
+    "estrategia": "col_keys"
+  },
+  "MD": {
+    "status": "ativo",
+    "motivo": "495 linhas sem_produto. Vocabulário militar/defesa não coberto. 10 produtos adicionados na iteração 165. Monitorar próximo run.",
+    "s5_pct_ok_meta": 75.0,
+    "prioridade": "alta",
+    "estrategia": "vocabulario"
+  },
+  "MDA-DOCUME": {
+    "status": "ativo",
+    "motivo": "Poucas linhas — provavelmente tabela de riscos extraída como entregas. Estrutura de colunas não reconhecida.",
+    "s5_pct_ok_meta": 60.0,
+    "prioridade": "media",
+    "estrategia": "col_keys"
+  },
+  "MEC": {
+    "status": "ativo",
+    "motivo": "93 linhas com texto quase todo NaN — falha de OCR. PDF provavelmente escaneado com baixa resolução. Necessita DPI mais alto (300+).",
+    "s5_pct_ok_meta": 60.0,
+    "prioridade": "alta",
+    "estrategia": "ocr"
+  },
+  "INCRA": {
+    "status": "ativo",
+    "motivo": "col_map_ok = 0% — tabela com headers completamente não reconhecidos (Ação, Meta, Entrega). Nenhuma linha é classificável sem fix de col_keys.",
+    "s5_pct_ok_meta": 70.0,
+    "prioridade": "alta",
+    "estrategia": "col_keys"
+  },
+  "FUNAI": {
+    "status": "ativo",
+    "motivo": "34.5% pct_ok. Vocabulário de povos indígenas, territórios e demarcação não coberto pelo vocab global. Necessita expansão de vocabulário temático.",
+    "s5_pct_ok_meta": 70.0,
+    "prioridade": "alta",
+    "estrategia": "vocabulario"
+  },
+  "ITI": {
+    "status": "ativo",
+    "motivo": "45.9% pct_ok. Vocabulário de certificação digital e ICP-Brasil não coberto. Col_map_ok 83.8% — estrutura OK, problema é vocab.",
+    "s5_pct_ok_meta": 75.0,
+    "prioridade": "alta",
+    "estrategia": "vocabulario"
+  },
+  "AGU": {
+    "status": "ativo",
+    "motivo": "61.5% pct_ok. Vocabulário jurídico parcialmente coberto. 38.5% sem_produto. Necessita termos de consultoria jurídica, processos e pareceres.",
+    "s5_pct_ok_meta": 80.0,
+    "prioridade": "media",
+    "estrategia": "vocabulario"
+  },
+  "FIOCRUZ": {
+    "status": "ativo",
+    "motivo": "95.1% pct_ok — convergido. Mantendo monitoramento normal.",
+    "s5_pct_ok_meta": 90.0,
+    "prioridade": "normal",
+    "estrategia": "vocabulario"
+  },
+  "MCOM": {
+    "status": "ativo",
+    "motivo": "96.4% pct_ok — convergido. Mantendo monitoramento normal.",
+    "s5_pct_ok_meta": 90.0,
+    "prioridade": "normal",
+    "estrategia": "vocabulario"
+  },
+  "SGPR": {
+    "status": "ativo",
+    "motivo": "73.3% pct_ok, col_map 100%. Progredindo — vocabulário específico da Secretaria-Geral da PR.",
+    "s5_pct_ok_meta": 80.0,
+    "prioridade": "media",
+    "estrategia": "vocabulario"
+  },
+  "ASSINADO": {
+    "status": "excluir",
+    "motivo": "Sigla falsa: linha de assinatura do documento MDA extraída como órgão pelo _sigla_de_fn (bug corrigido em 2026-04-07). Após fix, 'MDA' será extraído corretamente. Entradas 'ASSINADO' são resquícios do bug.",
+    "s5_pct_ok_meta": null,
+    "prioridade": "nenhuma",
+    "estrategia": null
+  },
+  "21": {
+    "status": "excluir",
+    "motivo": "Sigla falsa: número '21' extraído de 'ptd_21_24_mcom-copia_tarjada.pdf' antes de chegar ao candidato MCOM (bug corrigido em 2026-04-07). Após fix, MCOM será extraído.",
+    "s5_pct_ok_meta": null,
+    "prioridade": "nenhuma",
+    "estrategia": null
+  },
+  "MDA-DOCUME": {
+    "status": "excluir",
+    "motivo": "Sigla truncada de 'mda-documento-diretivo-assinado_ptd-...' (bug _sigla_de_fn, corrigido em 2026-04-07). Após fix, sigla será MDA."
+  },
+  "MDA-ANEXO-": {
+    "status": "excluir",
+    "motivo": "Sigla truncada de 'mda-anexo-entregas-assinado_ptd-...' (bug _sigla_de_fn, corrigido em 2026-04-07). Após fix, sigla será MDA."
+  },
+  "MMULHERES": {
+    "status": "ativo",
+    "motivo": "0% pct_ok mas col_map_ok=100% — estrutura ok, vocabulário específico de políticas para mulheres não coberto. Watcher deve tratar como vocab (não OCR).",
+    "s5_pct_ok_meta": 70.0,
+    "prioridade": "alta",
+    "estrategia": "vocabulario"
+  },
+  "_default": {
+    "status": "ativo",
+    "motivo": "Órgão sem política explícita. Aplica configuração padrão global.",
+    "s5_pct_ok_meta": 80.0,
+    "prioridade": "normal",
+    "estrategia": "vocabulario"
+  },
+  "_grupos": {
+    "descricao": "Mapeamento de sub-órgãos de cada grupo. Sub-órgãos herdam política do lead via _default, a menos que tenham entrada explícita acima.",
+    "MD":   ["CEX", "CM", "COMAER", "CENSIPAM", "FOSORIO", "HFA"],
+    "MEC":  ["CAPES", "EBSERH", "FNDE", "FUNDAJ", "IBC", "INEP", "INES"],
+    "MMA":  ["IBAMA", "ICMBIO", "SFB", "JBRJ"],
+    "MIDR": ["CODEVASF", "SUDAM", "SUDECO", "SUDENE"],
+    "MDA":  ["CONAB"],
+    "MT":   ["ANTT", "DNIT"],
+    "MF":   ["RFB", "STN", "PGFN"]
+  }
+}

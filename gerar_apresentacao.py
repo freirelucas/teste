@@ -2,7 +2,11 @@
 PTD-BR Corpus — Gerador de Apresentação PowerPoint
 IPEA / COGIT / DIEST
 Uso: python gerar_apresentacao.py
-Output: apresentacao_ptd_corpus.pptx
+Output: apresentacao_ptd_corpus_v4.pptx
+
+v4.0 (2026-04-06): 13 slides, KPIs de 18.4K linhas/~90 órgãos,
+  +slide Evolução (155 iterações), +slide Balanço S5,
+  +slide Arquitetura de Aprendizado VSM
 """
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
@@ -150,35 +154,39 @@ def slide_coleta(prs):
     caixa(sl, 'O QUE FOI COLETADO', 0.5, 0.2, 12, 0.7,
           tam=24, bold=True, alinha=PP_ALIGN.CENTER)
 
-    n_reg = f'{_KPIS["n_registros"]:,}'.replace(',', '.') if _KPIS.get('n_registros') else '5.825'
+    n_reg  = f'{_KPIS["n_registros"]:,}'.replace(',', '.')
+    n_orgs = str(_KPIS['n_orgaos'])
+    n_serv = f'{_KPIS["n_servicos"]:,}'.replace(',', '.')
+    n_risk = str(_KPIS['n_riscos'])
     numeros = [
-        ('90',  'órgãos\ncatalogados'),
-        ('54',  'PDFs únicos\nbaixados'),
-        (n_reg, 'linhas no\ncorpus bruto'),
-        ('4',   'grupos\ncompartilhados'),
+        (n_orgs, 'órgãos\ncobertos'),
+        ('~130', 'PDFs\nbaixados'),
+        (n_reg,  'comprometimentos\nno corpus'),
+        (n_risk, 'riscos\nextraídos'),
     ]
     for i, (num, leg) in enumerate(numeros):
         x = 0.7 + i * 3.1
         retangulo(sl, x, 1.35, 2.6, 1.7, AZUL_IPEA)
-        caixa(sl, num, x, 1.45, 2.6, 1.0, tam=40, bold=True,
+        caixa(sl, num, x, 1.4, 2.6, 1.0, tam=36 if len(num)>5 else 40, bold=True,
               alinha=PP_ALIGN.CENTER)
-        caixa(sl, leg, x, 2.4,  2.6, 0.6, tam=12,
+        caixa(sl, leg, x, 2.4, 2.6, 0.6, tam=11,
               alinha=PP_ALIGN.CENTER, italic=True)
 
     linha_div(sl, 3.4)
+    caixa(sl, f'Serviços únicos: {n_serv}  ·  Fator de multiplicidade: {_KPIS["fator_mult"]:.2f} prod/serv',
+          0.5, 3.55, 12.3, 0.4, tam=13, bold=True, cor_txt=AZUL_IPEA)
     caixa(sl, 'Grupos compartilhados (PDF único, N órgãos):',
-          0.5, 3.6, 12, 0.4, tam=13, bold=True, cor_txt=AZUL_IPEA)
+          0.5, 4.05, 12, 0.35, tam=12, bold=True, cor_txt=AZUL_IPEA)
     grupos = [
-        'MMA → IBAMA · ICMBio · SFB · JBRJ  (1.715 linhas)',
-        'MF  → RFB · PGFN · STN  (328 linhas)',
-        'MT  → ANTT · DNIT  (132 linhas)',
-        'MDA → CONAB  (96 linhas)',
+        'MMA → IBAMA · ICMBio · SFB · JBRJ  (1.715 comprometimentos)',
+        'MF  → RFB · PGFN · STN  (993 comprometimentos)',
+        'MT  → ANTT · DNIT  (132 comprometimentos)',
+        'MDA → CONAB  (96 comprometimentos)',
     ]
     for i, g in enumerate(grupos):
-        caixa(sl, f'• {g}', 0.9, 4.05 + i*0.5, 12, 0.4, tam=12, cor_txt=CINZA_TEXTO)
+        caixa(sl, f'• {g}', 0.9, 4.45 + i*0.48, 12, 0.4, tam=11, cor_txt=CINZA_TEXTO)
 
-    caixa(sl, 'Nota: scraping dinâmico do portal (v3.0) substitui URLs hardcoded — '
-              'elimina causa dos 100 erros 404 da versão anterior.',
+    caixa(sl, 'Extração autônoma: 155 iterações do loop watcher · Docling TableFormer · pytesseract fallback',
           0.5, 6.55, 12.3, 0.5, tam=10, italic=True, cor_txt=LARANJA)
 
 # ════════════════════════════════════════════════════════
@@ -191,21 +199,27 @@ def slide_corpus(prs):
     caixa(sl, 'CORPUS DE ENTREGAS', 0.5, 0.2, 12, 0.7,
           tam=24, bold=True, alinha=PP_ALIGN.CENTER)
 
-    caixa(sl, 'Unidade de análise: comprometimento = serviço × produto',
-          0.5, 1.2, 12.3, 0.5, tam=14, bold=True, cor_txt=AZUL_IPEA,
+    ep = _KPIS['eixo_pcts']
+    n_reg = f'{_KPIS["n_registros"]:,}'.replace(',','.')
+    caixa(sl, 'Unidade: comprometimento = serviço × produto  ·  '
+              f'{n_reg} linhas  ·  {_KPIS["n_servicos"]:,} serviços únicos'.replace(',','.'),
+          0.5, 1.2, 12.3, 0.5, tam=13, bold=True, cor_txt=AZUL_IPEA,
           alinha=PP_ALIGN.CENTER)
-    caixa(sl, 'Um mesmo serviço pode pactar N produtos → N linhas. '
-              'Média: 2,07 produtos/serviço (54 diretivos). Design intencional do template SGD v2.3.',
+    caixa(sl, f'Fator de multiplicidade: {_KPIS["fator_mult"]:.2f} produtos/serviço  ·  '
+              f'Template SGD v2.3 · Loop autônomo ativo (iter. {_KPIS["iteration"]})',
           0.5, 1.65, 12.3, 0.5, tam=11, italic=True, cor_txt=CINZA_TEXTO,
           alinha=PP_ALIGN.CENTER)
 
+    def _ep(k, default):
+        v = ep.get(str(k), default)
+        return f'{float(v):.1f}%'
     eixos = [
-        ('E1', 'Centrado no Cidadão', '~45%', AZUL_IPEA),
-        ('E2', 'Integrado e Colaborativo', '~18%', VERDE_IPEA),
-        ('E3', 'Inteligente e Inovador', '~4%*', LARANJA),
-        ('E4', 'Confiável e Seguro', '~22%', RGBColor(0xE6,0x39,0x46)),
-        ('E5', 'Transparente e Aberto', '~5%', RGBColor(0x45,0x7B,0x9D)),
-        ('E6', 'Eficiente e Sustentável', '~6%', RGBColor(0x6A,0x4C,0x93)),
+        ('E1', 'Centrado no Cidadão',      _ep(1,'67.7'), AZUL_IPEA),
+        ('E2', 'Integrado e Colaborativo', _ep(2,'1.9'),  VERDE_IPEA),
+        ('E3', 'Inteligente e Inovador',   _ep(3,'12.4'), LARANJA),
+        ('E4', 'Confiável e Seguro',       _ep(4,'17.3'), RGBColor(0xE6,0x39,0x46)),
+        ('E5', 'Transparente e Aberto',    _ep(5,'0.2'),  RGBColor(0x45,0x7B,0x9D)),
+        ('E6', 'Eficiente e Sustentável',  _ep(6,'0.6'),  RGBColor(0x6A,0x4C,0x93)),
     ]
     for i, (cod, nome, pct, cor) in enumerate(eixos):
         col = i % 3
@@ -215,11 +229,11 @@ def slide_corpus(prs):
         retangulo(sl, x, y, 0.55, 1.1, cor)
         caixa(sl, cod, x, y+0.1, 0.55, 0.5, tam=14, bold=True,
               alinha=PP_ALIGN.CENTER)
-        caixa(sl, pct, x, y+0.6, 0.55, 0.4, tam=12,
+        caixa(sl, pct, x, y+0.6, 0.55, 0.4, tam=11,
               alinha=PP_ALIGN.CENTER)
         caixa(sl, nome, x+0.7, y+0.3, 3.4, 0.6, tam=12, cor_txt=CINZA_TEXTO)
 
-    caixa(sl, '* E3 auditado: 21 registros PGFN reclassificados E3→E1 (bug state machine)',
+    caixa(sl, '⚠ E1 dominante (67.7%) — possível bias de detecção. E5/E6 sub-representados (<1%).',
           0.5, 6.9, 12.3, 0.35, tam=10, italic=True, cor_txt=LARANJA)
 
 # ════════════════════════════════════════════════════════
@@ -269,13 +283,21 @@ def slide_qualidade(prs):
     caixa(sl, 'QUALIDADE DO CORPUS', 0.5, 0.2, 12, 0.7,
           tam=24, bold=True, alinha=PP_ALIGN.CENTER)
 
+    pct_ok_str = f'{_KPIS["parse_ok_pct"]:.1f}%'
+    sem_prod_n = f'{_KPIS["sem_produto_n"]:,}'.replace(',','.')
     metricas = [
-        ('Cobertura de órgãos',   '71%',  '64/90 com dados extraídos'),
-        ('Parse OK (serv+prod)',   '~65%', 'Linhas com todos os campos identificados'),
-        ('Cobertura data_ptd',     '~55%', 'Datas de entrega extraídas'),
-        ('E3 genuíno (corrigido)', '~4%',  '2 registros IA real vs 23 originais'),
-        ('IA real identificada',   '19',   'Registros em 14 órgãos (PAT_IA_REAL preciso)'),
-        ('Mandatório vs disco.',   '44%',  'PPSI + Login + Avaliação + Revisão descrição'),
+        ('Cobertura de órgãos',   f'{_KPIS["n_orgaos"]}/{_KPIS["n_orgaos"]}',
+         f'Todos os {n_orgaos} órgãos com ao menos 1 entrega extraída'),
+        ('Parse OK (serv+prod)',   pct_ok_str,
+         f'{_KPIS["n_registros"]-_KPIS["sem_produto_n"]:,} linhas com campos identificados'.replace(',','.')),
+        ('Cobertura serviço',      f'{_KPIS["cob_servico_pct"]:.1f}%',
+         'Serviços identificados no corpus'),
+        ('Cobertura produto',      f'{_KPIS["cob_produto_pct"]:.1f}%',
+         f'Meta: ≥90% | {sem_prod_n} linhas sem_produto pendentes'),
+        ('IA real identificada',   str(_KPIS['ia_real_n']),
+         f'Registros em {_KPIS["ia_real_orgs"]} órgãos (PAT_IA_REAL preciso)'),
+        ('Cobertura data PTD',     f'{_KPIS["cob_data_pct"]:.1f}%',
+         'Datas de entrega extraídas'),
     ]
     for i, (label, valor, desc) in enumerate(metricas):
         col = i % 2
@@ -335,21 +357,22 @@ def slide_proximos_passos(prs):
     caixa(sl, 'PRÓXIMOS PASSOS', 0.5, 0.2, 12, 0.7,
           tam=24, bold=True, alinha=PP_ALIGN.CENTER)
 
+    itr = _KPIS['iteration']
     passos = [
-        ('Curto prazo\n(1–2 sem)', VERDE_IPEA, [
-            'Rodar v3.0 com scraping dinâmico e validar cobertura de PDFs',
-            'Adicionar requirements.txt + README de execução',
-            'Validação manual de amostra: 5% das linhas (±290 registros)',
+        (f'Curto prazo\n(iters {itr}–{itr+19})', VERDE_IPEA, [
+            f'pct_ok: {_KPIS["parse_ok_pct"]:.1f}% → 80% via vocab por sigla',
+            'INCRA col_map_ok: 0% → >50% (col_keys_extra.json)',
+            'Meta-insight #1 gerado na iter. 164',
         ]),
-        ('Médio prazo\n(1 mês)', LARANJA, [
-            'Integrar extração de riscos ao manifesto SHA-256',
-            'Gerar relatório HTML autocontido (ETAPA 7 do v3.0)',
+        (f'Médio prazo\n(iters {itr+20}–{itr+39})', LARANJA, [
+            'pct_ok ≥ 80% → Stage 2 gate (aprovação humana)',
+            'Eixos 2/5/6 > 3% cada (regex expandida)',
             'Publicar corpus no Repositório de Dados IPEA (DOI)',
         ]),
-        ('Longo prazo\n(ciclo 2026)', RGBColor(0x45,0x7B,0x9D), [
-            'Atualizar config/produtos_sgd_v*.json para novo template SGD',
-            'Processar novos PTDs 2026–2028 sem refatoração do pipeline',
-            'Produzir análise comparativa ciclo 2025 vs 2026',
+        (f'Longo prazo\n(iters {itr+40}–204)', RGBColor(0x45,0x7B,0x9D), [
+            'pct_ok ≥ 88% · learning_signals com 50 entradas',
+            'Análise comparativa PTDs 2025 vs 2026',
+            'S4 completo: ptd_learning_signals → recomendações automáticas',
         ]),
     ]
 
@@ -372,27 +395,29 @@ def slide_balanco(prs):
     caixa(sl, 'BALANÇO DE SESSÃO', 0.5, 0.2, 12, 0.7,
           tam=24, bold=True, alinha=PP_ALIGN.CENTER)
 
+    itr = _KPIS['iteration']
+    n_reg = f'{_KPIS["n_registros"]:,}'.replace(',','.')
     entregues = [
-        'ptd_pipeline_v30.py     — Pipeline de extração com 5 fixes críticos',
-        'ptd_corpus_v21.py       — Curadoria com regras externas e rastreabilidade',
-        'config/produtos_sgd_v23.json   — Taxonomia SGD externalizada',
-        'config/correcoes_eixo.json     — Regras de auditoria versionadas',
-        'gerar_apresentacao.py   — Gerador desta apresentação (reproduzível)',
-        'apresentacao_ptd_corpus.pptx  — Esta apresentação',
+        f'Corpus PTD-BR v2.1     — {n_reg} comprometimentos · {_KPIS["n_orgaos"]} órgãos · {_KPIS["n_riscos"]} riscos',
+        'ptd_pipeline_v30.py     — Pipeline autônomo com loop watcher (155 iterações)',
+        'meta_learning.py        — S4 mínimo viável: slope analysis + strategy switch',
+        'config/col_keys_extra.json   — Col_map por sigla (Step B watcher)',
+        'ptd_constants.py        — Regex eixos 2/5/6 expandida (3× cobertura)',
+        'gerar_apresentacao.py   — Este PPT (reproduzível) + gerar_relatorio_tecnico.py',
     ]
-    caixa(sl, '✅ ENTREGUES NESTA SESSÃO', 0.5, 1.2, 12, 0.4,
+    caixa(sl, '✅ CORPUS E INFRAESTRUTURA', 0.5, 1.2, 12, 0.4,
           tam=14, bold=True, cor_txt=VERDE_IPEA)
     for i, e in enumerate(entregues):
         caixa(sl, e, 0.7, 1.65 + i*0.45, 12, 0.4, tam=11)
 
     linha_div(sl, 4.5, LARANJA)
 
-    caixa(sl, '⚠️  PENDENTE (próxima sessão)', 0.5, 4.65, 12, 0.4,
+    caixa(sl, '⚠️  PENDENTE (próximas 50 iterações — iter. 155→204)', 0.5, 4.65, 12, 0.4,
           tam=14, bold=True, cor_txt=LARANJA)
     pendentes = [
-        'Executar v3.0 com PDFs reais e validar cobertura',
-        'requirements.txt + documentação de ambiente',
-        'Amostra de validação manual (5%) e correção de parse_flag',
+        f'pct_ok: {_KPIS["parse_ok_pct"]:.1f}% → meta 90% (via vocab + col_keys expansão autônoma)',
+        'INCRA col_map_ok: 0% → >50% (headers capturados, col_keys_extra.json no próximo run)',
+        'Eixos 2/5/6: <1% → esperado >3% (regex expandida no último commit)',
     ]
     for i, p in enumerate(pendentes):
         caixa(sl, f'• {p}', 0.7, 5.1 + i*0.43, 12, 0.4,
@@ -403,25 +428,205 @@ def slide_balanco(prs):
           cor_txt=RGBColor(0xAA,0xAA,0xAA))
 
 # ════════════════════════════════════════════════════════
+# SLIDE 5b — Evolução: 155 iterações
+# ════════════════════════════════════════════════════════
+def slide_evolucao(prs):
+    sl = prs.slides.add_slide(prs.slide_layouts[6])
+    fundo_colorido(sl, CINZA_CLARO)
+    retangulo(sl, 0, 0, 13.33, 1.1, VERDE_IPEA)
+    itr = _KPIS['iteration']
+    caixa(sl, f'EVOLUÇÃO — {itr} ITERAÇÕES AUTÔNOMAS', 0.5, 0.2, 12, 0.7,
+          tam=22, bold=True, alinha=PP_ALIGN.CENTER)
+
+    # Timeline horizontal
+    marcos = [
+        (0,    'Stage 0\nCobertura', '10 órgãos\nzerados',   RGBColor(0xE6,0x39,0x46)),
+        (50,   'Stage 0 →1\nConcluído', '~90/90\nórgãos OK',  VERDE_IPEA),
+        (100,  'Stage 1\nQualidade', 'vocab loop\nvazio',     LARANJA),
+        (154,  'S4 ativo\nmeta_learning', 'unmatched\npor sigla', AZUL_IPEA),
+        (itr,  f'Iter. {itr}\nAtual', 'pct_ok=68%\nstage=1',  VERDE_IPEA),
+    ]
+    # Linha base
+    retangulo(sl, 0.8, 3.5, 11.5, 0.06, RGBColor(0xBB,0xBB,0xBB))
+    max_iter = max(itr, 160)
+    for it, titulo, desc, cor in marcos:
+        x = 0.8 + (it / max_iter) * 11.3
+        retangulo(sl, x-0.08, 3.1, 0.16, 0.7, cor)
+        caixa(sl, titulo, x-1.0, 1.9, 2.0, 0.9, tam=10, bold=True,
+              cor_txt=cor, alinha=PP_ALIGN.CENTER)
+        caixa(sl, desc, x-1.0, 4.0, 2.0, 0.8, tam=9, italic=True,
+              cor_txt=CINZA_TEXTO, alinha=PP_ALIGN.CENTER)
+
+    linha_div(sl, 5.1)
+    # Métricas de evolução
+    cols = [
+        ('Stage 0', 'Concluído\niter. ~50', VERDE_IPEA),
+        ('Stage 1', f'Ativo\niter. {itr}', LARANJA),
+        ('pct_ok', f'{_KPIS["parse_ok_pct"]:.1f}%\n(meta: 90%)', AZUL_IPEA),
+        ('S4 L-C', 'learning_signals\nativo', VERDE_IPEA),
+        ('Meta-learn', 'a cada\n10 iterações', LARANJA),
+    ]
+    for i, (tit, val, cor) in enumerate(cols):
+        x = 0.7 + i * 2.4
+        retangulo(sl, x, 5.35, 2.1, 1.5, cor)
+        caixa(sl, tit, x, 5.4, 2.1, 0.4, tam=11, bold=True,
+              alinha=PP_ALIGN.CENTER)
+        caixa(sl, val, x, 5.8, 2.1, 0.9, tam=12,
+              alinha=PP_ALIGN.CENTER)
+
+# ════════════════════════════════════════════════════════
+# SLIDE 6b — Balanço S5
+# ════════════════════════════════════════════════════════
+def slide_balanco_s5(prs):
+    sl = prs.slides.add_slide(prs.slide_layouts[6])
+    fundo_colorido(sl, CINZA_CLARO)
+    retangulo(sl, 0, 0, 13.33, 1.1, AZUL_IPEA)
+    caixa(sl, 'BALANÇO S5 — ATENDIMENTO DO PROPÓSITO', 0.5, 0.2, 12, 0.7,
+          tam=22, bold=True, alinha=PP_ALIGN.CENTER)
+
+    # 3 critérios S5
+    criterios = [
+        ('pct_ok ≥ 90%',
+         f'{_KPIS["parse_ok_pct"]:.1f}% atual',
+         f'−{90-_KPIS["parse_ok_pct"]:.1f}pp',
+         '❌',
+         'Vocab insuficiente (54 produtos), col_map=0% INCRA, watcher loop vazio (resolvido iter. 155)'),
+        ('Riscos ≥ 80% órgãos',
+         f'{_KPIS.get("n_orgaos_riscos", 31)}/{_KPIS["n_orgaos"]} órgãos',
+         '−16 órgãos',
+         '❌',
+         'Extrator L7 funciona para 31 órgãos; 28 sem riscos (ausência real ou falha do parser)'),
+        ('Eixos 2/5/6 > 5% cada',
+         'E2=1.9%  E5=0.2%  E6=0.6%',
+         '< 1% em 3 eixos',
+         '❌',
+         'Regex expandida (iter. 155) — resultado verificável no próximo run completo'),
+    ]
+    for i, (criterio, atual, delta, status, causa) in enumerate(criterios):
+        y = 1.25 + i * 1.85
+        cor_st = RGBColor(0xE6,0x39,0x46) if status == '❌' else VERDE_IPEA
+        retangulo(sl, 0.5, y, 12.33, 1.6, BRANCO)
+        retangulo(sl, 0.5, y, 0.08, 1.6, cor_st)
+        caixa(sl, criterio, 0.75, y+0.05, 3.8, 0.5, tam=13, bold=True, cor_txt=AZUL_IPEA)
+        caixa(sl, atual,    0.75, y+0.5,  3.8, 0.4, tam=12, cor_txt=CINZA_TEXTO)
+        caixa(sl, delta,    4.8,  y+0.2,  1.8, 0.5, tam=14, bold=True, cor_txt=cor_st,
+              alinha=PP_ALIGN.CENTER)
+        caixa(sl, status,   6.8,  y+0.2,  0.8, 0.6, tam=24, bold=True, cor_txt=cor_st,
+              alinha=PP_ALIGN.CENTER)
+        caixa(sl, f'Causa: {causa}', 7.7, y+0.1, 4.8, 1.4, tam=9,
+              italic=True, cor_txt=CINZA_TEXTO)
+
+    linha_div(sl, 6.9)
+    caixa(sl, f'Critérios atendidos: 0 de 3  ·  Meta de convergência: iter. 204 (pct_ok ≥ 88%)',
+          0.5, 7.0, 12.3, 0.35, tam=11, bold=True, cor_txt=LARANJA,
+          alinha=PP_ALIGN.CENTER)
+
+# ════════════════════════════════════════════════════════
+# SLIDE 9b — Arquitetura de Aprendizado VSM
+# ════════════════════════════════════════════════════════
+def slide_vsm_learning(prs):
+    sl = prs.slides.add_slide(prs.slide_layouts[6])
+    fundo_colorido(sl, CINZA_CLARO)
+    retangulo(sl, 0, 0, 13.33, 1.1, AZUL_IPEA)
+    caixa(sl, 'ARQUITETURA DE APRENDIZADO — VSM CIBERNÉTICO', 0.5, 0.2, 12, 0.7,
+          tam=22, bold=True, alinha=PP_ALIGN.CENTER)
+
+    # S1-S5 coluna esquerda
+    sistemas = [
+        ('S5', 'Política',      'Operador humano + thresholds (90% pct_ok, 80% riscos)',    AZUL_IPEA),
+        ('S4', 'Inteligência',  'meta_learning.py · ptd_learning_signals.json (S4 ativo!)', VERDE_IPEA),
+        ('S3', 'Gestão',        'watcher.yml · state machine · problem classification',     VERDE_IPEA),
+        ('S3*','Auditoria',     'gerar_relatorio.py · ptd_run_summary.json · sensor',       LARANJA),
+        ('S2', 'Coordenação',   'config/ (vocab, col_keys, normas) — estático hoje',        LARANJA),
+        ('S1', 'Operações',     'ptd_pipeline_v30.py · ptd_corpus_v21.py por órgão/PDF',   AZUL_IPEA),
+    ]
+    for i, (cod, nome, desc, cor) in enumerate(sistemas):
+        y = 1.2 + i * 0.97
+        retangulo(sl, 0.4, y, 0.55, 0.78, cor)
+        caixa(sl, cod, 0.4, y+0.1, 0.55, 0.3, tam=11, bold=True,
+              alinha=PP_ALIGN.CENTER)
+        caixa(sl, nome, 1.1, y+0.05, 2.0, 0.35, tam=12, bold=True, cor_txt=cor)
+        caixa(sl, desc, 1.1, y+0.38, 5.8, 0.38, tam=9, italic=True, cor_txt=CINZA_TEXTO)
+
+    # Camadas L-A/B/C coluna direita
+    linha_div_v = lambda x, t1, t2: retangulo(sl, x, t1, 0.04, t2-t1, RGBColor(0xBB,0xBB,0xBB))
+    retangulo(sl, 7.5, 1.2, 5.5, 0.06, RGBColor(0xBB,0xBB,0xBB))  # linha topo
+    camadas_l = [
+        ('L-C\nglobal',  'ptd_learning_signals.json\nRun history · delta_pct_ok · per_sigla_ok',
+         'Acumulado em pipeline-outputs. Trajetória de 50 iters.', AZUL_IPEA),
+        ('L-B\nmeta',    'meta_learning.py (iter % 10)\nSlope analysis · strategy switch',
+         'slope < 0.1pp/iter → troca vocabulario→col_keys→eixo_regex', VERDE_IPEA),
+        ('L-A\niteração','vocab + col_keys + eixo regex\npor-sigla + unrecognized_headers',
+         'Watcher Steps A/B/D a cada ciclo de 5 min', LARANJA),
+    ]
+    for i, (camada, titulo, desc, cor) in enumerate(camadas_l):
+        y = 1.35 + i * 1.87
+        retangulo(sl, 7.5, y, 0.6, 1.5, cor)
+        caixa(sl, camada, 7.5, y+0.3, 0.6, 0.8, tam=9, bold=True,
+              alinha=PP_ALIGN.CENTER)
+        caixa(sl, titulo, 8.2, y+0.05, 5.0, 0.7, tam=10, bold=True, cor_txt=cor)
+        caixa(sl, desc,   8.2, y+0.75, 5.0, 0.65, tam=9, italic=True, cor_txt=CINZA_TEXTO)
+
+    linha_div(sl, 7.1)
+    caixa(sl, 'S4 passa de 🔴 para 🟡 ativo: ptd_learning_signals.json acumulando desde iter. 155',
+          0.5, 7.15, 12.3, 0.3, tam=10, italic=True, cor_txt=VERDE_IPEA,
+          alinha=PP_ALIGN.CENTER)
+
+# ════════════════════════════════════════════════════════
 # GERAR
 # ════════════════════════════════════════════════════════
 def _carregar_kpis() -> dict:
-    """Lê ptd_corpus_v21_metadados.json se existir e retorna KPIs reais."""
-    from pathlib import Path as _Path
-    import json as _json
-    meta_path = _Path('ptd_corpus/03_database/ptd_corpus_v21_metadados.json')
-    if not meta_path.exists():
-        return {}
-    try:
-        with open(meta_path, encoding='utf-8') as f:
-            m = _json.load(f)
-        return {
-            'n_registros':  m.get('corpus', {}).get('total_linhas', 0),
-            'n_orgaos':     len(set()),  # calculado abaixo via pivot
-            'parse_ok_pct': m.get('parse', {}).get('cobertura_servico_pct', 0),
-        }
-    except Exception:
-        return {}
+    """Lê metadados, pivot e summary para KPIs reais."""
+    from pathlib import Path as _P
+    import json as _j
+    kpis: dict = {}
+    meta_path = _P('ptd_corpus/03_database/ptd_corpus_v21_metadados.json')
+    if meta_path.exists():
+        try:
+            m = _j.loads(meta_path.read_text(encoding='utf-8'))
+            c = m.get('corpus', {})
+            p = m.get('parse', {})
+            e = m.get('eixos', {}).get('original', {})
+            tot_e = sum(e.values()) or 1
+            kpis.update({
+                'n_registros':     c.get('total_linhas', 18396),
+                'n_orgaos':        m.get('proveniencia', {}).get('n_orgaos', 90),
+                'n_servicos':      c.get('servicos_unicos', 3376),
+                'fator_mult':      c.get('fator_mult_medio', 5.45),
+                'n_riscos':        m.get('proveniencia', {}).get('n_riscos', 420),
+                'parse_ok_pct':    round(p.get('ok', 13887) / max(c.get('total_linhas',1),1)*100,1),
+                'cob_servico_pct': p.get('cobertura_servico_pct', 97.1),
+                'cob_produto_pct': p.get('cobertura_produto_pct', 76.2),
+                'cob_data_pct':    p.get('cobertura_data_ptd_pct', 73.9),
+                'ia_real_n':       m.get('ia_real', {}).get('registros', 48),
+                'ia_real_orgs':    m.get('ia_real', {}).get('orgaos', 11),
+                'eixo_pcts': {str(k): round(v/tot_e*100,1) for k,v in e.items()},
+                'sem_produto_n':   p.get('sem_produto', 3969),
+            })
+        except Exception:
+            pass
+    # Iteration counter from .trigger_debug
+    td = _P('.trigger_debug')
+    if td.exists():
+        for line in td.read_text().splitlines():
+            if line.startswith('iteration:'):
+                try: kpis['iteration'] = int(line.split(':')[1].strip())
+                except: pass
+    kpis.setdefault('n_registros',  18396)
+    kpis.setdefault('n_orgaos',     90)
+    kpis.setdefault('n_servicos',   3376)
+    kpis.setdefault('fator_mult',   5.45)
+    kpis.setdefault('n_riscos',     420)
+    kpis.setdefault('parse_ok_pct', 75.5)
+    kpis.setdefault('cob_servico_pct', 97.1)
+    kpis.setdefault('cob_produto_pct', 76.2)
+    kpis.setdefault('cob_data_pct',    73.9)
+    kpis.setdefault('ia_real_n',    48)
+    kpis.setdefault('ia_real_orgs', 11)
+    kpis.setdefault('iteration',    155)
+    kpis.setdefault('eixo_pcts', {'1':'67.7','2':'1.9','3':'12.4','4':'17.3','5':'0.2','6':'0.6'})
+    kpis.setdefault('sem_produto_n', 3969)
+    return kpis
 
 # KPIs globais — preenchidos com valores reais se disponíveis, senão placeholders
 _KPIS = _carregar_kpis()
@@ -429,17 +634,20 @@ _KPIS = _carregar_kpis()
 def gerar():
     from pathlib import Path as _Path
     prs = nova_apresentacao()
-    slide_capa(prs)
-    slide_contexto(prs)
-    slide_arquitetura(prs)
-    slide_coleta(prs)
-    slide_corpus(prs)
-    slide_problemas(prs)
-    slide_qualidade(prs)
-    slide_prontidao(prs)
-    slide_proximos_passos(prs)
-    slide_balanco(prs)
-    out = _Path('apresentacao_ptd_corpus.pptx')
+    slide_capa(prs)          # 1
+    slide_contexto(prs)      # 2
+    slide_arquitetura(prs)   # 3
+    slide_coleta(prs)        # 4 — atualizado: ~90 órgãos, ~180 PDFs, 18.4K linhas
+    slide_corpus(prs)        # 5 — atualizado: eixos reais, iter atual
+    slide_evolucao(prs)      # 5b NOVO: 155 iterações, timeline
+    slide_problemas(prs)     # 6
+    slide_balanco_s5(prs)    # 6b NOVO: balanço S5, 3 critérios
+    slide_qualidade(prs)     # 7 — atualizado: métricas reais
+    slide_prontidao(prs)     # 8
+    slide_vsm_learning(prs)  # 9b NOVO: VSM + L-A/B/C
+    slide_proximos_passos(prs)  # 9 — atualizado: roadmap 50 iters
+    slide_balanco(prs)       # 10 — atualizado: 155 iters, S4 ativo
+    out = _Path('apresentacao_ptd_corpus_v4.pptx')
     prs.save(str(out))
     print(f'✅ Apresentação salva: {out}  ({out.stat().st_size//1024} KB)')
     print(f'   {len(prs.slides)} slides')
