@@ -8,3 +8,6 @@ ptd_corpus/
 # Relatório HTML gerado
 ptd_relatorio_v30.html
 ptd_test_mode/
+
+# Exports temporários
+*.zip
