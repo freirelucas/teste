@@ -1,12 +1,11 @@
 name: PTD Pipeline
 
 on:
-  push:
-    branches:
-      - claude/setup-docling-pipeline-g11gg
-    paths:
-      - '.trigger_debug'   # só dispara quando eu atualizo este arquivo sentinel
-
+  # push:                                    # ← PAUSADO (2026-04-10) — parada manual
+  #   branches:
+  #     - claude/setup-docling-pipeline-g11gg
+  #   paths:
+  #     - '.trigger_debug'
   workflow_dispatch:
     inputs:
       modo:
